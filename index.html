@@ -2288,6 +2288,20 @@
 
       setLoading(true, "Generant pàgina de resum...", 85, "Obrint una pàgina nova amb el llistat complet.");
       const title = `Resum de qualificacions - Totes les avaluacions`;
+      const summaryPalette = [
+        { head:"#dbeafe", cell:"#eff6ff" },
+        { head:"#dcfce7", cell:"#f0fdf4" },
+        { head:"#f3e8ff", cell:"#faf5ff" },
+        { head:"#fef3c7", cell:"#fffbeb" },
+        { head:"#fee2e2", cell:"#fef2f2" },
+        { head:"#cffafe", cell:"#ecfeff" },
+        { head:"#d1fae5", cell:"#ecfdf5" },
+        { head:"#fce7f3", cell:"#fdf2f8" },
+        { head:"#ede9fe", cell:"#f5f3ff" },
+        { head:"#ccfbf1", cell:"#f0fdfa" },
+        { head:"#fef9c3", cell:"#fefce8" },
+        { head:"#e0f2fe", cell:"#f0f9ff" }
+      ];
       const style = `
         body{font-family:Inter,Arial,sans-serif;background:#f7faff;color:#1f2937;padding:24px}
         h1{margin:0 0 8px 0;font-size:28px}
@@ -2296,33 +2310,43 @@
         table{width:100%;border-collapse:collapse;font-size:14px}
         th,td{border:1px solid #d9e4f2;padding:8px 10px;text-align:left;vertical-align:top}
         th{background:#eef4ff}
-        th.group{background:#dbeafe;text-align:center}
         .muted{color:#667085}
         .sticky{position:sticky;left:0;background:#fff;z-index:2}
+        .sticky.student-col{left:92px}
         .sticky-head{position:sticky;left:0;z-index:3;background:#eef4ff}
+        .sticky-head.student-col{left:92px}
+        .subject-group{font-weight:800;text-align:center}
+        .subject-subhead{text-align:center;font-size:12px;font-weight:800}
+        .eval-cell{text-align:center;font-weight:700}
       `;
-      const headers = visibleSubjects.map(s => `
-        <th class="group" colspan="4">${s.name}</th>
-      `).join("");
-      const subHeaders = visibleSubjects.map(s => `
-        <th>1a</th>
-        <th>2a</th>
-        <th>3a</th>
-        <th>Final</th>
-      `).join("");
+      const headers = visibleSubjects.map((s, idx) => {
+        const palette = summaryPalette[idx % summaryPalette.length];
+        return `<th class="subject-group" colspan="4" style="background:${palette.head}">${s.name}</th>`;
+      }).join("");
+      const subHeaders = visibleSubjects.map((s, idx) => {
+        const palette = summaryPalette[idx % summaryPalette.length];
+        return `
+          <th class="subject-subhead" style="background:${palette.cell}">1a</th>
+          <th class="subject-subhead" style="background:${palette.cell}">2a</th>
+          <th class="subject-subhead" style="background:${palette.cell}">3a</th>
+          <th class="subject-subhead" style="background:${palette.cell}">Final</th>
+        `;
+      }).join("");
       const bodyRows = rows.map(row => `
         <tr>
-          <td class="sticky">${row.className}</td>
-          <td class="sticky">${row.studentName}</td>
-          ${row.subjects.map(s => `
-            <td>${s.eval1 || "—"}</td>
-            <td>${s.eval2 || "—"}</td>
-            <td>${s.eval3 || "—"}</td>
-            <td>${s.evalFinal || "—"}</td>
-          `).join("")}
+          <td class="sticky" style="min-width:92px">${row.className}</td>
+          <td class="sticky student-col" style="min-width:240px">${row.studentName}</td>
+          ${row.subjects.map((s, idx) => {
+            const palette = summaryPalette[idx % summaryPalette.length];
+            return `
+              <td class="eval-cell" style="background:${palette.cell}">${s.eval1 || "—"}</td>
+              <td class="eval-cell" style="background:${palette.cell}">${s.eval2 || "—"}</td>
+              <td class="eval-cell" style="background:${palette.cell}">${s.eval3 || "—"}</td>
+              <td class="eval-cell" style="background:${palette.cell}">${s.evalFinal || "—"}</td>
+            `;
+          }).join("")}
         </tr>
       `).join("");
-
       const newWin = window.open("", "_blank");
       if(!newWin){
         hideLoading();
@@ -2343,8 +2367,8 @@
     <table>
       <thead>
         <tr>
-          <th class="sticky-head" rowspan="2">Classe</th>
-          <th class="sticky-head" rowspan="2">Alumne/a</th>
+          <th class="sticky-head" rowspan="2" style="min-width:92px">Classe</th>
+          <th class="sticky-head student-col" rowspan="2" style="min-width:240px">Alumne/a</th>
           ${headers}
         </tr>
         <tr>
