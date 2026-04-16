@@ -401,6 +401,57 @@
   filter:none !important;
 }
 
+
+.loading-wrap{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  margin-top:10px;
+}
+.loading-card{
+  display:none;
+  padding:14px;
+  border-radius:16px;
+  border:1px solid #dbe7f7;
+  background:#f8fbff;
+}
+.loading-card.active{display:block}
+.loading-top{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  align-items:center;
+  margin-bottom:8px;
+}
+.loading-label{
+  font-size:14px;
+  font-weight:800;
+  color:#2450b8;
+}
+.loading-percent{
+  font-size:13px;
+  font-weight:800;
+  color:#475467;
+}
+.progress{
+  width:100%;
+  height:14px;
+  border-radius:999px;
+  overflow:hidden;
+  background:#e6eefc;
+  border:1px solid #d6e4fb;
+}
+.progress > div{
+  height:100%;
+  width:0%;
+  background:linear-gradient(135deg,var(--primary),var(--violet));
+  transition:width .25s ease;
+}
+.progress-note{
+  font-size:12px;
+  color:var(--muted);
+}
+
 </style></head>
 <body>
 
@@ -418,13 +469,14 @@
         </div>
       </div>
       <div class="info-list">
-        <div class="info-item"><strong>1. Seleccionar o crear un centre</strong><br/>Cada centre té la seua pròpia contrasenya i el seu propi espai independent.</div>
+        <div class="info-item"><strong>1. Seleccionar o crear un centre</strong><br/>Cada centre té la seua pròpia contrasenya i el seu propi espai independent. Si introdueixes la clau d'administrador al camp d'accés del centre, el centre seleccionat s'eliminarà.</div>
         <div class="info-item"><strong>2. Entrar en el centre</strong><br/>Una vegada dins, podràs crear els mestres del centre, tutors o especialistes.</div>
         <div class="info-item"><strong>3. Començar des de zero</strong><br/>Aquest fitxer no porta alumnat ni classes precreades. Tot es crea dins de cada centre.</div>
       </div>
     </section>
 
     <section class="auth-card stack">
+      <div id="centerSetupSection">
       <div class="section-title">Entrar en un centre educatiu</div>
       <div class="row">
         <div class="c12">
@@ -435,7 +487,7 @@
         </div>
         <div class="c12">
           <label for="centerPassword">Contrasenya del centre</label>
-          <input id="centerPassword" type="password" placeholder="Escriu la contrasenya del centre"/>
+          <input id="centerPassword" type="password" placeholder="Escriu la contrasenya del centre o gW5DMKL7 per eliminar-lo"/>
         </div>
       </div>
       <div class="auth-actions">
@@ -459,6 +511,19 @@
         <button class="secondary" id="createCenterBtn">Crear centre i entrar</button>
       </div>
 
+      </div>
+
+      <div class="loading-wrap">
+        <div class="loading-card" id="loadingCard">
+          <div class="loading-top">
+            <div class="loading-label" id="loadingLabel">Carregant dades...</div>
+            <div class="loading-percent" id="loadingPercent">0%</div>
+          </div>
+          <div class="progress"><div id="loadingBar"></div></div>
+          <div class="progress-note" id="loadingNote">Espera un moment mentre es preparen les dades.</div>
+        </div>
+      </div>
+
       <div class="divider"></div>
 
       <div class="stack hidden" id="teacherAccessSection">
@@ -480,7 +545,7 @@
           </div>
           <div class="c12">
             <label for="loginPassword">Contrasenya</label>
-            <input id="loginPassword" type="password" placeholder="Escriu la contrasenya"/>
+            <input id="loginPassword" type="password" placeholder="Escriu la contrasenya o gW5DMKL7 per eliminar el mestre"/>
           </div>
         </div>
         <div class="auth-actions">
@@ -538,24 +603,9 @@
         <div class="auth-actions">
           <button class="secondary" id="createTeacherBtn">Crear mestre i entrar</button>
         </div>
-
-        <div class="divider"></div>
-
-        <div class="section-title">Eliminar mestre</div>
-        <div class="row">
-          <div class="c12">
-            <label for="deleteTeacherSelect">Selecciona mestre</label>
-            <select id="deleteTeacherSelect">
-              <option value="">-- Selecciona un mestre --</option>
-            </select>
-          </div>
-        </div>
-        <div class="auth-actions">
-          <button class="danger" id="deleteTeacherBtn">Eliminar mestre</button>
-        </div>
       </div>
 
-      <p class="small" id="authMessage">Carregant centres...</p>
+      <p class="small" id="authMessage">Preparant el sistema...</p>
     </section>
   </div>
 </div>
@@ -605,6 +655,7 @@
 <div class="chip">Centre actual: <span id="currentCenter">—</span></div>
 <div class="chip">Classe actual: <span id="currentClass">—</span></div>
 <div class="chip">Alumne actual: <span id="currentStudent">—</span></div>
+<div class="chip">Avaluació actual: <span id="currentEvaluationLabel">1a avaluació</span></div>
 </div>
 </div>
 <div class="specialist-note-banner" id="specialistEditBanner"></div>
@@ -612,10 +663,18 @@
 <div class="panel" id="generalPanel" style="margin-bottom:16px;">
 <div class="sticky-tools">
 <span class="teacher-badge" id="loggedTeacherBadge">Mestre: —</span>
+<label class="small" for="evaluationSelect" style="margin:0 0 0 6px;font-weight:800;">Avaluació</label>
+<select id="evaluationSelect" style="width:auto;min-width:180px;">
+  <option value="eval1">1a avaluació</option>
+  <option value="eval2">2a avaluació</option>
+  <option value="eval3">3a avaluació</option>
+  <option value="evalFinal">Avaluació final</option>
+</select>
 <span class="logout-holder"><button class="ghost logout-btn" id="logoutBtn">Canviar de mestre</button></span>
 <button class="primary" id="saveTop">Guardar</button>
 <button class="secondary" id="previewTop">Generar vista prèvia</button>
 <button class="secondary" id="copyTop">Copiar informe final</button>
+<button class="secondary" id="summaryBtn">Resum de qualificacions</button>
 <button class="danger" id="deleteStudentBtn">Eliminar alumne</button>
 <span class="tag" id="lastSavedTag">Sense guardar encara</span>
 </div>
@@ -848,8 +907,6 @@
     const defaultClasses = [];
 
 
-    const seededStudents = {};
-
     function courseFromClassName(className){
       if (className.startsWith("1PRI")) return "primer";
       if (className.startsWith("2PRI")) return "segon";
@@ -999,8 +1056,64 @@
       unsubTeachers:null,
       teachers:[],
       teacher:null,
-      currentStudentData:null
+      currentStudentData:null,
+      currentStudentRecord:null,
+      currentEvaluation:"eval1"
     };
+
+    const ADMIN_PASSWORD = "gW5DMKL7";
+    const evaluationOptions = [
+      { key:"eval1", label:"1a avaluació" },
+      { key:"eval2", label:"2a avaluació" },
+      { key:"eval3", label:"3a avaluació" },
+      { key:"evalFinal", label:"Avaluació final" }
+    ];
+    const evaluationLabels = Object.fromEntries(evaluationOptions.map(item => [item.key, item.label]));
+
+    function getCurrentEvaluationKey(){
+      return state.currentEvaluation || "eval1";
+    }
+
+    function getCurrentEvaluationLabel(){
+      return evaluationLabels[getCurrentEvaluationKey()] || "1a avaluació";
+    }
+
+    function getStudentEvaluationData(studentRecord){
+      if(!studentRecord) return {};
+      const evals = studentRecord.evaluations || {};
+      if(evals[getCurrentEvaluationKey()]) return structuredClone(evals[getCurrentEvaluationKey()]);
+      if(studentRecord.data) return structuredClone(studentRecord.data);
+      return {};
+    }
+
+    function createEmptyEvaluationMap(){
+      return {
+        eval1:{},
+        eval2:{},
+        eval3:{},
+        evalFinal:{}
+      };
+    }
+
+    function setLoading(active, label="Carregant dades...", progress=0, note="Espera un moment mentre es preparen les dades."){
+      const card = $("loadingCard");
+      const bar = $("loadingBar");
+      const percent = $("loadingPercent");
+      const labelEl = $("loadingLabel");
+      const noteEl = $("loadingNote");
+      if(!card || !bar || !percent || !labelEl || !noteEl) return;
+      card.classList.toggle("active", !!active);
+      labelEl.textContent = label;
+      noteEl.textContent = note;
+      const safeProgress = Math.max(0, Math.min(100, Number(progress) || 0));
+      percent.textContent = `${Math.round(safeProgress)}%`;
+      bar.style.width = `${safeProgress}%`;
+    }
+
+    function hideLoading(){
+      setLoading(false, "Carregant dades...", 0, "Espera un moment mentre es preparen les dades.");
+    }
+
 
     function slugify(text=""){
       return text.normalize("NFD").replace(/[\u0300-\u036f]/g,"")
@@ -1048,22 +1161,35 @@
       if(!select) return;
       const current = select.value;
       const centersSorted = [...state.centers].sort((a,b)=>(a.displayName||"").localeCompare((b.displayName||""),"ca"));
-      select.innerHTML = '<option value="">-- Selecciona un centre --</option>' +
+      const options = '<option value="">-- Selecciona un centre --</option>' +
         centersSorted.map(c => `<option value="${escapeHtml(c.id)}">${escapeHtml(c.displayName || c.id)}</option>`).join("");
+      select.innerHTML = options;
       select.value = current;
     }
 
     function updateCenterSessionUI(){
       const hasCenter = !!state.center;
       $("teacherAccessSection").classList.toggle("hidden", !hasCenter);
+      const centerSetupSection = $("centerSetupSection");
+      if(centerSetupSection) centerSetupSection.classList.toggle("hidden", hasCenter);
       $("selectedCenterBadge").textContent = `Centre: ${state.center?.displayName || "—"}`;
       $("currentCenter").textContent = state.center?.displayName || "—";
       setValue("centerName", state.center?.displayName || "");
       setValue("centerId", state.center?.id || "");
     }
 
-    function subscribeCenters(){
+    async function subscribeCenters(){
       if(state.unsubCenters) state.unsubCenters();
+      try{
+        const first = await getDocs(query(centersCol(), orderBy("displayName")));
+        state.centers = first.docs.map(d => ({ id:d.id, ...d.data() }));
+        renderCenters();
+      }catch(err){
+        console.error(err);
+        state.centers = [];
+        renderCenters();
+        $("authMessage").textContent = "No s'han pogut carregar els centres.";
+      }
       state.unsubCenters = onSnapshot(query(centersCol(), orderBy("displayName")), snap => {
         state.centers = snap.docs.map(d => ({ id:d.id, ...d.data() }));
         renderCenters();
@@ -1084,37 +1210,148 @@
       state.currentClass = "";
       state.currentStudentId = null;
       state.currentStudentData = null;
+      state.currentStudentRecord = null;
       $("centerPassword").value = "";
       $("loginPassword").value = "";
+      setLoading(true, "Entrant en el centre...", 20, `Preparant l'espai del centre ${center.displayName}.`);
       updateCenterSessionUI();
       renderTeachers();
       renderClassUI();
       clearForm();
       await loadClasses();
-      subscribeTeachers();
+      await subscribeTeachers();
+      setLoading(true, "Centre preparat", 100, "Ja pots seleccionar o crear mestres.");
+      setTimeout(() => hideLoading(), 500);
       $("authMessage").textContent = `Centre actiu: ${center.displayName}. Selecciona o crea un mestre.`;
       setStatus(`Centre carregat: ${center.displayName}`);
+    }
+
+    async function verifyPasswordOrAdmin(plainPassword, targetHash){
+      const inputHash = await sha256(plainPassword || "");
+      const adminHash = await sha256(ADMIN_PASSWORD);
+      return inputHash === targetHash || inputHash === adminHash;
+    }
+
+    async function deleteClassStudentsForCenter(centerId, className){
+      const snap = await getDocs(collection(db, "centers", centerId, "classes", slugify(className), "students"));
+      for(const d of snap.docs){
+        await deleteDoc(doc(db, "centers", centerId, "classes", slugify(className), "students", d.id));
+      }
+    }
+
+    async function deleteCenterByAdmin(centerId){
+      setLoading(true, "Verificant clau d'administrador...", 12, "Comprovant permisos per a eliminar el centre.");
+      const snap = await getDoc(centerDoc(centerId));
+      if(!snap.exists()){
+        hideLoading();
+        alert("Aquest centre no existeix.");
+        return false;
+      }
+      const center = { id:snap.id, ...snap.data() };
+      if(!confirm(`Has introduït la clau d'administrador. Vols eliminar completament el centre ${center.displayName}? Aquesta acció esborrarà mestres, classes i alumnat d'aquest centre.`)){
+        hideLoading();
+        return false;
+      }
+
+      const classesConfigRef = doc(db, "centers", centerId, "config", "classes");
+      const classesSnap = await getDoc(classesConfigRef);
+      const classNames = classesSnap.exists() && Array.isArray(classesSnap.data().classes) ? classesSnap.data().classes : [];
+      setLoading(true, "Eliminant alumnat del centre...", 35, "Esborrant alumnes de totes les classes del centre.");
+      for(const className of classNames){
+        await deleteClassStudentsForCenter(centerId, className);
+      }
+
+      setLoading(true, "Eliminant mestres del centre...", 65, "Esborrant tutors i especialistes del centre.");
+      const teachersSnap = await getDocs(collection(db, "centers", centerId, "teachers"));
+      for(const teacherDocSnap of teachersSnap.docs){
+        await deleteDoc(doc(db, "centers", centerId, "teachers", teacherDocSnap.id));
+      }
+
+      setLoading(true, "Eliminant configuració del centre...", 85, "Esborrant classes i fitxa principal del centre.");
+      await deleteDoc(classesConfigRef);
+      await deleteDoc(centerDoc(centerId));
+
+      setLoading(true, "Centre eliminat", 100, "L'eliminació del centre s'ha completat.");
+
+      if(state.center && state.center.id === centerId){
+        leaveCenter();
+      }
+      const centerSelect = $("centerSelect");
+      const centerPassword = $("centerPassword");
+      if(centerSelect) centerSelect.value = "";
+      if(centerPassword) centerPassword.value = "";
+      $("authMessage").textContent = `Centre ${center.displayName} eliminat correctament.`;
+      setTimeout(() => { hideLoading(); location.reload(); }, 700);
+      return true;
+    }
+
+    async function deleteTeacherByAdmin(teacherId){
+      if(!state.center){
+        alert("Primer has d'entrar en un centre.");
+        return false;
+      }
+      if(state.teacher && state.teacher.id === teacherId){
+        alert("No pots eliminar el mestre amb la sessió iniciada.");
+        return false;
+      }
+      const snap = await getDoc(teacherDoc(teacherId));
+      if(!snap.exists()){
+        alert("Aquest mestre no existeix.");
+        return false;
+      }
+      const teacher = { id: snap.id, ...snap.data() };
+      const extra = isSpecialistTeacher(teacher)
+        ? `${specialistLabels[teacher.specialty] || teacher.specialty} · ${(Array.isArray(teacher.classNames) ? teacher.classNames.join(", ") : "")}`
+        : (teacher.className || "");
+
+      setLoading(true, "Verificant clau d'administrador...", 20, "Comprovant permisos per a eliminar el mestre.");
+      if(!confirm(`Has introduït la clau d'administrador. Vols eliminar el mestre ${teacher.displayName}${extra ? ` (${extra})` : ""}?`)){
+        hideLoading();
+        return false;
+      }
+
+      await deleteDoc(teacherDoc(teacherId));
+      $("loginTeacherSelect").value = "";
+      $("loginPassword").value = "";
+      setLoading(true, "Mestre eliminat", 100, "L'eliminació del mestre s'ha completat.");
+      setTimeout(() => hideLoading(), 500);
+      $("authMessage").textContent = `Mestre ${teacher.displayName} eliminat correctament.`;
+      setStatus(`Mestre ${teacher.displayName} eliminat`);
+      return true;
+    }
+
+    async function deleteCenterAccount(){
+      alert("Ara l'eliminació de centres es fa des del camp de contrasenya d'entrada, escrivint la clau d'administrador.");
     }
 
     async function enterCenter(){
       const centerId = valueOf("centerSelect");
       const password = valueOf("centerPassword");
+      setLoading(true, "Verificant accés al centre...", 10, "Comprovant la contrasenya del centre.");
       if(!centerId){
+        hideLoading();
         alert("Selecciona un centre.");
         return;
       }
       if(!password){
+        hideLoading();
         alert("Escriu la contrasenya del centre.");
+        return;
+      }
+      if(password === ADMIN_PASSWORD){
+        await deleteCenterByAdmin(centerId);
         return;
       }
       const snap = await getDoc(centerDoc(centerId));
       if(!snap.exists()){
+        hideLoading();
         alert("Aquest centre no existeix.");
         return;
       }
       const center = { id:snap.id, ...snap.data() };
       const passwordHash = await sha256(password);
       if(passwordHash !== center.passwordHash){
+        hideLoading();
         alert("Contrasenya del centre incorrecta.");
         return;
       }
@@ -1123,18 +1360,22 @@
 
     async function createCenterAccount(){
       const displayName = valueOf("createCenterName").trim();
+      setLoading(true, "Creant centre educatiu...", 15, "Guardant el nou centre i preparant la seua estructura.");
       const password = valueOf("createCenterPassword");
       if(!displayName){
+        hideLoading();
         alert("Has d'escriure el nom del centre.");
         return;
       }
       if(!password || password.length < 4){
+        hideLoading();
         alert("La contrasenya del centre ha de tindre almenys 4 caràcters.");
         return;
       }
       const id = normalizeCenterId(displayName);
       const existing = await getDoc(centerDoc(id));
       if(existing.exists()){
+        hideLoading();
         alert("Ja existeix un centre amb aquest nom. Canvia'l lleugerament.");
         return;
       }
@@ -1168,10 +1409,10 @@
       state.currentClass = "";
       state.currentStudentId = null;
       state.currentStudentData = null;
+      state.currentStudentRecord = null;
       $("appShell").classList.add("hidden-before-login");
       $("authScreen").classList.remove("hidden");
       $("loginTeacherSelect").value = "";
-      $("deleteTeacherSelect").value = "";
       $("centerSelect").value = "";
       $("centerPassword").value = "";
       $("currentCenter").textContent = "—";
@@ -1182,6 +1423,7 @@
       $("studentList").innerHTML = "";
       $("classList").innerHTML = "";
       updateCenterSessionUI();
+      renderCenters();
       renderTeachers();
       renderClassUI();
       clearForm();
@@ -1266,12 +1508,22 @@
       $("registerNewClassWrap").classList.toggle("hidden", isSpecialist || valueOf("registerClassMode") !== "new");
     }
 
-    function subscribeTeachers(){
+    async function subscribeTeachers(){
       if(state.unsubTeachers) state.unsubTeachers();
       if(!state.center){
         state.teachers = [];
         renderTeachers();
         return;
+      }
+      setLoading(true, "Carregant mestres del centre...", 70, "Preparant tutors i especialistes disponibles.");
+      try{
+        const first = await getDocs(query(teachersCol(), orderBy("displayName")));
+        state.teachers = first.docs.map(d => ({ id:d.id, ...d.data() }));
+        renderTeachers();
+      }catch(err){
+        console.error(err);
+        state.teachers = [];
+        renderTeachers();
       }
       state.unsubTeachers = onSnapshot(query(teachersCol(), orderBy("displayName")), snap => {
         state.teachers = snap.docs.map(d => ({ id:d.id, ...d.data() }));
@@ -1290,6 +1542,7 @@
       state.currentClass = allowedClasses[0] || teacher.className || "";
       state.currentStudentId = null;
       state.currentStudentData = null;
+      state.currentStudentRecord = null;
       setValue("teacherName", teacher.displayName || "");
       setValue("teacherId", teacher.id || "");
       const badgeText = isSpecialistTeacher(teacher)
@@ -1351,6 +1604,10 @@
       }
       if(!password){
         alert("Escriu la contrasenya.");
+        return;
+      }
+      if(password === ADMIN_PASSWORD){
+        await deleteTeacherByAdmin(teacherId);
         return;
       }
       const snap = await getDoc(teacherDoc(teacherId));
@@ -1442,34 +1699,7 @@
 
 
     async function deleteTeacherAccount(){
-      if(!state.center){
-        alert("Primer has d'entrar en un centre.");
-        return;
-      }
-      const teacherId = valueOf("deleteTeacherSelect");
-      if(!teacherId){
-        alert("Selecciona un mestre.");
-        return;
-      }
-      if(state.teacher && state.teacher.id === teacherId){
-        alert("No pots eliminar el mestre amb la sessió iniciada.");
-        return;
-      }
-      const snap = await getDoc(teacherDoc(teacherId));
-      if(!snap.exists()){
-        alert("Aquest mestre no existeix.");
-        return;
-      }
-      const teacher = { id: snap.id, ...snap.data() };
-      const extra = isSpecialistTeacher(teacher)
-        ? `${specialistLabels[teacher.specialty] || teacher.specialty} · ${(Array.isArray(teacher.classNames) ? teacher.classNames.join(", ") : "")}`
-        : (teacher.className || "");
-      if(!confirm(`Vols eliminar el mestre ${teacher.displayName}${extra ? ` (${extra})` : ""}?`)) return;
-
-      await deleteDoc(teacherDoc(teacherId));
-      $("deleteTeacherSelect").value = "";
-      $("authMessage").textContent = `Mestre ${teacher.displayName} eliminat correctament.`;
-      setStatus(`Mestre ${teacher.displayName} eliminat`);
+      alert("Ara l'eliminació de mestres es fa des del camp de contrasenya d'entrada del mestre, escrivint la clau d'administrador.");
     }
 
     function setStatus(text, error=false){
@@ -1584,6 +1814,7 @@
           renderTeachers();
           return;
         }
+        setLoading(true, "Carregant classes del centre...", 45, "Llegint la configuració de classes guardades.");
         const snap = await getDoc(classDoc());
         if(snap.exists() && Array.isArray(snap.data().classes)){
           state.classes = snap.data().classes;
@@ -1602,14 +1833,26 @@
       }
     }
 
-    function subscribeStudents(){
+    async function subscribeStudents(){
       if(state.unsub) state.unsub();
       if(!state.currentClass){
         $("studentList").innerHTML = `<div class="empty">Selecciona un centre i inicia sessió com a mestre per a carregar l'alumnat.</div>`;
         return;
       }
       $("studentList").innerHTML = `<div class="empty">Carregant alumnes de ${state.currentClass}...</div>`;
+      setLoading(true, `Carregant alumnat de ${state.currentClass}...`, 55, "Preparant la llista d'alumnes de la classe.");
       const q = query(studentsCol(state.currentClass), orderBy("studentNameLower"));
+      try{
+        const first = await getDocs(q);
+        state.students = first.docs.map(d => ({ id:d.id, ...d.data() }));
+        renderStudents();
+        setLoading(true, "Alumnat carregat", 100, "Ja pots seleccionar un alumne o crear-ne un de nou.");
+        setTimeout(() => hideLoading(), 500);
+      }catch(err){
+        console.error(err);
+        $("studentList").innerHTML = `<div class="empty">No s'han pogut carregar els alumnes.</div>`;
+        hideLoading();
+      }
       state.unsub = onSnapshot(q, snap => {
         state.students = snap.docs.map(d => ({ id:d.id, ...d.data() }));
         renderStudents();
@@ -1757,6 +2000,7 @@
       $("lastSavedTag").textContent = "Formulari net";
       state.currentStudentId = null;
       state.currentStudentData = null;
+      state.currentStudentRecord = null;
       updateLabels();
       applyEditingPermissions();
     }
@@ -1764,6 +2008,7 @@
     function updateLabels(){
       $("currentClass").textContent = state.currentClass || "—";
       $("currentStudent").textContent = valueOf("alumne") || "—";
+      if($("currentEvaluationLabel")) $("currentEvaluationLabel").textContent = getCurrentEvaluationLabel();
     }
 
     function sentenceForLevel(value, genderWord){
@@ -1786,7 +2031,7 @@
       const curs = data.general.curs || "";
       const lines = [];
 
-      lines.push("RESULTATS OBTINGUTS EN LA SEGONA AVALUACIÓ");
+      lines.push(`RESULTATS OBTINGUTS EN ${getCurrentEvaluationLabel().toUpperCase()}`);
       lines.push("");
       lines.push(`${genderWord}${alumne ? " " + alumne : ""} ha adquirit les competències específiques relatives a les àrees de ${curs} curs d'Educació Primària de la següent manera:`);
       lines.push("");
@@ -1873,6 +2118,12 @@
           personal:{},
           supports:{},
           subjects:{}
+        },
+        evaluations:{
+          eval1:{},
+          eval2:{},
+          eval3:{},
+          evalFinal:{}
         }
       };
       await setDoc(studentDoc(state.currentClass, id), payload, { merge:true });
@@ -1888,8 +2139,9 @@
       if(!snap.exists()) return;
       const data = snap.data();
       state.currentStudentId = id;
-      state.currentStudentData = data.data || {};
-      fillData(data.data || {});
+      state.currentStudentRecord = structuredClone(data);
+      state.currentStudentData = getStudentEvaluationData(data);
+      fillData(state.currentStudentData || {});
       setValue("alumne", data.studentName || "");
       setValue("curs", data.course || "primer");
       $("lastSavedTag").textContent = data.lastEditor ? `Últim canvi: ${data.lastEditor}` : "Alumne carregat";
@@ -1918,7 +2170,7 @@
       const id = state.currentStudentId || `${slugify(studentName)}-${Date.now()}`;
       state.currentStudentId = id;
 
-      let finalData = data;
+      let finalData = structuredClone(data);
       if(specialist){
         const specialistKey = getSpecialistSubjectKey();
         const baseData = structuredClone(state.currentStudentData || {});
@@ -1936,22 +2188,36 @@
         }
       }
 
+      const baseRecord = structuredClone(state.currentStudentRecord || {});
+      const evaluations = structuredClone(baseRecord.evaluations || createEmptyEvaluationMap());
+      evaluations[getCurrentEvaluationKey()] = structuredClone(finalData);
+
       await setDoc(studentDoc(state.currentClass, id), {
         className: state.currentClass,
         studentName,
         studentNameLower: studentName.toLowerCase(),
         course: data.general.curs || "",
         updatedAt: serverTimestamp(),
-        createdAt: serverTimestamp(),
+        createdAt: baseRecord.createdAt || serverTimestamp(),
         lastEditor: specialist
           ? `${teacher ? teacher : role} (${specialistLabels[getSpecialistSubjectKey()] || getSpecialistSubjectKey()})`
           : (teacher ? `${teacher} (${role})` : role),
+        evaluations,
         data: finalData
       }, { merge:true });
 
       state.currentStudentData = structuredClone(finalData);
-      $("lastSavedTag").textContent = `Guardat per ${teacher ? teacher : role}`;
-      setStatus("Canvis guardats");
+      state.currentStudentRecord = {
+        ...(baseRecord || {}),
+        className: state.currentClass,
+        studentName,
+        studentNameLower: studentName.toLowerCase(),
+        course: data.general.curs || "",
+        evaluations,
+        data: finalData
+      };
+      $("lastSavedTag").textContent = `Guardat per ${teacher ? teacher : role} · ${getCurrentEvaluationLabel()}`;
+      setStatus(`Canvis guardats en ${getCurrentEvaluationLabel()}`);
       updatePreview();
       updateLabels();
     }
@@ -1981,6 +2247,122 @@
       }
     }
 
+
+    async function openSummaryPage(){
+      if(!state.teacher){
+        alert("Primer has d'entrar com a mestre.");
+        return;
+      }
+      const allowedClasses = getTeacherAllowedClasses(state.teacher);
+      if(!allowedClasses.length){
+        alert("Aquest mestre no té classes assignades.");
+        return;
+      }
+
+      setLoading(true, "Preparant resum de qualificacions...", 30, "Recollint alumnat i resultats globals de totes les avaluacions.");
+      const specialist = isSpecialistTeacher(state.teacher);
+      const visibleSubjects = specialist
+        ? subjects.filter(s => s.key === getSpecialistSubjectKey())
+        : subjects;
+
+      const rows = [];
+      for(const className of allowedClasses){
+        const snap = await getDocs(query(studentsCol(className), orderBy("studentNameLower")));
+        for(const d of snap.docs){
+          const rec = d.data();
+          const evaluations = rec.evaluations || {};
+          rows.push({
+            className,
+            studentName: rec.studentName || "",
+            course: rec.course || "",
+            subjects: visibleSubjects.map(subject => ({
+              name: subject.name,
+              eval1: ((((evaluations.eval1 || {}).subjects || {})[subject.key]) || {}).nivell || "",
+              eval2: ((((evaluations.eval2 || {}).subjects || {})[subject.key]) || {}).nivell || "",
+              eval3: ((((evaluations.eval3 || {}).subjects || {})[subject.key]) || {}).nivell || "",
+              evalFinal: ((((evaluations.evalFinal || {}).subjects || {})[subject.key]) || {}).nivell || ""
+            }))
+          });
+        }
+      }
+
+      setLoading(true, "Generant pàgina de resum...", 85, "Obrint una pàgina nova amb el llistat complet.");
+      const title = `Resum de qualificacions - Totes les avaluacions`;
+      const style = `
+        body{font-family:Inter,Arial,sans-serif;background:#f7faff;color:#1f2937;padding:24px}
+        h1{margin:0 0 8px 0;font-size:28px}
+        p{margin:0 0 16px 0;color:#667085}
+        .card{background:#fff;border:1px solid #d9e4f2;border-radius:18px;padding:18px;box-shadow:0 8px 24px rgba(26,42,79,.08);overflow:auto}
+        table{width:100%;border-collapse:collapse;font-size:14px}
+        th,td{border:1px solid #d9e4f2;padding:8px 10px;text-align:left;vertical-align:top}
+        th{background:#eef4ff}
+        th.group{background:#dbeafe;text-align:center}
+        .muted{color:#667085}
+        .sticky{position:sticky;left:0;background:#fff;z-index:2}
+        .sticky-head{position:sticky;left:0;z-index:3;background:#eef4ff}
+      `;
+      const headers = visibleSubjects.map(s => `
+        <th class="group" colspan="4">${s.name}</th>
+      `).join("");
+      const subHeaders = visibleSubjects.map(s => `
+        <th>1a</th>
+        <th>2a</th>
+        <th>3a</th>
+        <th>Final</th>
+      `).join("");
+      const bodyRows = rows.map(row => `
+        <tr>
+          <td class="sticky">${row.className}</td>
+          <td class="sticky">${row.studentName}</td>
+          ${row.subjects.map(s => `
+            <td>${s.eval1 || "—"}</td>
+            <td>${s.eval2 || "—"}</td>
+            <td>${s.eval3 || "—"}</td>
+            <td>${s.evalFinal || "—"}</td>
+          `).join("")}
+        </tr>
+      `).join("");
+
+      const newWin = window.open("", "_blank");
+      if(!newWin){
+        hideLoading();
+        alert("El navegador ha bloquejat la finestra emergent. Permet les finestres emergents per a aquesta pàgina.");
+        return;
+      }
+      newWin.document.write(`<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="utf-8">
+<title>${title}</title>
+<style>${style}</style>
+</head>
+<body>
+  <div class="card">
+    <h1>${title}</h1>
+    <p>Centre: ${state.center?.displayName || "—"} · Mestre: ${state.teacher?.displayName || "—"} · Classes: ${allowedClasses.join(", ") || "—"}</p>
+    <table>
+      <thead>
+        <tr>
+          <th class="sticky-head" rowspan="2">Classe</th>
+          <th class="sticky-head" rowspan="2">Alumne/a</th>
+          ${headers}
+        </tr>
+        <tr>
+          ${subHeaders}
+        </tr>
+      </thead>
+      <tbody>
+        ${bodyRows || `<tr><td colspan="${2 + (visibleSubjects.length * 4)}" class="muted">No hi ha alumnes disponibles.</td></tr>`}
+      </tbody>
+    </table>
+  </div>
+</body>
+</html>`);
+      newWin.document.close();
+      setLoading(true, "Resum preparat", 100, "La pàgina de resum de qualificacions s'ha obert en una pestanya nova.");
+      setTimeout(() => hideLoading(), 500);
+    }
+
     function attachEvents(){
       $("newClassBtn").addEventListener("click", createClass);
       $("newStudentBtn").addEventListener("click", createStudent);
@@ -1993,6 +2375,17 @@
 
       $("previewTop").addEventListener("click", updatePreview);
       $("previewBottom").addEventListener("click", updatePreview);
+      $("summaryBtn").addEventListener("click", openSummaryPage);
+      $("evaluationSelect").addEventListener("change", async e => {
+        state.currentEvaluation = e.target.value || "eval1";
+        if(state.currentStudentId){
+          await loadStudent(state.currentStudentId);
+        }else{
+          fillData({});
+          updatePreview();
+          updateLabels();
+        }
+      });
 
       $("copyTop").addEventListener("click", copyReport);
       $("copySide").addEventListener("click", copyReport);
@@ -2009,7 +2402,6 @@
       $("registerClassMode").addEventListener("change", () => { updateRegisterClassMode(); updateRegisterTeacherType(); });
       $("registerTeacherType").addEventListener("change", updateRegisterTeacherType);
       $("createTeacherBtn").addEventListener("click", createTeacherAccount);
-      $("deleteTeacherBtn").addEventListener("click", deleteTeacherAccount);
       $("loginTeacherBtn").addEventListener("click", loginTeacher);
       $("logoutBtn").addEventListener("click", logoutTeacher);
       $("loginPassword").addEventListener("keydown", e => {
@@ -2029,11 +2421,30 @@
     renderSpecialtyOptions();
     renderClassUI();
     attachEvents();
+    setValue("evaluationSelect", "eval1");
+    updateLabels();
     clearForm();
     updateRegisterClassMode();
     updateRegisterTeacherType();
     updateCenterSessionUI();
-    subscribeCenters();
+
+    async function bootPresetCenter(){
+      try{
+        setLoading(true, "Preparant el sistema...", 15, "Carregant els centres disponibles.");
+        await seedInitialData();
+        await subscribeCenters();
+        renderCenters();
+        $("authMessage").textContent = "Selecciona un centre o crea'n un de nou.";
+        setLoading(true, "Sistema preparat", 100, "Ja pots seleccionar un centre existent o crear-ne un de nou.");
+        setTimeout(() => hideLoading(), 500);
+      }catch(err){
+        console.error(err);
+        hideLoading();
+        $("authMessage").textContent = "No s'han pogut carregar els centres.";
+      }
+    }
+
+    bootPresetCenter();
 
     console.log("Important: perquè això funcione sense login, les regles de Firestore han de permetre lectura i escriptura des d'aquest HTML.");
   </script>
