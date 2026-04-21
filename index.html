@@ -871,36 +871,19 @@ body::after{
 </section>
 <section class="auth-card stack">
 <div id="centerSetupSection">
-<div class="section-title">Entrar en un centre educatiu</div>
+<div class="section-title">Accés d'administrador</div>
+<div class="panel soft stack" style="margin-bottom:12px;">
+  <div class="teacher-badge">Centre preconfigurat: CarmenAldaia</div>
+  <div class="small">Aquest administrador només pot accedir al centre CarmenAldaia. La primera vegada haurà de vincular-lo amb la contrasenya del centre. Després entrarà sempre directament al mateix centre amb Google.</div>
+</div>
 <div class="row">
-<div class="c12">
-<label for="centerSelect">Centre educatiu</label>
-<select id="centerSelect">
-<option value="">-- Selecciona un centre --</option>
-</select>
-</div>
-<div class="c12">
-<label for="centerPassword">Contrasenya del centre</label>
-<input id="centerPassword" placeholder="Escriu la contrasenya del centre" type="password"/>
-</div>
+  <div class="c12">
+    <label for="presetCenterPassword">Contrasenya del centre CarmenAldaia</label>
+    <input id="presetCenterPassword" placeholder="Escriu la contrasenya del centre" type="password"/>
+  </div>
 </div>
 <div class="auth-actions">
-<button class="primary" id="enterCenterBtn">Entrar en el centre</button>
-</div>
-<div class="divider"></div>
-<div class="section-title">Crear un centre educatiu nou</div>
-<div class="auth-grid">
-<div>
-<label for="createCenterName">Nom del centre</label>
-<input id="createCenterName" placeholder="Ex.: CEIP La Font" type="text"/>
-</div>
-<div>
-<label for="createCenterPassword">Contrasenya del centre</label>
-<input id="createCenterPassword" placeholder="Crea una contrasenya per al centre" type="password"/>
-</div>
-</div>
-<div class="auth-actions">
-<button class="secondary" id="createCenterBtn">Crear centre i entrar</button>
+  <button class="primary" id="enterPresetCenterBtn">Entrar a CarmenAldaia</button>
 </div>
 <div class="divider"></div>
 </div>
@@ -1597,6 +1580,208 @@ onAuthStateChanged(auth, async (user) => {
   try { await updateAdminModeForCurrentUser(); } catch(err){ console.error(err); }
 });
 setTimeout(()=>{ updateAdminModeForCurrentUser().catch(console.error); }, 800);
+</script>
+
+
+<script>
+(function(){
+  const PRESET_CENTER_ID = 'carmenaldaia';
+  const PRESET_CENTER_NAME = 'CarmenAldaia';
+  const PRESET_CENTER_PASSWORD = '46000900';
+  const LEGACY_CENTER_NAMES = [
+    'Nuestra señora del Carmen Aldaia',
+    'Nuestra Señora del Carmen Aldaia',
+    'Nostra Senyora del Carme Aldaia',
+    'Nostra Senyora del Carme',
+    'Nuestra Señora del Carmen'
+  ].map(v => (v || '').trim().toLowerCase());
+
+  function adminMessage(msg){ const el = $('authMessage'); if(el) el.textContent = msg; }
+  function byId(id){ return document.getElementById(id); }
+  function normalized(v){ return (v || '').trim().toLowerCase(); }
+  function presetCenterDoc(){ return doc(db,'centers',PRESET_CENTER_ID); }
+
+  async function copyCollectionDocs(sourceRef, targetRef){
+    const snap = await getDocs(sourceRef);
+    for(const item of snap.docs){
+      await setDoc(doc(targetRef, item.id), item.data(), { merge:true });
+    }
+  }
+
+  async function migrateLegacyCenterIfNeeded(){
+    const presetSnap = await getDoc(presetCenterDoc());
+    if(presetSnap.exists()) return { id: PRESET_CENTER_ID, ...presetSnap.data() };
+
+    const allCenters = await getDocs(collection(db,'centers'));
+    let legacy = null;
+    for(const c of allCenters.docs){
+      const data = c.data() || {};
+      const displayName = normalized(data.displayName || '');
+      if(c.id === PRESET_CENTER_ID || displayName === normalized(PRESET_CENTER_NAME) || LEGACY_CENTER_NAMES.includes(displayName)){
+        legacy = { id:c.id, ...data };
+        break;
+      }
+    }
+
+    if(!legacy){
+      const payload = {
+        displayName: PRESET_CENTER_NAME,
+        passwordHash: await sha256(PRESET_CENTER_PASSWORD),
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
+      };
+      await setDoc(presetCenterDoc(), payload, { merge:true });
+      await setDoc(doc(db,'centers',PRESET_CENTER_ID,'meta','classes'), { classes:[], updatedAt: serverTimestamp() }, { merge:true });
+      return { id: PRESET_CENTER_ID, ...payload };
+    }
+
+    const migrated = {
+      ...legacy,
+      displayName: PRESET_CENTER_NAME,
+      passwordHash: legacy.passwordHash || await sha256(PRESET_CENTER_PASSWORD),
+      updatedAt: serverTimestamp()
+    };
+    await setDoc(presetCenterDoc(), migrated, { merge:true });
+
+    try {
+      const legacyClassesSnap = await getDoc(doc(db,'centers',legacy.id,'meta','classes'));
+      const classesData = legacyClassesSnap.exists() ? legacyClassesSnap.data() : { classes:[] };
+      await setDoc(doc(db,'centers',PRESET_CENTER_ID,'meta','classes'), { ...classesData, updatedAt: serverTimestamp() }, { merge:true });
+      const classNames = Array.isArray(classesData.classes) ? classesData.classes : [];
+      await copyCollectionDocs(collection(db,'centers',legacy.id,'teachers'), collection(db,'centers',PRESET_CENTER_ID,'teachers'));
+      for(const className of classNames){
+        const studentsSnap = await getDocs(collection(db,'centers',legacy.id,'classes',className,'students'));
+        for(const stu of studentsSnap.docs){
+          await setDoc(doc(db,'centers',PRESET_CENTER_ID,'classes',className,'students',stu.id), stu.data(), { merge:true });
+        }
+      }
+    } catch(err){
+      console.error('Migración parcial del centro legado:', err);
+    }
+
+    return { id: PRESET_CENTER_ID, ...legacy, displayName: PRESET_CENTER_NAME };
+  }
+
+  async function getPresetCenterEnsured(){
+    const data = await migrateLegacyCenterIfNeeded();
+    const snap = await getDoc(presetCenterDoc());
+    return snap.exists() ? { id: PRESET_CENTER_ID, ...snap.data() } : data;
+  }
+
+  function hideCenterChooserForever(){
+    ['centerSelect','centerPassword','createCenterName','createCenterPassword','enterCenterBtn','createCenterBtn','changeCenterBtn','loginTeacherSelect','loginPassword','loginTeacherBtn'].forEach(id=>{
+      const el = byId(id);
+      if(el && el.closest('.c12')) el.closest('.c12').classList.add('hidden');
+      if(el && el.closest('.auth-actions')) el.closest('.auth-actions').classList.add('hidden');
+    });
+    const directInfo = byId('teacherDirectLoginInfo');
+    if(directInfo) directInfo.classList.remove('hidden');
+  }
+
+  async function enterPresetCenter(){
+    if(!state.firebaseUser?.uid){
+      alert('Has d'iniciar sessió amb Google abans d'entrar al centre.');
+      return;
+    }
+    const presetCenter = await getPresetCenterEnsured();
+    const typedPassword = valueOf('presetCenterPassword');
+    if(!presetCenter.ownerUid){
+      if(typedPassword !== PRESET_CENTER_PASSWORD){
+        alert('La contrasenya de CarmenAldaia no és correcta.');
+        return;
+      }
+      await setDoc(presetCenterDoc(), {
+        displayName: PRESET_CENTER_NAME,
+        passwordHash: await sha256(PRESET_CENTER_PASSWORD),
+        ownerUid: state.firebaseUser.uid,
+        ownerEmail: normalizeEmailValue(state.firebaseUser.email || ''),
+        updatedAt: serverTimestamp(),
+        linkedAt: serverTimestamp()
+      }, { merge:true });
+    } else {
+      const sameOwner = presetCenter.ownerUid === state.firebaseUser.uid || normalizeEmailValue(presetCenter.ownerEmail || '') === normalizeEmailValue(state.firebaseUser.email || '');
+      if(!sameOwner){
+        alert('Aquest centre ja està vinculat a un altre administrador.');
+        return;
+      }
+    }
+    setValue('presetCenterPassword','');
+    const fresh = await getDoc(presetCenterDoc());
+    await applyCenterSession({ id: PRESET_CENTER_ID, ...(fresh.exists() ? fresh.data() : presetCenter) });
+    $('centerSetupSection')?.classList.add('hidden');
+    $('teacherAccessSection')?.classList.remove('hidden');
+    adminMessage('Administrador dins de CarmenAldaia. Pots crear més mestres, classes i alumnat.');
+    updateAdminPanels?.();
+  }
+
+  async function updatePresetAdminFlow(){
+    hideCenterChooserForever();
+    patchLoginTexts?.();
+    decorateTeacherAccessUi?.();
+    const user = state.firebaseUser;
+    if(!user){
+      $('centerSetupSection')?.classList.remove('hidden');
+      $('teacherAccessSection')?.classList.add('hidden');
+      adminMessage('Inicia sessió amb Google per a accedir com a administrador o com a mestre/a.');
+      return;
+    }
+
+    const teacherMatch = await findTeacherByGoogleEmail(user.email || '');
+    if(teacherMatch){
+      $('centerSetupSection')?.classList.add('hidden');
+      $('teacherAccessSection')?.classList.add('hidden');
+      await loginTeacherByCurrentGoogle();
+      adminMessage('Accedint directament com a mestre/a...');
+      updateAdminPanels?.();
+      return;
+    }
+
+    const presetCenter = await getPresetCenterEnsured();
+    const isOwner = !!presetCenter && (presetCenter.ownerUid === user.uid || normalizeEmailValue(presetCenter.ownerEmail || '') === normalizeEmailValue(user.email || ''));
+    if(isOwner){
+      await applyCenterSession({ id: PRESET_CENTER_ID, ...presetCenter, displayName: PRESET_CENTER_NAME });
+      $('centerSetupSection')?.classList.add('hidden');
+      $('teacherAccessSection')?.classList.remove('hidden');
+      adminMessage('Administrador del centre CarmenAldaia. Ja tens disponibles els mestres i classes guardats i pots afegir-ne més.');
+    } else if(!presetCenter.ownerUid) {
+      $('centerSetupSection')?.classList.remove('hidden');
+      $('teacherAccessSection')?.classList.add('hidden');
+      adminMessage('Primera entrada de l'administrador: vincula ara el centre CarmenAldaia amb la contrasenya 46000900.');
+    } else {
+      $('centerSetupSection')?.classList.remove('hidden');
+      $('teacherAccessSection')?.classList.add('hidden');
+      adminMessage('Aquest compte de Google no és l'administrador de CarmenAldaia.');
+    }
+    byId('selectedCenterBadge') && (byId('selectedCenterBadge').textContent = 'Centre: ' + PRESET_CENTER_NAME);
+    byId('currentCenter') && (byId('currentCenter').textContent = PRESET_CENTER_NAME);
+    updateAdminPanels?.();
+  }
+
+  function patchPresetButtons(){
+    const btn = byId('enterPresetCenterBtn');
+    if(btn && !btn.dataset.patchedPreset){
+      btn.dataset.patchedPreset = '1';
+      btn.addEventListener('click', enterPresetCenter);
+    }
+  }
+
+  function patchPresetTexts(){
+    const title = document.querySelector('.auth-title');
+    if(title) title.textContent = 'GENERADOR D'INFORMES D'AVALUACIÓ';
+    const heroText = document.querySelector('.auth-hero .muted');
+    if(heroText) heroText.textContent = 'L'administrador només pot accedir al centre CarmenAldaia. Els mestres entren amb el seu Gmail i entren directament a les seues classes associades.';
+    const items = document.querySelectorAll('.info-item');
+    if(items[0]) items[0].innerHTML = '<strong>1. Administrador únic</strong><br/>L'accés administratiu queda vinculat al centre CarmenAldaia.';
+    if(items[1]) items[1].innerHTML = '<strong>2. Mestres amb Gmail</strong><br/>Cada mestre es crea amb el seu compte de Gmail i les seues classes associades.';
+    if(items[2]) items[2].innerHTML = '<strong>3. Accés directe</strong><br/>Quan el mestre entra amb Google, veu directament les seues classes i alumnat.';
+  }
+
+  patchPresetTexts();
+  patchPresetButtons();
+  hideCenterChooserForever();
+  setTimeout(() => updatePresetAdminFlow().catch(console.error), 300);
+  onAuthStateChanged(auth, () => updatePresetAdminFlow().catch(console.error));
+})();
 </script>
 
 </body>
