@@ -890,10 +890,8 @@ body::after{
       <div class="section-title">Entrar en un centre educatiu</div>
       <div class="row">
         <div class="c12">
-          <label for="centerSelect">Centre educatiu</label>
-          <select id="centerSelect">
-            <option value="">-- Selecciona un centre --</option>
-          </select>
+          <label for="centerSearchInput">Nom del centre educatiu</label>
+          <input id="centerSearchInput" type="text" placeholder="Escriu exactament el nom del centre" autocomplete="off"/>
         </div>
         <div class="c12">
           <label for="centerPassword">Contrasenya del centre</label>
@@ -1990,13 +1988,9 @@ body::after{
     function normalizeCenterId(name=""){ return slugify(name); }
 
     function renderCenters(){
-      const select = $("centerSelect");
-      if(!select) return;
-      const current = select.value;
-      const centersSorted = [...state.centers].sort((a,b)=>(a.displayName||"").localeCompare((b.displayName||""),"ca"));
-      select.innerHTML = '<option value="">-- Selecciona un centre --</option>' +
-        centersSorted.map(c => `<option value="${escapeHtml(c.id)}">${escapeHtml(c.displayName || c.id)}</option>`).join("");
-      select.value = current;
+      // Els centres continuen carregant-se internament per a validar l'accés,
+      // però no es mostren en cap desplegable per privacitat.
+      return;
     }
 
     function updateCenterSessionUI(){
@@ -2081,7 +2075,8 @@ body::after{
 
       await deleteDoc(classesConfigRef);
       await deleteDoc(centerDoc(centerId));
-      $("centerSelect").value = "";
+      const centerSearchInput = $("centerSearchInput");
+      if(centerSearchInput) centerSearchInput.value = "";
       $("centerPassword").value = "";
       $("authMessage").textContent = `Centre ${center.displayName} eliminat correctament.`;
       location.reload();
@@ -2117,10 +2112,16 @@ body::after{
     }
 
     async function enterCenter(){
-      const centerId = valueOf("centerSelect");
+      const centerName = valueOf("centerSearchInput");
       const password = valueOf("centerPassword");
-      if(!centerId){
-        alert("Selecciona un centre.");
+      if(!centerName){
+        alert("Escriu el nom del centre.");
+        return;
+      }
+      const normalizedCenterName = centerName.trim().toLocaleLowerCase("ca");
+      const center = state.centers.find(c => (c.displayName || "").trim().toLocaleLowerCase("ca") === normalizedCenterName);
+      if(!center){
+        alert("Aquest centre no existeix.");
         return;
       }
       if(!password){
@@ -2128,21 +2129,21 @@ body::after{
         return;
       }
       if(password === ADMIN_PASSWORD){
-        await deleteCenterByAdmin(centerId);
+        await deleteCenterByAdmin(center.id);
         return;
       }
-      const snap = await getDoc(centerDoc(centerId));
+      const snap = await getDoc(centerDoc(center.id));
       if(!snap.exists()){
         alert("Aquest centre no existeix.");
         return;
       }
-      const center = { id:snap.id, ...snap.data() };
+      const centerFull = { id:snap.id, ...snap.data() };
       const passwordHash = await sha256(password);
-      if(passwordHash !== center.passwordHash){
+      if(passwordHash !== centerFull.passwordHash){
         alert("Contrasenya del centre incorrecta.");
         return;
       }
-      await applyCenterSession(center);
+      await applyCenterSession(centerFull);
     }
 
     async function createCenterAccount(){
@@ -2212,7 +2213,8 @@ body::after{
       $("appShell").classList.add("hidden-before-login");
       $("authScreen").classList.remove("hidden");
       $("loginTeacherSelect").value = "";
-      $("centerSelect").value = "";
+      const centerSearchInput = $("centerSearchInput");
+      if(centerSearchInput) centerSearchInput.value = "";
       $("centerPassword").value = "";
       $("currentCenter").textContent = "—";
       $("currentClass").textContent = "—";
@@ -3575,7 +3577,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // 🔹 SOLO inputs reales del informe (excluyendo selects de clase/alumno)
   const editableFields = [...document.querySelectorAll(
     "textarea, input[type='text'], input[type='number'], input[type='checkbox'], .subject-card select"
-  )].filter(el => !['classSelect','loginTeacherSelect','registerTeacherType','registerClassMode','registerExistingClass','registerSpecialty','centerSelect','createCenterName','createCenterPassword','centerPassword'].includes(el.id));
+  )].filter(el => !['classSelect','loginTeacherSelect','registerTeacherType','registerClassMode','registerExistingClass','registerSpecialty','centerSearchInput','createCenterName','createCenterPassword','centerPassword'].includes(el.id));
 
   editableFields.forEach(el=>{
     el.addEventListener("input", markDirty);
