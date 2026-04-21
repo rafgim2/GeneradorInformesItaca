@@ -955,8 +955,9 @@ body::after{
           <button class="primary" id="loginTeacherBtn">Entrar com a mestre/a</button>
         </div>
 
-        <div class="divider"></div>
+        <div class="divider" id="createTeacherDivider"></div>
 
+        <div id="createTeacherSection">
         <div class="section-title">Crear un mestre/a nou</div>
         <div class="auth-grid">
           <div>
@@ -1005,6 +1006,7 @@ body::after{
         </div>
         <div class="auth-actions">
           <button class="secondary" id="createTeacherBtn">Crear mestre/a i entrar</button>
+        </div>
         </div>
 </div>
 
@@ -1702,6 +1704,18 @@ body::after{
       return !isInvitedAccessProfile();
     }
 
+    function canCurrentUserManageCenter(){
+      return !isInvitedAccessProfile();
+    }
+
+    function syncCenterManagementVisibility(){
+      const hideManagement = !canCurrentUserManageCenter();
+      const createTeacherSection = $("createTeacherSection");
+      const createTeacherDivider = $("createTeacherDivider");
+      if(createTeacherSection) createTeacherSection.classList.toggle("hidden", hideManagement);
+      if(createTeacherDivider) createTeacherDivider.classList.toggle("hidden", hideManagement);
+    }
+
     function syncCreateCenterVisibility(){
       const wrap = $("createCenterSection");
       if(!wrap) return;
@@ -1999,6 +2013,7 @@ body::after{
       const centerSetupSection = $("centerSetupSection");
       if(centerSetupSection) centerSetupSection.classList.toggle("hidden", hasCenter);
       syncCreateCenterVisibility();
+      syncCenterManagementVisibility();
       $("selectedCenterBadge").textContent = `Centre: ${state.center?.displayName || "—"}`;
       $("currentCenter").textContent = state.center?.displayName || "—";
       setValue("centerName", state.center?.displayName || "");
@@ -2448,6 +2463,10 @@ body::after{
     async function createTeacherAccount(){
       if(!state.center){
         alert("Primer has d'entrar en un centre.");
+        return;
+      }
+      if(!canCurrentUserManageCenter()){
+        alert("Aquest compte convidat no pot crear mestres ni gestionar el centre.");
         return;
       }
       const displayName = valueOf("registerTeacherName").trim();
@@ -3067,6 +3086,10 @@ body::after{
     }
 
     async function createClass(){
+      if(!canCurrentUserManageCenter()){
+        alert("Aquest compte convidat no pot crear classes ni gestionar el centre.");
+        return;
+      }
       alert("Ara les classes noves es creen des de la pantalla inicial, en donar d'alta un mestre/a nou.");
     }
 
@@ -3492,6 +3515,7 @@ ${zoomStyle}</style>
     updateLanguageButtons();
     updateGradeSelectLanguage();
     attachEvents();
+    syncCenterManagementVisibility();
     setValue("evaluationSelect", "eval1");
     updateLabels();
     clearForm();
