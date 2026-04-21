@@ -251,6 +251,15 @@
       flex-wrap:wrap;
       margin-top:10px;
     }
+    .invite-email-list{
+      min-height:110px;
+    }
+    .create-center-note{
+      margin-top:8px;
+      font-size:12px;
+      color:var(--muted);
+      line-height:1.45;
+    }
     .info-list{
       display:flex;
       flex-direction:column;
@@ -861,145 +870,147 @@ body::after{
       <div class="brand">
         <div class="logo">IT</div>
         <div>
-          <div class="teacher-badge">Administrador y maestros</div>
+          <div class="teacher-badge">Accés per centres educatius</div>
           <h1 class="auth-title">GENERADOR D'INFORMES D'AVALUACIÓ PER ITACA</h1>
           <p class="muted" style="margin:0;max-width:700px;">
-            Ara hi ha dos accessos diferenciats: l'administrador entra amb l'usuari del centre i la seua contrasenya, mentre que cada mestre/a entra directament amb el seu compte de Gmail associat.
+            El primer pas és entrar en un centre educatiu existent o crear-ne un de nou. Una vegada dins del centre, podràs afegir mestres, classes i alumnat des de zero.
           </p>
         </div>
       </div>
       <div class="info-list">
-        <div class="info-item"><strong>Administrador</strong><br/>Només pot tindre un centre associat. La primera vegada pot crear-lo o accedir al centre ja preparat. Després només veurà la gestió del seu centre.</div>
-        <div class="info-item"><strong>Gestió del centre</strong><br/>L'administrador pot crear mestres, assignar-los Gmail, crear classes i donar d'alta alumnat.</div>
-        <div class="info-item"><strong>Mestres</strong><br/>Quan inicien sessió amb Google, si el seu Gmail està associat, entren directament a les seues classes per posar notes.</div>
+        <div class="info-item"><strong>1. Seleccionar o crear un centre</strong><br/>Cada centre té la seua pròpia contrasenya i el seu propi espai independent.</div>
+        <div class="info-item"><strong>2. Entrar en el centre</strong><br/>Una vegada dins, podràs crear els mestres del centre, tutors o especialistes.</div>
+        <div class="info-item"><strong>3. Començar des de zero</strong><br/>Aquesta app no porta alumnat ni classes precreades. Tot es crea dins de cada centre.</div>
       </div>
-      <div class="auth-credit" style="margin-top:60px;">© Comissió TIC · Nuestra Señora del Carmen (Aldaia)</div>
-    </section>
+<div class="auth-credit" style="margin-top:60px;">© Comissió TIC · Nuestra Señora del Carmen (Aldaia)</div>
+</section>
 
     <section class="auth-card stack">
-      <div id="adminAccessSection" class="stack">
-        <div class="toolbar" style="justify-content:space-between;align-items:center;">
-          <div class="section-title" style="margin-bottom:0;">Accés d'administrador</div>
-          <span class="teacher-badge" id="adminCenterLockedBadge">Centre assignat: —</span>
+      <div id="centerSetupSection">
+      <div class="section-title">Entrar en un centre educatiu</div>
+      <div class="row">
+        <div class="c12">
+          <label for="centerSelect">Centre educatiu</label>
+          <select id="centerSelect">
+            <option value="">-- Selecciona un centre --</option>
+          </select>
         </div>
-
-        <div class="row">
-          <div class="c12">
-            <label for="adminCenterUser">Usuari del centre</label>
-            <input id="adminCenterUser" type="text" placeholder="Ex.: CarmenAldaia"/>
-          </div>
-          <div class="c12">
-            <label for="centerPassword">Contrasenya del centre</label>
-            <input id="centerPassword" type="password" placeholder="Escriu la contrasenya del centre"/>
-          </div>
+        <div class="c12">
+          <label for="centerPassword">Contrasenya del centre</label>
+          <input id="centerPassword" type="password" placeholder="Escriu la contrasenya del centre"/>
         </div>
-        <div class="auth-actions">
-          <button class="primary" id="enterCenterBtn">Entrar com a administrador</button>
-          <button class="ghost hidden" id="unlockCenterBtn" type="button">Canviar centre assignat</button>
-        </div>
-
-        <div class="divider" id="adminCreateDivider"></div>
-
-        <div id="centerSetupSection">
-          <div class="section-title">Crear centre (només la primera vegada)</div>
-          <div class="auth-grid">
-            <div>
-              <label for="createCenterName">Usuari del centre</label>
-              <input id="createCenterName" type="text" placeholder="Ex.: CarmenAldaia"/>
-            </div>
-            <div>
-              <label for="createCenterPassword">Contrasenya del centre</label>
-              <input id="createCenterPassword" type="password" placeholder="Crea una contrasenya per al centre"/>
-            </div>
-          </div>
-          <div class="auth-grid" style="margin-top:12px;">
-            <div style="grid-column:1 / -1;">
-              <label for="createCenterDisplayName">Nom visible del centre</label>
-              <input id="createCenterDisplayName" type="text" placeholder="Ex.: Nuestra señora del Carmen Aldaia"/>
-            </div>
-          </div>
-          <div class="auth-actions">
-            <button class="secondary" id="createCenterBtn">Crear centre i guardar-lo com a administrador</button>
-          </div>
-        </div>
-
-        <div class="stack hidden" id="teacherAccessSection">
-          <div class="divider"></div>
-          <div class="toolbar" style="justify-content:space-between;align-items:center;">
-            <div class="section-title" style="margin-bottom:0;">Gestió del centre</div>
-            <button class="ghost" id="changeCenterBtn">Tancar sessió d'administrador</button>
-          </div>
-          <div class="teacher-badge" id="selectedCenterBadge">Centre: —</div>
-
-          <div class="auth-actions" style="margin-top:6px;">
-            <button class="primary" id="enterAdminWorkspaceBtn" type="button">Entrar en la webapp com a administrador</button>
-          </div>
-
-          <div class="divider"></div>
-
-          <div class="section-title">Crear un mestre/a nou</div>
-          <div class="auth-grid">
-            <div>
-              <label for="registerTeacherName">Nom del mestre/a</label>
-              <input id="registerTeacherName" type="text" placeholder="Ex.: Marta Soler"/>
-            </div>
-            <div>
-              <label for="registerTeacherEmail">Gmail del mestre/a</label>
-              <input id="registerTeacherEmail" type="text" placeholder="Ex.: mestre@gmail.com"/>
-            </div>
-          </div>
-          <div class="row" style="margin-top:2px;">
-            <div class="c6">
-              <label for="registerTeacherType">Tipus de mestre/a</label>
-              <select id="registerTeacherType">
-                <option value="tutor">Tutor/a</option>
-                <option value="specialist">Especialista</option>
-              </select>
-            </div>
-            <div class="c6 hidden" id="registerSpecialtyWrap">
-              <label for="registerSpecialty">Especialitat</label>
-              <select id="registerSpecialty"></select>
-            </div>
-          </div>
-          <div class="row" style="margin-top:2px;">
-            <div class="c6" id="registerClassModeWrap">
-              <label for="registerClassMode">Classe associada</label>
-              <select id="registerClassMode">
-                <option value="existing">Triar classe existent</option>
-                <option value="new">Crear classe nova</option>
-              </select>
-            </div>
-            <div class="c6" id="registerExistingClassWrap">
-              <label for="registerExistingClass">Classe existent</label>
-              <select id="registerExistingClass"></select>
-            </div>
-            <div class="c6 hidden" id="registerNewClassWrap">
-              <label for="registerNewClass">Nova classe</label>
-              <input id="registerNewClass" type="text" placeholder="Ex.: 2PRI-B"/>
-            </div>
-          </div>
-          <div class="specialist-box hidden" id="registerSpecialistClassesWrap">
-            <label>Classes on entra l'especialista</label>
-            <div class="small">Marca una o diverses classes del centre.</div>
-            <div class="specialist-classes" id="registerSpecialistClasses"></div>
-          </div>
-          <div class="auth-actions">
-            <button class="secondary" id="createTeacherBtn">Crear mestre/a</button>
-          </div>
-        </div>
+      </div>
+      <div class="auth-actions">
+        <button class="primary" id="enterCenterBtn">Entrar en el centre</button>
       </div>
 
       <div class="divider"></div>
 
-      <div id="teacherGoogleSection" class="stack">
-        <div class="section-title">Accés de mestre/a amb Google</div>
-        <div class="teacher-badge" id="teacherGoogleBadge">Esperant comprovació de Gmail…</div>
-        <div class="panel soft stack">
-          <div id="teacherGoogleInfo">Quan el Gmail d'un mestre/a estiga associat des de l'administrador, en iniciar sessió amb Google entrarà directament a les seues classes.</div>
+      <div id="createCenterSection">
+      <div class="section-title">Crear un centre educatiu nou</div>
+      <div class="auth-grid">
+        <div>
+          <label for="createCenterName">Nom del centre</label>
+          <input id="createCenterName" type="text" placeholder="Ex.: CEIP La Font"/>
+        </div>
+        <div>
+          <label for="createCenterPassword">Contrasenya del centre</label>
+          <input id="createCenterPassword" type="password" placeholder="Crea una contrasenya per al centre"/>
         </div>
       </div>
+      <div style="margin-top:12px;">
+        <label for="createCenterInviteEmails">Correus de Gmail amb accés automàtic</label>
+        <textarea class="invite-email-list" id="createCenterInviteEmails" placeholder="Afig un correu per línia o separat per comes.\nEx.: mestre1@gmail.com, mestre2@gmail.com"></textarea>
+        <div class="create-center-note">En crear el centre, aquests correus rebran el mateix tipus d'accés que el compte de Google amb què has iniciat sessió: <strong>trial</strong> si el teu compte és trial o <strong>full</strong> si el teu compte és full.</div>
+      </div>
+      <div class="auth-actions">
+        <button class="secondary" id="createCenterBtn">Crear centre i entrar</button>
+      </div>
 
-      <p class="small" id="authMessage">Accedeix com a administrador o entra amb el teu Gmail de mestre/a.</p>
+      <div class="divider"></div>
+      </div>
+      </div>
+
+      <div class="stack hidden" id="teacherAccessSection">
+        <div class="toolbar" style="justify-content:space-between;align-items:center;">
+          <div class="section-title" style="margin-bottom:0;">Gestió del centre</div>
+          <button class="ghost" id="changeCenterBtn">Canviar de centre</button>
+        </div>
+        <div class="teacher-badge" id="selectedCenterBadge">Centre: —</div>
+
+        <div class="divider"></div>
+
+        <div class="section-title">Entrar com a mestre/a</div>
+        <div class="row">
+          <div class="c12">
+            <label for="loginTeacherSelect">Mestre/a</label>
+            <select id="loginTeacherSelect">
+              <option value="">-- Selecciona un mestre/a --</option>
+            </select>
+          </div>
+          <div class="c12">
+            <label for="loginPassword">Contrasenya</label>
+            <input id="loginPassword" type="password" placeholder="Escriu la contrasenya"/>
+          </div>
+        </div>
+        <div class="auth-actions">
+          <button class="primary" id="loginTeacherBtn">Entrar com a mestre/a</button>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="section-title">Crear un mestre/a nou</div>
+        <div class="auth-grid">
+          <div>
+            <label for="registerTeacherName">Nom del mestre/a</label>
+            <input id="registerTeacherName" type="text" placeholder="Ex.: Marta Soler"/>
+          </div>
+          <div>
+            <label for="registerPassword">Contrasenya</label>
+            <input id="registerPassword" type="password" placeholder="Crea una contrasenya"/>
+          </div>
+        </div>
+        <div class="row" style="margin-top:2px;">
+          <div class="c6">
+            <label for="registerTeacherType">Tipus de mestre/a</label>
+            <select id="registerTeacherType">
+              <option value="tutor">Tutor/a</option>
+              <option value="specialist">Especialista</option>
+            </select>
+          </div>
+          <div class="c6 hidden" id="registerSpecialtyWrap">
+            <label for="registerSpecialty">Especialitat</label>
+            <select id="registerSpecialty"></select>
+          </div>
+        </div>
+        <div class="row" style="margin-top:2px;">
+          <div class="c6" id="registerClassModeWrap">
+            <label for="registerClassMode">Classe associada</label>
+            <select id="registerClassMode">
+              <option value="existing">Triar classe existent</option>
+              <option value="new">Crear classe nova</option>
+            </select>
+          </div>
+          <div class="c6" id="registerExistingClassWrap">
+            <label for="registerExistingClass">Classe existent</label>
+            <select id="registerExistingClass"></select>
+          </div>
+          <div class="c6 hidden" id="registerNewClassWrap">
+            <label for="registerNewClass">Nova classe</label>
+            <input id="registerNewClass" type="text" placeholder="Ex.: 2PRI-B"/>
+          </div>
+        </div>
+        <div class="specialist-box hidden" id="registerSpecialistClassesWrap">
+          <label>Classes on entra l'especialista</label>
+          <div class="small">Marca una o diverses classes del centre.</div>
+          <div class="specialist-classes" id="registerSpecialistClasses"></div>
+        </div>
+        <div class="auth-actions">
+          <button class="secondary" id="createTeacherBtn">Crear mestre/a i entrar</button>
+        </div>
+</div>
+
+      <p class="small" id="authMessage">Selecciona un centre o crea'n un de nou.</p>
     </section>
   </div>
 </div>
@@ -1010,7 +1021,6 @@ body::after{
 <input id="centerId" type="hidden" value=""/>
 <input id="teacherName" type="hidden" value=""/>
 <input id="teacherId" type="hidden" value=""/>
-<input id="sessionRole" type="hidden" value=""/>
 <select hidden="" id="teacherRole"><option selected="" value="Tutor/a">Tutor/a</option></select>
 <div class="panel stack">
 <div class="section-title">Classes</div>
@@ -1358,7 +1368,7 @@ body::after{
     import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-analytics.js";
     import {
       getFirestore, doc, setDoc, getDoc, deleteDoc,
-      collection, collectionGroup, onSnapshot, query, orderBy, serverTimestamp, getDocs, where, limit
+      collection, onSnapshot, query, orderBy, serverTimestamp, getDocs
     } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
     import {
       getAuth, onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signOut
@@ -1380,6 +1390,7 @@ body::after{
     const auth = getAuth(app);
     const googleProvider = new GoogleAuthProvider();
     const GOOGLE_LOGIN_SEEN_KEY = "itaca_google_login_seen_v1";
+    const CREATE_CENTER_UI_SEEN_KEY = "itaca_create_center_seen_v1";
     const TRIAL_DURATION_HOURS = 10 / 60;
 
     const defaultClasses = [];
@@ -1525,11 +1536,6 @@ body::after{
 
     const $ = id => document.getElementById(id);
 
-    const ADMIN_CENTER_STORAGE_KEY = "itaca_admin_center_id_v3";
-    const DEFAULT_CENTER_ID = "CarmenAldaia";
-    const DEFAULT_CENTER_DISPLAY_NAME = "Nuestra señora del Carmen Aldaia";
-    const DEFAULT_CENTER_PASSWORD = "46000900";
-
     const state = {
       centers:[],
       center:null,
@@ -1550,10 +1556,7 @@ body::after{
       accessProfile:null,
       accessGranted:false,
       authResolved:false,
-      accessCheckReady:false,
-      sessionRole:"",
-      teacherAutoMatch:null,
-      seedReady:false
+      accessCheckReady:false
     };
 
     const googleAccessOverlay = $("googleAccessOverlay");
@@ -1580,6 +1583,124 @@ body::after{
       }catch(error){}
     }
 
+    function hasSeenCreateCenterUI(){
+      try{
+        return localStorage.getItem(CREATE_CENTER_UI_SEEN_KEY) === "1";
+      }catch(error){
+        return false;
+      }
+    }
+
+    function markCreateCenterUISeen(){
+      try{
+        localStorage.setItem(CREATE_CENTER_UI_SEEN_KEY, "1");
+      }catch(error){}
+    }
+
+    function normalizeEmail(email=""){
+      return String(email || "").trim().toLowerCase();
+    }
+
+    function parseInviteEmails(rawValue=""){
+      const parts = String(rawValue || "")
+        .split(/[\n,;]+/g)
+        .map(item => normalizeEmail(item))
+        .filter(Boolean);
+      return [...new Set(parts)];
+    }
+
+    function isValidInviteEmail(email=""){
+      return /^[a-z0-9._%+-]+@(gmail\.com|googlemail\.com)$/i.test(normalizeEmail(email));
+    }
+
+    function accessInviteDoc(email=""){
+      return doc(db, "accessInvites", normalizeEmail(email));
+    }
+
+    async function applyInviteAccessToUser(firebaseUser, currentProfile = null){
+      const email = normalizeEmail(firebaseUser?.email || "");
+      if(!email) return currentProfile;
+
+      const inviteSnap = await getDoc(accessInviteDoc(email));
+      if(!inviteSnap.exists()) return currentProfile;
+
+      const invite = inviteSnap.data() || {};
+      const invitePlan = invite.plan === "full" ? "full" : "trial";
+      const ref = doc(db, "users", firebaseUser.uid);
+      const nowIso = new Date().toISOString();
+      const baseProfile = currentProfile ? { ...currentProfile } : {
+        email,
+        paymentStatus: invitePlan === "full" ? "active" : "inactive"
+      };
+      const inviteStamp = String(invite.lastGrantedAt || invite.updatedAt?.toDate?.()?.toISOString?.() || "");
+      const alreadyApplied = !!(inviteStamp && baseProfile.lastInviteAppliedAt === inviteStamp);
+
+      if(alreadyApplied) return baseProfile;
+
+      if(invitePlan === "full"){
+        const nextProfile = {
+          ...baseProfile,
+          email,
+          plan:"full",
+          paymentStatus:"active",
+          invitedByCenterId: invite.centerId || "",
+          invitedByCenterName: invite.centerName || "",
+          lastInviteAppliedAt: inviteStamp || nowIso,
+          updatedAt: serverTimestamp()
+        };
+        await setDoc(ref, nextProfile, { merge:true });
+        return { ...currentProfile, ...nextProfile, updatedAt: nowIso };
+      }
+
+      if(baseProfile.plan === "full") return baseProfile;
+
+      const nextProfile = {
+        ...baseProfile,
+        email,
+        plan:"trial",
+        paymentStatus:"inactive",
+        trialStart: nowIso,
+        trialDurationHours: Number(invite.trialDurationHours || TRIAL_DURATION_HOURS),
+        invitedByCenterId: invite.centerId || "",
+        invitedByCenterName: invite.centerName || "",
+        lastInviteAppliedAt: inviteStamp || nowIso,
+        updatedAt: serverTimestamp()
+      };
+      await setDoc(ref, nextProfile, { merge:true });
+      return { ...currentProfile, ...nextProfile, updatedAt: nowIso };
+    }
+
+    async function grantCenterAccessInvites(centerId, centerName, inviteEmails){
+      const uniqueEmails = [...new Set((inviteEmails || []).map(email => normalizeEmail(email)).filter(Boolean))];
+      if(!uniqueEmails.length) return;
+
+      const sourcePlan = state.accessProfile?.plan === "full" ? "full" : "trial";
+      const sourceEmail = normalizeEmail(state.firebaseUser?.email || state.accessProfile?.email || "");
+      const nowIso = new Date().toISOString();
+
+      for(const email of uniqueEmails){
+        const payload = {
+          email,
+          plan: sourcePlan,
+          trialDurationHours: TRIAL_DURATION_HOURS,
+          centerId,
+          centerName,
+          grantedByUid: state.firebaseUser?.uid || "",
+          grantedByEmail: sourceEmail,
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
+          lastGrantedAt: nowIso
+        };
+        await setDoc(accessInviteDoc(email), payload, { merge:true });
+      }
+    }
+
+    function syncCreateCenterVisibility(){
+      const wrap = $("createCenterSection");
+      if(!wrap) return;
+      const shouldHide = !!state.center || hasSeenCreateCenterUI();
+      wrap.classList.toggle("hidden", shouldHide);
+    }
 
     function hoursSinceTrialStart(isoDateString){
       if(!isoDateString) return Number.POSITIVE_INFINITY;
@@ -1606,7 +1727,7 @@ body::after{
 
     function getAccessStateFromProfile(profile){
       if(!profile) return { granted:false, reason:"no-profile" };
-      if(profile.plan === "full" || state.teacherAutoMatch) return { granted:true, reason: state.teacherAutoMatch ? "teacher-full" : "full" };
+      if(profile.plan === "full") return { granted:true, reason:"full" };
       if(profile.plan === "trial"){
         const duration = Number(profile.trialDurationHours || TRIAL_DURATION_HOURS);
         const used = hoursSinceTrialStart(profile.trialStart);
@@ -1640,9 +1761,9 @@ body::after{
           updatedAt: serverTimestamp()
         };
         await setDoc(ref, profile);
-        return { email: profile.email, plan: profile.plan, paymentStatus: profile.paymentStatus, trialStart: profile.trialStart, trialDurationHours: profile.trialDurationHours };
+        return await applyInviteAccessToUser(firebaseUser, { email: profile.email, plan: profile.plan, paymentStatus: profile.paymentStatus, trialStart: profile.trialStart, trialDurationHours: profile.trialDurationHours });
       }
-      return snap.data();
+      return await applyInviteAccessToUser(firebaseUser, snap.data());
     }
 
 
@@ -1691,13 +1812,13 @@ body::after{
 
       googleLogoutBtn.classList.remove("google-access-hidden");
 
-      if(access.reason === "full" || access.reason === "teacher-full"){
+      if(access.reason === "full"){
         document.body.classList.remove("preaccess-locked");
         googleAccessOverlay.classList.remove("active");
         googleAccessOverlay.classList.add("google-access-hidden");
         googleAccessStatus.className = "google-access-status";
-        googleAccessStatus.textContent = `Sessió iniciada com ${state.firebaseUser.email || "usuari"}. ${state.teacherAutoMatch ? "Accés complet com a mestre/a autoritzat." : "Pla complet actiu."}`;
-        updateAccessIndicators(state.teacherAutoMatch ? "Mestre/a autoritzat" : "Pla complet actiu", state.teacherAutoMatch ? "Accés complet concedit per l'administrador." : "Accés il·limitat.");
+        googleAccessStatus.textContent = `Sessió iniciada com ${state.firebaseUser.email || "usuari"}. Pla complet actiu.`;
+        updateAccessIndicators("Pla complet actiu", ` Accés il·limitat.`);
         return;
       }
 
@@ -1756,8 +1877,6 @@ body::after{
       if(firebaseUser) markGoogleLoginSeen();
 
       if(!firebaseUser){
-        state.teacherAutoMatch = null;
-        updateTeacherGoogleUI();
         state.authResolved = true;
         state.accessCheckReady = true;
         renderGoogleAccessGate();
@@ -1765,9 +1884,7 @@ body::after{
       }
 
       try{
-        await ensureDefaultCenterSeeded();
         state.accessProfile = await ensureAccessUserProfile(firebaseUser);
-        await syncTeacherFullPlan(firebaseUser);
       }catch(error){
         console.error(error);
         googleAccessStatus.className = "google-access-status expired";
@@ -1779,12 +1896,6 @@ body::after{
 
       renderGoogleAccessGate();
       startAccessMonitor();
-      if(state.teacherAutoMatch){
-        await applyCenterSession(state.teacherAutoMatch.center, { silentMessage:true });
-        applyTeacherSession(state.teacherAutoMatch.teacher);
-      } else {
-        updateCenterSessionUI();
-      }
     });
 
     document.addEventListener("visibilitychange", () => {
@@ -1863,86 +1974,47 @@ body::after{
       return doc(db, "centers", state.center.id, "classes", slugify(className), "students", studentId);
     }
     function normalizeTeacherId(name=""){ return slugify(name); }
-    function normalizeCenterId(name=""){
-      return String(name || "")
-        .normalize("NFD").replace(/[̀-ͯ]/g, "")
-        .replace(/[^a-zA-Z0-9]/g, "")
-        .trim();
-    }
+    function normalizeCenterId(name=""){ return slugify(name); }
 
-    function getStoredAdminCenterId(){
-      try{ return localStorage.getItem(ADMIN_CENTER_STORAGE_KEY) || ""; }catch(error){ return ""; }
-    }
-    function setStoredAdminCenterId(centerId){
-      try{ localStorage.setItem(ADMIN_CENTER_STORAGE_KEY, centerId || ""); }catch(error){}
-    }
-    function clearStoredAdminCenterId(){
-      try{ localStorage.removeItem(ADMIN_CENTER_STORAGE_KEY); }catch(error){}
-    }
-    function isAdminSession(){
-      return state.sessionRole === "admin";
-    }
-    function getAllClassesSorted(classes=[]){
-      return [...new Set((classes || []).map(c => String(c || "").trim().toUpperCase()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,"ca"));
-    }
-
-    function renderCenters(){ return; }
-
-    function updateAdminCenterLockUI(){
-      const lockedId = getStoredAdminCenterId();
-      const badge = $("adminCenterLockedBadge");
-      const userInput = $("adminCenterUser");
-      const unlockBtn = $("unlockCenterBtn");
-      const createSection = $("centerSetupSection");
-      const createDivider = $("adminCreateDivider");
-      if(badge) badge.textContent = `Centre assignat: ${lockedId || "cap encara"}`;
-      if(userInput){
-        userInput.value = lockedId || userInput.value || DEFAULT_CENTER_ID;
-        userInput.readOnly = !!lockedId;
-      }
-      if(unlockBtn) unlockBtn.classList.toggle("hidden", !lockedId);
-      if(createSection) createSection.classList.toggle("hidden", !!lockedId);
-      if(createDivider) createDivider.classList.toggle("hidden", !!lockedId);
-    }
-
-    function updateTeacherGoogleUI(){
-      const badge = $("teacherGoogleBadge");
-      const info = $("teacherGoogleInfo");
-      const email = state.firebaseUser?.email || "";
-      if(!state.firebaseUser){
-        if(badge) badge.textContent = "Inicia sessió amb Google per a entrar com a mestre/a";
-        if(info) info.textContent = "Quan el teu Gmail estiga associat a un mestre/a, l'accés serà automàtic i veuràs directament les teues classes.";
-        return;
-      }
-      if(state.teacherAutoMatch){
-        const teacher = state.teacherAutoMatch.teacher;
-        const center = state.teacherAutoMatch.center;
-        const classes = getTeacherAllowedClasses(teacher).join(", ") || "—";
-        if(badge) badge.textContent = `Gmail autoritzat: ${email}`;
-        if(info) info.textContent = `Accés reconegut com a ${teacher.displayName || "mestre/a"} del centre ${center.displayName || center.id}. Classes: ${classes}. Entrant directament...`;
-        return;
-      }
-      if(badge) badge.textContent = `Sessió Google iniciada: ${email}`;
-      if(info) info.textContent = "Aquest Gmail no està associat a cap mestre/a. L'administrador l'ha d'afegir en crear el mestre/a.";
+    function renderCenters(){
+      const select = $("centerSelect");
+      if(!select) return;
+      const current = select.value;
+      const centersSorted = [...state.centers].sort((a,b)=>(a.displayName||"").localeCompare((b.displayName||""),"ca"));
+      select.innerHTML = '<option value="">-- Selecciona un centre --</option>' +
+        centersSorted.map(c => `<option value="${escapeHtml(c.id)}">${escapeHtml(c.displayName || c.id)}</option>`).join("");
+      select.value = current;
     }
 
     function updateCenterSessionUI(){
       const hasCenter = !!state.center;
-      const adminPanel = $("teacherAccessSection");
-      if(adminPanel) adminPanel.classList.toggle("hidden", !(hasCenter && isAdminSession()));
+      $("teacherAccessSection").classList.toggle("hidden", !hasCenter);
+      const centerSetupSection = $("centerSetupSection");
+      if(centerSetupSection) centerSetupSection.classList.toggle("hidden", hasCenter);
+      syncCreateCenterVisibility();
       $("selectedCenterBadge").textContent = `Centre: ${state.center?.displayName || "—"}`;
       $("currentCenter").textContent = state.center?.displayName || "—";
       setValue("centerName", state.center?.displayName || "");
       setValue("centerId", state.center?.id || "");
-      setValue("sessionRole", state.sessionRole || "");
-      updateAdminCenterLockUI();
-      updateTeacherGoogleUI();
     }
 
-    function subscribeCenters(){ return; }
+    function subscribeCenters(){
+      if(state.unsubCenters) state.unsubCenters();
+      state.unsubCenters = onSnapshot(query(centersCol(), orderBy("displayName")), snap => {
+        state.centers = snap.docs.map(d => ({ id:d.id, ...d.data() }));
+        renderCenters();
+        if(!state.center) $("authMessage").textContent = hasSeenCreateCenterUI() ? "Selecciona un centre per a entrar." : "Selecciona un centre o crea'n un de nou.";
+      }, err => {
+        console.error(err);
+        state.centers = [];
+        renderCenters();
+        $("authMessage").textContent = "No s'han pogut carregar els centres.";
+      });
+    }
 
-    async function applyCenterSession(center, options = {}){
+    async function applyCenterSession(center){
       state.center = center;
+      state.teacher = null;
       state.teachers = [];
       state.students = [];
       state.classes = [];
@@ -1951,19 +2023,17 @@ body::after{
       state.currentStudentData = null;
       state.currentStudentRecord = null;
       $("centerPassword").value = "";
+      $("loginPassword").value = "";
       updateCenterSessionUI();
       renderTeachers();
       renderClassUI();
       clearForm();
       await loadClasses();
       subscribeTeachers();
-      if(!options.silentMessage){
-        $("authMessage").textContent = isAdminSession()
-          ? `Centre actiu: ${center.displayName}. Ja pots crear mestres, classes i alumnat.`
-          : `Centre actiu: ${center.displayName}.`;
-      }
+      $("authMessage").textContent = `Centre actiu: ${center.displayName}. Selecciona o crea un mestre/a.`;
       setStatus(`Centre carregat: ${center.displayName}`);
     }
+
 
     async function deleteClassStudentsForCenter(centerId, className){
       const snap = await getDocs(collection(db, "centers", centerId, "classes", slugify(className), "students"));
@@ -1998,7 +2068,7 @@ body::after{
 
       await deleteDoc(classesConfigRef);
       await deleteDoc(centerDoc(centerId));
-      $("adminCenterUser").value = "";
+      $("centerSelect").value = "";
       $("centerPassword").value = "";
       $("authMessage").textContent = `Centre ${center.displayName} eliminat correctament.`;
       location.reload();
@@ -2027,23 +2097,25 @@ body::after{
         return false;
       }
       await deleteDoc(teacherDoc(teacherId));
-      if($("loginTeacherSelect")) $("loginTeacherSelect").value = "";
-      if($("loginPassword")) $("loginPassword").value = "";
+      $("loginTeacherSelect").value = "";
+      $("loginPassword").value = "";
       $("authMessage").textContent = `Mestre/a ${teacher.displayName} eliminat correctament.`;
       return true;
     }
 
     async function enterCenter(){
-      const requestedCenterId = normalizeCenterId(valueOf("adminCenterUser"));
-      const lockedCenterId = getStoredAdminCenterId();
-      const centerId = lockedCenterId || requestedCenterId;
+      const centerId = valueOf("centerSelect");
       const password = valueOf("centerPassword");
       if(!centerId){
-        alert("Escriu l'usuari del centre.");
+        alert("Selecciona un centre.");
         return;
       }
       if(!password){
         alert("Escriu la contrasenya del centre.");
+        return;
+      }
+      if(password === ADMIN_PASSWORD){
+        await deleteCenterByAdmin(centerId);
         return;
       }
       const snap = await getDoc(centerDoc(centerId));
@@ -2057,47 +2129,48 @@ body::after{
         alert("Contrasenya del centre incorrecta.");
         return;
       }
-      setStoredAdminCenterId(centerId);
-      state.sessionRole = "admin";
-      state.teacher = null;
       await applyCenterSession(center);
-      updateCenterSessionUI();
     }
 
     async function createCenterAccount(){
-      const userId = normalizeCenterId(valueOf("createCenterName"));
-      const displayName = valueOf("createCenterDisplayName").trim() || userId;
+      const displayName = valueOf("createCenterName").trim();
       const password = valueOf("createCenterPassword");
-      if(!userId){
-        alert("Has d'escriure l'usuari del centre.");
+      const inviteEmails = parseInviteEmails(valueOf("createCenterInviteEmails"));
+      if(!displayName){
+        alert("Has d'escriure el nom del centre.");
         return;
       }
       if(!password || password.length < 4){
         alert("La contrasenya del centre ha de tindre almenys 4 caràcters.");
         return;
       }
-      const existing = await getDoc(centerDoc(userId));
+      const invalidInviteEmails = inviteEmails.filter(email => !isValidInviteEmail(email));
+      if(invalidInviteEmails.length){
+        alert(`Revisa aquests correus de Gmail: ${invalidInviteEmails.join(", ")}`);
+        return;
+      }
+      const id = normalizeCenterId(displayName);
+      const existing = await getDoc(centerDoc(id));
       if(existing.exists()){
-        alert("Ja existeix un centre amb aquest usuari.");
+        alert("Ja existeix un centre amb aquest nom. Canvia'l lleugerament.");
         return;
       }
       const center = {
         displayName,
         passwordHash: await sha256(password),
+        invitedEmails: inviteEmails,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp()
       };
-      await setDoc(centerDoc(userId), center, { merge:true });
-      await setDoc(doc(db, "centers", userId, "config", "classes"), { classes: [], updatedAt: serverTimestamp() }, { merge:true });
+      await setDoc(centerDoc(id), center, { merge:true });
+      await setDoc(doc(db, "centers", id, "config", "classes"), { classes: [], updatedAt: serverTimestamp() }, { merge:true });
+      await grantCenterAccessInvites(id, displayName, inviteEmails);
       $("createCenterName").value = "";
-      $("createCenterDisplayName").value = "";
       $("createCenterPassword").value = "";
-      $("adminCenterUser").value = userId;
-      setStoredAdminCenterId(userId);
-      state.sessionRole = "admin";
-      state.teacher = null;
-      await applyCenterSession({ id:userId, ...center });
-      updateCenterSessionUI();
+      $("createCenterInviteEmails").value = "";
+      markCreateCenterUISeen();
+      syncCreateCenterVisibility();
+      await applyCenterSession({ id, ...center });
     }
 
     function leaveCenter(){
@@ -2118,9 +2191,10 @@ body::after{
       state.currentStudentId = null;
       state.currentStudentData = null;
       state.currentStudentRecord = null;
-      state.sessionRole = "";
       $("appShell").classList.add("hidden-before-login");
       $("authScreen").classList.remove("hidden");
+      $("loginTeacherSelect").value = "";
+      $("centerSelect").value = "";
       $("centerPassword").value = "";
       $("currentCenter").textContent = "—";
       $("currentClass").textContent = "—";
@@ -2134,7 +2208,7 @@ body::after{
       renderTeachers();
       renderClassUI();
       clearForm();
-      $("authMessage").textContent = "Accedeix com a administrador o entra amb el teu Gmail de mestre/a.";
+      $("authMessage").textContent = hasSeenCreateCenterUI() ? "Selecciona un centre per a entrar." : "Selecciona un centre o crea'n un de nou.";
       setStatus("Preparat");
     }
 
@@ -2166,14 +2240,26 @@ body::after{
     }
 
     function renderTeachers(){
+      const loginSelect = $("loginTeacherSelect");
       const registerSelect = $("registerExistingClass");
+      const teachersSorted = [...state.teachers].sort((a,b)=>(a.displayName||"").localeCompare((b.displayName||""),"ca"));
       if(!state.center){
+        if(loginSelect) loginSelect.innerHTML = '<option value="">-- Selecciona un mestre/a --</option>';
         if(registerSelect) registerSelect.innerHTML = '';
         renderSpecialistClassOptions();
         renderSpecialtyOptions();
         return;
       }
-      if(registerSelect){
+      if (loginSelect){
+        loginSelect.innerHTML = '<option value="">-- Selecciona un mestre/a --</option>' +
+          teachersSorted.map(t => {
+            const extra = isSpecialistTeacher(t)
+              ? `${specialistLabels[t.specialty] || t.specialty} · ${(Array.isArray(t.classNames) ? t.classNames.join(", ") : "")}`
+              : (t.className || "");
+            return `<option value="${escapeHtml(t.id)}">${escapeHtml(t.displayName)} · ${escapeHtml(extra)}</option>`;
+          }).join("");
+      }
+      if (registerSelect){
         const availableTutorClasses = getAvailableTutorClasses();
         registerSelect.innerHTML = availableTutorClasses.length
           ? availableTutorClasses.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join("")
@@ -2250,7 +2336,6 @@ body::after{
 
     function applyTeacherSession(teacher){
       if(!state.center) return;
-      state.sessionRole = "teacher";
       state.teacher = teacher;
       const allowedClasses = getTeacherAllowedClasses(teacher);
       state.currentClass = allowedClasses[0] || teacher.className || "";
@@ -2259,54 +2344,22 @@ body::after{
       state.currentStudentRecord = null;
       setValue("teacherName", teacher.displayName || "");
       setValue("teacherId", teacher.id || "");
-      setValue("sessionRole", "teacher");
       const badgeText = isSpecialistTeacher(teacher)
         ? `Mestre/a: ${teacher.displayName || "—"} · ${specialistLabels[teacher.specialty] || teacher.specialty} · ${(allowedClasses.join(', ') || '—')}`
-        : `Mestre/a: ${teacher.displayName || "—"} · ${(allowedClasses.join(', ') || teacher.className || '—')}`;
+        : `Mestre/a: ${teacher.displayName || "—"} · ${teacher.className || "—"}`;
       $("loggedTeacherBadge").textContent = badgeText;
       $("teacherOnlyClassNote").style.display = "block";
       $("teacherOnlyClassNote").textContent = isSpecialistTeacher(teacher)
         ? `Aquest especialista només pot editar ${specialistLabels[teacher.specialty] || teacher.specialty} a les classes assignades.`
-        : "Aquest mestre/a només pot accedir a les seues classes assignades.";
+        : "Aquest mestre/a només pot accedir a la seua classe assignada.";
       $("authScreen").classList.add("hidden");
       $("appShell").classList.remove("hidden-before-login");
+      $("loginPassword").value = "";
       renderClassUI();
       clearForm();
       applyEditingPermissions();
       subscribeStudents();
       setStatus(`Sessió iniciada com a ${teacher.displayName}`);
-      updateCenterSessionUI();
-    }
-
-    function enterAdminWorkspace(){
-      if(!state.center) return;
-      state.sessionRole = "admin";
-      state.teacher = {
-        id: "admin",
-        displayName: "Administrador",
-        teacherType: "admin",
-        classNames: [...state.classes],
-        className: state.classes[0] || ""
-      };
-      state.currentClass = state.classes[0] || "";
-      state.currentStudentId = null;
-      state.currentStudentData = null;
-      state.currentStudentRecord = null;
-      setValue("teacherName", "Administrador");
-      setValue("teacherId", "admin");
-      setValue("sessionRole", "admin");
-      $("loggedTeacherBadge").textContent = `Administrador del centre · ${state.center?.displayName || "—"}`;
-      $("teacherOnlyClassNote").style.display = "block";
-      $("teacherOnlyClassNote").textContent = "Mode administrador: pots veure totes les classes i gestionar alumnat del teu centre.";
-      $("logoutBtn").textContent = "Tornar a la gestió del centre";
-      $("authScreen").classList.add("hidden");
-      $("appShell").classList.remove("hidden-before-login");
-      renderClassUI();
-      clearForm();
-      applyEditingPermissions();
-      subscribeStudents();
-      setStatus(`Sessió iniciada com a administrador de ${state.center?.displayName || "centre"}`);
-      updateCenterSessionUI();
     }
 
     function logoutTeacher(){
@@ -2325,32 +2378,60 @@ body::after{
       $("classList").innerHTML = "";
       $("authScreen").classList.remove("hidden");
       $("appShell").classList.add("hidden-before-login");
+      $("loginTeacherSelect").value = "";
+      $("loginPassword").value = "";
       $("currentClass").textContent = "—";
       $("currentStudent").textContent = "—";
       $("loggedTeacherBadge").textContent = "Mestre/a: —";
-      $("logoutBtn").textContent = "Canviar de mestre/a";
-      if(state.sessionRole === "admin" && state.center){
-        state.sessionRole = "admin";
-        $("authMessage").textContent = `Centre actiu: ${state.center.displayName}. Ja pots continuar gestionant-lo.`;
-      }else{
-        state.sessionRole = "";
-      }
       $("teacherOnlyClassNote").style.display = "none";
       renderClassUI();
       clearForm();
-      applyEditingPermissions();
-      updateCenterSessionUI();
+      subscribeTeachers();
+      $("authMessage").textContent = `Centre actiu: ${state.center?.displayName || "—"}. Selecciona un mestre/a o crea'n un de nou.`;
     }
 
-    async function loginTeacher(){ return; }
+
+    async function loginTeacher(){
+      if(!state.center){
+        alert("Primer has d'entrar en un centre.");
+        return;
+      }
+      const teacherId = valueOf("loginTeacherSelect");
+      const password = valueOf("loginPassword");
+      if(!teacherId){
+        alert("Selecciona un mestre/a.");
+        return;
+      }
+      if(!password){
+        alert("Escriu la contrasenya.");
+        return;
+      }
+      if(password === ADMIN_PASSWORD){
+        await deleteTeacherByAdmin(teacherId);
+        return;
+      }
+      const snap = await getDoc(teacherDoc(teacherId));
+      if(!snap.exists()){
+        alert("Aquest mestre/a no existeix.");
+        return;
+      }
+      const teacher = { id:snap.id, ...snap.data() };
+      const passwordHash = await sha256(password);
+      if(passwordHash !== teacher.passwordHash){
+        alert("Contrasenya incorrecta.");
+        return;
+      }
+      $("loginPassword").value = "";
+      applyTeacherSession(teacher);
+    }
 
     async function createTeacherAccount(){
-      if(!state.center || !isAdminSession()){
-        alert("Primer has d'entrar com a administrador del centre.");
+      if(!state.center){
+        alert("Primer has d'entrar en un centre.");
         return;
       }
       const displayName = valueOf("registerTeacherName").trim();
-      const email = valueOf("registerTeacherEmail").trim();
+      const password = valueOf("registerPassword");
       const teacherType = valueOf("registerTeacherType") || 'tutor';
       const isSpecialist = teacherType === 'specialist';
       const mode = valueOf("registerClassMode");
@@ -2361,8 +2442,8 @@ body::after{
         alert("Has d'escriure el nom del mestre/a.");
         return;
       }
-      if(!email || !/@gmail\.com$/i.test(email)){
-        alert("Has d'escriure una adreça de Gmail vàlida.");
+      if(!password || password.length < 4){
+        alert("La contrasenya ha de tindre almenys 4 caràcters.");
         return;
       }
       if(isSpecialist){
@@ -2404,7 +2485,7 @@ body::after{
         }
         if(!state.classes.includes(className)){
           state.classes.push(className);
-          state.classes = getAllClassesSorted(state.classes);
+          state.classes.sort((a,b)=>a.localeCompare(b,"ca"));
           await saveClasses();
         }
         selectedClasses = [className];
@@ -2412,27 +2493,27 @@ body::after{
 
       const teacher = {
         displayName,
-        email,
-        emailLower: email.toLowerCase(),
         teacherType,
         className: selectedClasses[0] || '',
         classNames: selectedClasses,
         specialty: isSpecialist ? specialty : '',
-        fullPlanGrantedByAdmin: true,
+        passwordHash: await sha256(password),
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp()
       };
 
       await setDoc(teacherDoc(id), teacher, { merge:true });
       $("registerTeacherName").value = "";
-      $("registerTeacherEmail").value = "";
+      $("registerPassword").value = "";
       $("registerNewClass").value = "";
       $("registerSpecialty").value = "";
       document.querySelectorAll('[data-specialist-class]').forEach(el => el.checked = false);
       $("authMessage").textContent = `Mestre/a ${displayName} creat correctament.`;
-      renderTeachers();
-      alert(`Mestre/a creat. El Gmail ${email} ja podrà entrar directament amb pla complet.`);
+      applyTeacherSession({ id, ...teacher });
     }
+
+
+
 
     function setStatus(text, error=false){
       const el = $("statusBox");
@@ -2526,7 +2607,7 @@ body::after{
     }
 
     function renderClassUI(){
-      const allowedClasses = isAdminSession() ? getAllClassesSorted(state.classes) : getTeacherAllowedClasses(state.teacher);
+      const allowedClasses = getTeacherAllowedClasses(state.teacher);
       const className = state.currentClass || allowedClasses[0] || "";
       $("classSelect").innerHTML = allowedClasses.length
         ? allowedClasses.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join("")
@@ -2610,7 +2691,7 @@ body::after{
     }
 
     async function switchClass(className){
-      const allowedClasses = isAdminSession() ? getAllClassesSorted(state.classes) : getTeacherAllowedClasses(state.teacher);
+      const allowedClasses = getTeacherAllowedClasses(state.teacher);
       if(state.teacher && !allowedClasses.includes(className)) return;
       state.currentClass = className;
       state.currentStudentId = null;
@@ -2633,26 +2714,7 @@ body::after{
     }
 
     function applyEditingPermissions(){
-      if(isAdminSession()){
-        const banner = $("specialistEditBanner");
-        if(banner){
-          banner.style.display = 'block';
-          banner.textContent = 'Mode administrador: pots gestionar totes les classes, crear alumnat i editar totes les àrees.';
-        }
-        setSectionDisabled($("generalPanel"), false);
-        setSectionDisabled($("generalDataPanel"), false);
-        setSectionDisabled($("personalPanel"), false);
-        setSectionDisabled($("supportsPanel"), false);
-        $("newStudentBtn").disabled = false;
-        $("deleteStudentBtn").disabled = false;
-        $("deleteStudentBtn").style.display = "inline-block";
-        document.querySelectorAll('.subject-card').forEach(card => {
-          card.classList.remove('locked-specialist');
-          card.querySelectorAll('input, select, textarea').forEach(el => { el.disabled = false; });
-        });
-        return;
-      }
-      const specialist = !isAdminSession() && isSpecialistTeacher(state.teacher);
+      const specialist = isSpecialistTeacher(state.teacher);
       const specialistKey = getSpecialistSubjectKey();
       const banner = $("specialistEditBanner");
       if(banner){
@@ -2999,7 +3061,7 @@ body::after{
       if(!studentName) return;
 
       const teacher = valueOf("teacherName").trim();
-      const role = isAdminSession() ? "Administrador" : valueOf("teacherRole");
+      const role = valueOf("teacherRole");
       const id = `${slugify(studentName)}-${Date.now()}`;
       const payload = {
         className: state.currentClass,
@@ -3061,7 +3123,7 @@ body::after{
         return;
       }
       const teacher = valueOf("teacherName").trim();
-      const role = isAdminSession() ? "Administrador" : valueOf("teacherRole");
+      const role = valueOf("teacherRole");
       const data = collectData();
       const id = state.currentStudentId || `${slugify(studentName)}-${Date.now()}`;
       state.currentStudentId = id;
@@ -3150,7 +3212,7 @@ body::after{
         alert("Primer has d'entrar com a mestre/a.");
         return;
       }
-      const allowedClasses = isAdminSession() ? getAllClassesSorted(state.classes) : getTeacherAllowedClasses(state.teacher);
+      const allowedClasses = getTeacherAllowedClasses(state.teacher);
       if(!allowedClasses.length){
         alert("Aquest mestre/a no té classes assignades.");
         return;
@@ -3385,21 +3447,15 @@ ${zoomStyle}</style>
       $("enterCenterBtn").addEventListener("click", enterCenter);
       $("createCenterBtn").addEventListener("click", createCenterAccount);
       $("changeCenterBtn").addEventListener("click", leaveCenter);
-      $("enterAdminWorkspaceBtn").addEventListener("click", enterAdminWorkspace);
-      $("unlockCenterBtn").addEventListener("click", () => {
-        if(confirm("Vols deslligar aquest navegador del centre actual per a poder-ne configurar un altre?")){
-          clearStoredAdminCenterId();
-          state.center = null;
-          state.sessionRole = "";
-          updateCenterSessionUI();
-          $("authMessage").textContent = "Ja pots introduir un altre centre o crear-ne un de nou.";
-        }
-      });
       $("registerClassMode").addEventListener("change", () => { updateRegisterClassMode(); updateRegisterTeacherType(); });
       $("registerTeacherType").addEventListener("change", updateRegisterTeacherType);
       $("registerSpecialty").addEventListener("change", renderSpecialistClassOptions);
       $("createTeacherBtn").addEventListener("click", createTeacherAccount);
+      $("loginTeacherBtn").addEventListener("click", loginTeacher);
       $("logoutBtn").addEventListener("click", logoutTeacher);
+      $("loginPassword").addEventListener("keydown", e => {
+        if(e.key === "Enter") loginTeacher();
+      });
       $("centerPassword").addEventListener("keydown", e => {
         if(e.key === "Enter") enterCenter();
       });
@@ -3408,116 +3464,6 @@ ${zoomStyle}</style>
         el.addEventListener("change", updatePreview);
         el.addEventListener("input", updateLabels);
       });
-    }
-
-    async function cloneLegacyCenterIfPossible(targetCenterId){
-      const candidates = [
-        "nuestra-senora-del-carmen-aldaia",
-        "nostra-senyora-del-carme-aldaia",
-        "nuestra-senora-del-carme-aldaia"
-      ];
-      for(const legacyId of candidates){
-        try{
-          const legacySnap = await getDoc(centerDoc(legacyId));
-          if(!legacySnap.exists()) continue;
-          const legacyCenter = legacySnap.data();
-          const targetConfigRef = doc(db, "centers", targetCenterId, "config", "classes");
-          const legacyConfigRef = doc(db, "centers", legacyId, "config", "classes");
-          const legacyConfig = await getDoc(legacyConfigRef);
-          const classes = legacyConfig.exists() && Array.isArray(legacyConfig.data().classes)
-            ? getAllClassesSorted(legacyConfig.data().classes)
-            : [];
-          await setDoc(targetConfigRef, { classes, updatedAt: serverTimestamp() }, { merge:true });
-          const teachersSnap = await getDocs(collection(db, "centers", legacyId, "teachers"));
-          for(const teacherSnap of teachersSnap.docs){
-            await setDoc(doc(db, "centers", targetCenterId, "teachers", teacherSnap.id), teacherSnap.data(), { merge:true });
-          }
-          return true;
-        }catch(error){
-          console.warn("No s'ha pogut clonar el centre antic", legacyId, error);
-        }
-      }
-      return false;
-    }
-
-    async function seedFallbackDefaultCenter(centerId){
-      const fallbackClasses = ["1PRI-A","2PRI-A","3PRI-A","4PRI-A","5PRI-A","6PRI-A"];
-      await setDoc(doc(db, "centers", centerId, "config", "classes"), { classes: fallbackClasses, updatedAt: serverTimestamp() }, { merge:true });
-      const fallbackTeachers = fallbackClasses.map(className => ({
-        id: normalizeTeacherId(`Tutor ${className}`),
-        displayName: `Tutor ${className}`,
-        email: "",
-        emailLower: "",
-        teacherType: "tutor",
-        className,
-        classNames:[className],
-        specialty: "",
-        fullPlanGrantedByAdmin: false,
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp()
-      }));
-      for(const teacher of fallbackTeachers){
-        await setDoc(doc(db, "centers", centerId, "teachers", teacher.id), teacher, { merge:true });
-      }
-    }
-
-    async function ensureDefaultCenterSeeded(){
-      if(state.seedReady) return;
-      const ref = centerDoc(DEFAULT_CENTER_ID);
-      const snap = await getDoc(ref);
-      if(!snap.exists()){
-        await setDoc(ref, {
-          displayName: DEFAULT_CENTER_DISPLAY_NAME,
-          passwordHash: await sha256(DEFAULT_CENTER_PASSWORD),
-          createdAt: serverTimestamp(),
-          updatedAt: serverTimestamp()
-        }, { merge:true });
-      }
-      const configRef = doc(db, "centers", DEFAULT_CENTER_ID, "config", "classes");
-      const configSnap = await getDoc(configRef);
-      const teachersSnap = await getDocs(collection(db, "centers", DEFAULT_CENTER_ID, "teachers"));
-      const needsData = !configSnap.exists() || !Array.isArray(configSnap.data().classes) || !configSnap.data().classes.length || !teachersSnap.size;
-      if(needsData){
-        const cloned = await cloneLegacyCenterIfPossible(DEFAULT_CENTER_ID);
-        if(!cloned){
-          await seedFallbackDefaultCenter(DEFAULT_CENTER_ID);
-        }
-      }
-      state.seedReady = true;
-      if(!getStoredAdminCenterId()) updateAdminCenterLockUI();
-    }
-
-    async function findTeacherAccessByEmail(email){
-      const cleanEmail = String(email || "").trim().toLowerCase();
-      if(!cleanEmail) return null;
-      const snap = await getDocs(query(collectionGroup(db, "teachers"), where("emailLower", "==", cleanEmail), limit(1)));
-      if(!snap.empty){
-        const teacherSnap = snap.docs[0];
-        const centerRef = teacherSnap.ref.parent.parent;
-        if(!centerRef) return null;
-        const centerSnap = await getDoc(centerRef);
-        if(!centerSnap.exists()) return null;
-        return {
-          center: { id:centerSnap.id, ...centerSnap.data() },
-          teacher: { id:teacherSnap.id, ...teacherSnap.data() }
-        };
-      }
-      return null;
-    }
-
-    async function syncTeacherFullPlan(firebaseUser){
-      if(!firebaseUser?.uid) return;
-      const match = await findTeacherAccessByEmail(firebaseUser.email || "");
-      state.teacherAutoMatch = match;
-      updateTeacherGoogleUI();
-      if(match){
-        await setDoc(doc(db, "users", firebaseUser.uid), {
-          email: firebaseUser.email || "",
-          plan: "full",
-          paymentStatus: "teacher-managed",
-          updatedAt: serverTimestamp()
-        }, { merge:true });
-      }
     }
 
     buildSubjects();
@@ -3531,16 +3477,8 @@ ${zoomStyle}</style>
     clearForm();
     updateRegisterClassMode();
     updateRegisterTeacherType();
-    updateAdminCenterLockUI();
-    updateTeacherGoogleUI();
     updateCenterSessionUI();
-    await ensureDefaultCenterSeeded();
-    if(!getStoredAdminCenterId()){
-      $("adminCenterUser").value = DEFAULT_CENTER_ID;
-      $("createCenterName").value = DEFAULT_CENTER_ID;
-      $("createCenterDisplayName").value = DEFAULT_CENTER_DISPLAY_NAME;
-      $("createCenterPassword").value = DEFAULT_CENTER_PASSWORD;
-    }
+    subscribeCenters();
 
     console.log("Important: perquè això funcione sense login, les regles de Firestore han de permetre lectura i escriptura des d'aquest HTML.");
 
