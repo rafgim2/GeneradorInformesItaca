@@ -1614,6 +1614,7 @@ setTimeout(()=>{ updateAdminModeForCurrentUser().catch(console.error); }, 800);
   const PRESET_CENTER_ID = 'carmenaldaia';
   const PRESET_CENTER_NAME = 'CarmenAldaia';
   const PRESET_CENTER_PASSWORD = '46000900';
+  const ADMIN_CENTER_STORAGE_KEY = 'admin_owned_center_v1';
   const LEGACY_CENTER_NAMES = [
     'Nuestra señora del Carmen Aldaia',
     'Nuestra Señora del Carmen Aldaia',
@@ -1626,16 +1627,55 @@ setTimeout(()=>{ updateAdminModeForCurrentUser().catch(console.error); }, 800);
   function byId(id){ return document.getElementById(id); }
   function normalized(v){ return (v || '').trim().toLowerCase(); }
   function presetCenterDoc(){ return doc(db,'centers',PRESET_CENTER_ID); }
-  function currentEmail(){ return normalizeEmailValue(state.firebaseUser?.email || ''); }
+  function unlockAdminAccessUi(){
+    document.body.classList.remove('preaccess-loading','preaccess-locked');
+    const overlay = byId('googleAccessOverlay');
+    if(overlay) overlay.classList.remove('active');
+    const floating = byId('floatingAccessStatus');
+    if(floating) floating.style.display = 'none';
+    const badge = byId('trialAccessBadge');
+    const detail = byId('trialAccessDetail');
+    if(badge) badge.textContent = 'Accés administrador';
+    if(detail) detail.textContent = 'Usuari i contrasenya del centre';
+    state.accessGranted = true;
+    state.authResolved = true;
+    state.accessCheckReady = true;
+  }
 
-  async function findCenterOwnedByCurrentAdmin(){
-    if(!state.firebaseUser?.uid && !currentEmail()) return null;
-    const snap = await getDocs(collection(db,'centers'));
-    for(const item of snap.docs){
+  function getStoredAdminCenter(){
+    try {
+      const raw = localStorage.getItem(ADMIN_CENTER_STORAGE_KEY);
+      if(!raw) return null;
+      const parsed = JSON.parse(raw);
+      if(!parsed || !parsed.id || !parsed.displayName) return null;
+      return parsed;
+    } catch(err){
+      console.warn('No s\'ha pogut llegir el centre local de l\'administrador', err);
+      return null;
+    }
+  }
+
+  function setStoredAdminCenter(center){
+    if(!center?.id || !center?.displayName) return;
+    try {
+      localStorage.setItem(ADMIN_CENTER_STORAGE_KEY, JSON.stringify({ id:center.id, displayName:center.displayName }));
+    } catch(err){
+      console.warn('No s\'ha pogut guardar el centre local de l\'administrador', err);
+    }
+  }
+
+  async function findCenterByIdOrName(centerId, displayName){
+    const idsToTry = Array.from(new Set([centerId, slugify(displayName || ''), PRESET_CENTER_ID].filter(Boolean)));
+    for(const id of idsToTry){
+      const snap = await getDoc(doc(db,'centers',id));
+      if(snap.exists()) return { id, ...snap.data() };
+    }
+    const snapAll = await getDocs(collection(db,'centers'));
+    for(const item of snapAll.docs){
       const data = item.data() || {};
-      const sameUid = !!state.firebaseUser?.uid && data.ownerUid === state.firebaseUser.uid;
-      const sameEmail = currentEmail() && normalizeEmailValue(data.ownerEmail || '') === currentEmail();
-      if(sameUid || sameEmail) return { id:item.id, ...data };
+      if(normalized(data.displayName || '') === normalized(displayName || '')){
+        return { id:item.id, ...data };
+      }
     }
     return null;
   }
@@ -1662,9 +1702,7 @@ setTimeout(()=>{ updateAdminModeForCurrentUser().catch(console.error); }, 800);
       }
     }
 
-    if(!legacy){
-      return null;
-    }
+    if(!legacy) return null;
 
     const migrated = {
       ...legacy,
@@ -1706,20 +1744,29 @@ setTimeout(()=>{ updateAdminModeForCurrentUser().catch(console.error); }, 800);
     byId('existingCenterLoginSection')?.classList.add('hidden');
   }
 
-  function showLoginOnly(){
+  function showLoginOnly(prefillName=''){
     byId('firstCenterCreateSection')?.classList.add('hidden');
     byId('existingCenterLoginSection')?.classList.remove('hidden');
+    if(prefillName && byId('adminCenterUsername')) byId('adminCenterUsername').value = prefillName;
+  }
+
+  async function loadAdminCenterSession(centerId, displayNameFallback=''){
+    const snap = await getDoc(doc(db,'centers',centerId));
+    const center = snap.exists() ? { id:centerId, ...snap.data() } : { id:centerId, displayName:displayNameFallback || centerId };
+    await applyCenterSession(center);
+    $('centerSetupSection')?.classList.add('hidden');
+    $('teacherAccessSection')?.classList.remove('hidden');
+    if(byId('selectedCenterBadge')) byId('selectedCenterBadge').textContent = 'Centre: ' + (center.displayName || '—');
+    if(byId('currentCenter')) byId('currentCenter').textContent = center.displayName || '—';
+    updateAdminPanels?.();
   }
 
   async function createAdminCenterFirstTime(){
-    if(!state.firebaseUser?.uid){
-      alert('Has d\'iniciar sessió amb Google abans de crear el centre.');
-      return;
-    }
-    const existingOwned = await findCenterOwnedByCurrentAdmin();
-    if(existingOwned){
-      showLoginOnly();
-      adminMessage('Aquest administrador ja té un centre creat. Ara has d\'entrar amb el seu usuari i contrasenya.');
+    unlockAdminAccessUi();
+    const existingLocal = getStoredAdminCenter();
+    if(existingLocal){
+      showLoginOnly(existingLocal.displayName);
+      adminMessage('Aquest administrador ja té un centre creat en aquest dispositiu. Ara has d\'entrar amb el seu usuari i contrasenya.');
       return;
     }
 
@@ -1744,9 +1791,8 @@ setTimeout(()=>{ updateAdminModeForCurrentUser().catch(console.error); }, 800);
     const existingSnap = await getDoc(centerRef);
     if(existingSnap.exists()){
       const data = existingSnap.data() || {};
-      const alreadyOwnedByOther = data.ownerUid && data.ownerUid !== state.firebaseUser.uid && normalizeEmailValue(data.ownerEmail || '') !== currentEmail();
-      if(alreadyOwnedByOther){
-        alert('Aquest centre ja està vinculat a un altre administrador.');
+      if((data.passwordHash || '') && await sha256(password) !== data.passwordHash){
+        alert('Aquest centre ja existeix i la contrasenya no coincideix.');
         return;
       }
     }
@@ -1754,36 +1800,24 @@ setTimeout(()=>{ updateAdminModeForCurrentUser().catch(console.error); }, 800);
     await setDoc(centerRef, {
       displayName,
       passwordHash: await sha256(password),
-      ownerUid: state.firebaseUser.uid,
-      ownerEmail: currentEmail(),
-      createdAt: existingSnap.exists() ? (existingSnap.data().createdAt || serverTimestamp()) : serverTimestamp(),
       updatedAt: serverTimestamp(),
-      linkedAt: serverTimestamp()
+      createdAt: existingSnap.exists() ? (existingSnap.data()?.createdAt || serverTimestamp()) : serverTimestamp()
     }, { merge:true });
-
     await setDoc(doc(db,'centers',centerId,'meta','classes'), { updatedAt: serverTimestamp(), classes: (existingSnap.exists() ? undefined : []) }, { merge:true });
 
+    setStoredAdminCenter({ id:centerId, displayName });
     setValue('firstCenterUsername','');
     setValue('firstCenterPassword','');
-    const fresh = await getDoc(centerRef);
-    await applyCenterSession({ id:centerId, ...(fresh.exists() ? fresh.data() : { displayName }) });
-    $('centerSetupSection')?.classList.add('hidden');
-    $('teacherAccessSection')?.classList.remove('hidden');
-    byId('selectedCenterBadge') && (byId('selectedCenterBadge').textContent = 'Centre: ' + displayName);
-    byId('currentCenter') && (byId('currentCenter').textContent = displayName);
-    adminMessage('Centre creat i vinculat a aquest administrador. Ja pots crear més mestres, classes i alumnat.');
-    updateAdminPanels?.();
+    await loadAdminCenterSession(centerId, displayName);
+    adminMessage('Centre creat correctament. Ja pots crear més mestres, classes i alumnat.');
   }
 
   async function loginAdminToOwnedCenter(){
-    if(!state.firebaseUser?.uid){
-      alert('Has d\'iniciar sessió amb Google abans d\'entrar al centre.');
-      return;
-    }
-    const owned = await findCenterOwnedByCurrentAdmin();
-    if(!owned){
+    unlockAdminAccessUi();
+    const localCenter = getStoredAdminCenter();
+    if(!localCenter){
       showCreateOnly();
-      adminMessage('Encara no tens cap centre creat. Primer has de crear-ne un.');
+      adminMessage('Encara no hi ha cap centre creat en aquest dispositiu. Primer has de crear-ne un.');
       return;
     }
 
@@ -1794,62 +1828,59 @@ setTimeout(()=>{ updateAdminModeForCurrentUser().catch(console.error); }, 800);
       return;
     }
 
-    const sameName = normalized(username) === normalized(owned.displayName || '');
+    const storedCenter = await findCenterByIdOrName(localCenter.id, localCenter.displayName);
+    if(!storedCenter){
+      alert('No s\'ha trobat el centre guardat.');
+      return;
+    }
+
+    const sameName = normalized(username) === normalized(storedCenter.displayName || localCenter.displayName || '');
     if(!sameName){
-      alert('L\'usuari del centre no coincideix amb el centre assignat a aquest administrador.');
+      alert('L\'usuari del centre no coincideix.');
       return;
     }
 
     const hash = await sha256(password);
-    if(hash !== (owned.passwordHash || '')){
+    if(hash !== (storedCenter.passwordHash || '')){
       alert('La contrasenya del centre no és correcta.');
       return;
     }
 
     setValue('adminCenterUsername','');
     setValue('adminCenterPassword','');
-    await applyCenterSession(owned);
-    $('centerSetupSection')?.classList.add('hidden');
-    $('teacherAccessSection')?.classList.remove('hidden');
-    byId('selectedCenterBadge') && (byId('selectedCenterBadge').textContent = 'Centre: ' + (owned.displayName || '—'));
-    byId('currentCenter') && (byId('currentCenter').textContent = (owned.displayName || '—'));
+    setStoredAdminCenter({ id:storedCenter.id, displayName:storedCenter.displayName || localCenter.displayName });
+    await loadAdminCenterSession(storedCenter.id, storedCenter.displayName || localCenter.displayName);
     adminMessage('Administrador dins del teu centre. Ja tens disponibles els mestres i classes guardats i pots afegir-ne més.');
-    updateAdminPanels?.();
   }
 
   async function updatePresetAdminFlow(){
     hideOldCenterChooser();
     patchLoginTexts?.();
     decorateTeacherAccessUi?.();
+    unlockAdminAccessUi();
+
     const user = state.firebaseUser;
-    if(!user){
-      $('centerSetupSection')?.classList.remove('hidden');
-      $('teacherAccessSection')?.classList.add('hidden');
-      showCreateOnly();
-      adminMessage('Inicia sessió amb Google per a accedir com a administrador o com a mestre/a.');
-      return;
+    if(user){
+      try {
+        const teacherMatch = await findTeacherByGoogleEmail(user.email || '');
+        if(teacherMatch){
+          $('centerSetupSection')?.classList.add('hidden');
+          $('teacherAccessSection')?.classList.add('hidden');
+          await loginTeacherByCurrentGoogle();
+          adminMessage('Accedint directament com a mestre/a...');
+          updateAdminPanels?.();
+          return;
+        }
+      } catch(err){ console.warn(err); }
     }
 
-    const teacherMatch = await findTeacherByGoogleEmail(user.email || '');
-    if(teacherMatch){
-      $('centerSetupSection')?.classList.add('hidden');
-      $('teacherAccessSection')?.classList.add('hidden');
-      await loginTeacherByCurrentGoogle();
-      adminMessage('Accedint directament com a mestre/a...');
-      updateAdminPanels?.();
-      return;
-    }
-
-    const owned = await findCenterOwnedByCurrentAdmin();
-    if(owned){
-      $('centerSetupSection')?.classList.remove('hidden');
-      $('teacherAccessSection')?.classList.add('hidden');
-      showLoginOnly();
-      byId('adminCenterUsername') && (byId('adminCenterUsername').value = owned.displayName || '');
-      adminMessage('Aquest administrador ja té un centre creat. Introdueix ara l\'usuari i la contrasenya per a entrar.');
+    const localCenter = getStoredAdminCenter();
+    $('centerSetupSection')?.classList.remove('hidden');
+    $('teacherAccessSection')?.classList.add('hidden');
+    if(localCenter){
+      showLoginOnly(localCenter.displayName);
+      adminMessage('Introdueix l\'usuari i la contrasenya del teu centre per a entrar.');
     } else {
-      $('centerSetupSection')?.classList.remove('hidden');
-      $('teacherAccessSection')?.classList.add('hidden');
       showCreateOnly();
       adminMessage('Primera entrada de l\'administrador: crea ara el teu únic centre amb usuari i contrasenya.');
     }
