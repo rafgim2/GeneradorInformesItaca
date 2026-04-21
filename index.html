@@ -1778,21 +1778,9 @@ body::after{
 
       try{
         state.accessProfile = await ensureAccessUserProfile(firebaseUser);
-        let centerSnap = await getDoc(centerDoc(DEFAULT_CENTER_ID));
-        if(!centerSnap.exists()){
-          await setDoc(centerDoc(DEFAULT_CENTER_ID), {
-            displayName: DEFAULT_CENTER_NAME,
-            fullDisplayName: DEFAULT_CENTER_DISPLAY_NAME,
-            adminUser: DEFAULT_CENTER_ADMIN_USER,
-            passwordHash: await sha256(DEFAULT_CENTER_PASSWORD),
-            createdAt: serverTimestamp(),
-            updatedAt: serverTimestamp()
-          }, { merge:true });
-          await setDoc(doc(db, "centers", DEFAULT_CENTER_ID, "config", "classes"), { classes: [], updatedAt: serverTimestamp() }, { merge:true });
-          centerSnap = await getDoc(centerDoc(DEFAULT_CENTER_ID));
-        }
-        if(centerSnap.exists()){
-          await applyCenterSession({ id:centerSnap.id, ...centerSnap.data() });
+        const managedCenter = await resolveManagedCenter();
+        if(managedCenter){
+          await applyCenterSession(managedCenter);
           await maybePromoteTeacherToFullAccess();
         }
       }catch(error){
@@ -1889,19 +1877,38 @@ body::after{
     function normalizeTeacherId(name=""){ return slugify(name); }
     function normalizeCenterId(name=""){ return slugify(name); }
     function normalizeEmail(email=""){ return String(email).trim().toLowerCase(); }
+    function normalizeCenterText(value=""){ return slugify(String(value).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "")); }
+    function findMatchingCenterInList(list = []){
+      const targets = [DEFAULT_CENTER_ID, DEFAULT_CENTER_NAME, DEFAULT_CENTER_DISPLAY_NAME, "Nuestra señora del Carmen Aldaia"]
+        .map(normalizeCenterText)
+        .filter(Boolean);
+      return list.find(center => {
+        const candidates = [center?.id, center?.displayName, center?.fullDisplayName].map(normalizeCenterText);
+        return candidates.some(candidate => targets.includes(candidate));
+      }) || null;
+    }
+    async function resolveManagedCenter(){
+      if(Array.isArray(state.centers) && state.centers.length){
+        const found = findMatchingCenterInList(state.centers);
+        if(found) return found;
+      }
+      const snap = await getDocs(centersCol());
+      const list = snap.docs.map(d => ({ id:d.id, ...d.data() }));
+      state.centers = list;
+      return findMatchingCenterInList(list);
+    }
 
     function renderCenters(){
       const select = $("centerSelect");
       if(!select) return;
-      select.innerHTML = `<option value="${DEFAULT_CENTER_ID}">${DEFAULT_CENTER_NAME}</option>`;
-      select.value = DEFAULT_CENTER_ID;
-      const hasCenter = !!state.centers.find(c => c.id === DEFAULT_CENTER_ID);
-      $("createCenterPanel")?.classList.toggle("hidden", hasCenter);
-      $("createCenterDivider")?.classList.toggle("hidden", hasCenter);
+      const matchedCenter = findMatchingCenterInList(state.centers);
+      select.innerHTML = `<option value="${matchedCenter?.id || DEFAULT_CENTER_ID}">${DEFAULT_CENTER_NAME}</option>`;
+      select.value = matchedCenter?.id || DEFAULT_CENTER_ID;
+      const hasCenter = !!matchedCenter;
       if(hasCenter){
-        $("authMessage").textContent = `Centre disponible: ${DEFAULT_CENTER_NAME}. Escriu la contrasenya per a entrar com a administrador o entra amb un Gmail vinculat a un mestre.`;
+        $("authMessage").textContent = `Centre disponible: ${matchedCenter.displayName || DEFAULT_CENTER_NAME}. Escriu la contrasenya per a entrar com a administrador o entra amb un Gmail vinculat a un mestre.`;
       }else{
-        $("authMessage").textContent = "No hi ha cap centre creat encara. Pots crear-lo ara.";
+        $("authMessage").textContent = "Primera entrada: crea el teu centre administrador per començar.";
       }
     }
 
@@ -2027,12 +2034,11 @@ body::after{
         alert("Escriu la contrasenya del centre.");
         return;
       }
-      const snap = await getDoc(centerDoc(DEFAULT_CENTER_ID));
-      if(!snap.exists()){
-        alert("Encara no hi ha cap centre creat.");
+      const center = await resolveManagedCenter();
+      if(!center){
+        alert("Encara no hi ha cap centre creat. Crea'l en el formulari inferior.");
         return;
       }
-      const center = { id:snap.id, ...snap.data() };
       const passwordHash = await sha256(password);
       if(passwordHash !== center.passwordHash){
         alert("Contrasenya del centre incorrecta.");
@@ -2044,8 +2050,8 @@ body::after{
     }
 
     async function createCenterAccount(){
-      const existingSnap = await getDoc(centerDoc(DEFAULT_CENTER_ID));
-      if(existingSnap.exists()){
+      const existingCenter = await resolveManagedCenter();
+      if(existingCenter){
         alert("Ja existeix un centre administrador. Només se'n pot gestionar un.");
         return;
       }
@@ -2112,7 +2118,7 @@ body::after{
       renderTeachers();
       renderClassUI();
       clearForm();
-      $("authMessage").textContent = "Selecciona un centre o crea'n un de nou.";
+      $("authMessage").textContent = "Introdueix la contrasenya del centre o crea'l si és la primera vegada.";
       setStatus("Preparat");
     }
 
@@ -3427,18 +3433,7 @@ ${zoomStyle}</style>
     updateRegisterTeacherType();
     updateCenterSessionUI();
     subscribeCenters();
-    setDoc(centerDoc(DEFAULT_CENTER_ID), {
-      displayName: DEFAULT_CENTER_NAME,
-      fullDisplayName: DEFAULT_CENTER_DISPLAY_NAME,
-      adminUser: DEFAULT_CENTER_ADMIN_USER,
-      passwordHash: await sha256(DEFAULT_CENTER_PASSWORD),
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp()
-    }, { merge:true }).then(async () => {
-      await setDoc(doc(db, "centers", DEFAULT_CENTER_ID, "config", "classes"), { classes: [], updatedAt: serverTimestamp() }, { merge:true });
-      $("centerSelect").value = DEFAULT_CENTER_ID;
-      renderCenters();
-    }).catch(console.error);
+    renderCenters();
 
     console.log("Important: perquè això funcione sense login, les regles de Firestore han de permetre lectura i escriptura des d'aquest HTML.");
 
