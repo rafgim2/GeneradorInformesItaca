@@ -1695,10 +1695,19 @@ body::after{
       }
     }
 
+    function isInvitedAccessProfile(profile = null){
+      const p = profile || state.accessProfile;
+      return !!(p && (p.invitedByCenterId || p.invitedByCenterName || p.lastInviteAppliedAt));
+    }
+
+    function canCurrentUserCreateCenters(){
+      return !isInvitedAccessProfile();
+    }
+
     function syncCreateCenterVisibility(){
       const wrap = $("createCenterSection");
       if(!wrap) return;
-      const shouldHide = !!state.center || hasSeenCreateCenterUI();
+      const shouldHide = !!state.center || hasSeenCreateCenterUI() || !canCurrentUserCreateCenters();
       wrap.classList.toggle("hidden", shouldHide);
     }
 
@@ -1895,6 +1904,10 @@ body::after{
       }
 
       renderGoogleAccessGate();
+      syncCreateCenterVisibility();
+      if(!state.center && isInvitedAccessProfile()){
+        $("authMessage").textContent = "Aquest compte convidat només pot triar un centre existent i entrar.";
+      }
       startAccessMonitor();
     });
 
@@ -2133,6 +2146,11 @@ body::after{
     }
 
     async function createCenterAccount(){
+      if(!canCurrentUserCreateCenters()){
+        alert("Aquest compte només té accés per entrar en centres existents. No pot crear centres nous.");
+        syncCreateCenterVisibility();
+        return;
+      }
       const displayName = valueOf("createCenterName").trim();
       const password = valueOf("createCenterPassword");
       const inviteEmails = parseInviteEmails(valueOf("createCenterInviteEmails"));
