@@ -887,6 +887,7 @@ body::after{
 
     <section class="auth-card stack">
       <div id="centerSetupSection">
+      <div id="enterCenterSection">
       <div class="section-title">Entrar en un centre educatiu</div>
       <div class="row">
         <div class="c12">
@@ -903,6 +904,7 @@ body::after{
       </div>
 
       <div class="divider"></div>
+      </div>
 
       <div id="createCenterSection">
       <div class="section-title">Crear un centre educatiu nou</div>
@@ -1716,6 +1718,14 @@ body::after{
       if(createTeacherDivider) createTeacherDivider.classList.toggle("hidden", hideManagement);
     }
 
+    function syncEnterCenterVisibility(){
+      const wrap = $("enterCenterSection");
+      if(!wrap) return;
+      const isInvited = !canCurrentUserCreateCenters();
+      const shouldShow = !!state.center ? false : (isInvited || hasSeenCreateCenterUI());
+      wrap.classList.toggle("hidden", !shouldShow);
+    }
+
     function syncCreateCenterVisibility(){
       const wrap = $("createCenterSection");
       if(!wrap) return;
@@ -2012,6 +2022,7 @@ body::after{
       $("teacherAccessSection").classList.toggle("hidden", !hasCenter);
       const centerSetupSection = $("centerSetupSection");
       if(centerSetupSection) centerSetupSection.classList.toggle("hidden", hasCenter);
+      syncEnterCenterVisibility();
       syncCreateCenterVisibility();
       syncCenterManagementVisibility();
       $("selectedCenterBadge").textContent = `Centre: ${state.center?.displayName || "—"}`;
@@ -2203,6 +2214,7 @@ body::after{
       $("createCenterPassword").value = "";
       $("createCenterInviteEmails").value = "";
       markCreateCenterUISeen();
+      syncEnterCenterVisibility();
       syncCreateCenterVisibility();
       await applyCenterSession({ id, ...center });
     }
@@ -2240,6 +2252,7 @@ body::after{
       $("studentList").innerHTML = "";
       $("classList").innerHTML = "";
       updateCenterSessionUI();
+      syncEnterCenterVisibility();
       renderTeachers();
       renderClassUI();
       clearForm();
@@ -3515,7 +3528,9 @@ ${zoomStyle}</style>
     updateLanguageButtons();
     updateGradeSelectLanguage();
     attachEvents();
+    syncEnterCenterVisibility();
     syncCenterManagementVisibility();
+    syncCreateCenterVisibility();
     setValue("evaluationSelect", "eval1");
     updateLabels();
     clearForm();
