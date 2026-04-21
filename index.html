@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+   <!DOCTYPE html>
 
 <html lang="ca">
 <head>
@@ -1396,6 +1396,17 @@ body::after{
     const DEFAULT_CENTER_DISPLAY_NAME = "Nuestra señora del Carmen Aldaia";
     const DEFAULT_CENTER_PASSWORD = "46000900";
     const DEFAULT_CENTER_ADMIN_USER = "admin.carmenaldaia";
+    const MANAGED_CENTER_ALIASES = [
+      "carmenaldaia",
+      "carmen aldaia",
+      "nuestra señora del carmen aldaia",
+      "nuestra senora del carmen aldaia",
+      "nuestra señora del carmen",
+      "nuestra senora del carmen",
+      "ceip nuestra señora del carmen aldaia",
+      "ceip nuestra senora del carmen aldaia",
+      "nsc aldaia"
+    ];
 
     const defaultClasses = [];
 
@@ -1877,15 +1888,34 @@ body::after{
     function normalizeTeacherId(name=""){ return slugify(name); }
     function normalizeCenterId(name=""){ return slugify(name); }
     function normalizeEmail(email=""){ return String(email).trim().toLowerCase(); }
-    function normalizeCenterText(value=""){ return slugify(String(value).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "")); }
-    function findMatchingCenterInList(list = []){
-      const targets = [DEFAULT_CENTER_ID, DEFAULT_CENTER_NAME, DEFAULT_CENTER_DISPLAY_NAME, "Nuestra señora del Carmen Aldaia"]
+    function normalizeCenterText(value=""){ return slugify(String(value || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "")); }
+    function centerLooksLikeManagedAlias(center){
+      const candidates = [center?.id, center?.displayName, center?.fullDisplayName]
         .map(normalizeCenterText)
         .filter(Boolean);
-      return list.find(center => {
-        const candidates = [center?.id, center?.displayName, center?.fullDisplayName].map(normalizeCenterText);
-        return candidates.some(candidate => targets.includes(candidate));
-      }) || null;
+      const targets = Array.from(new Set([DEFAULT_CENTER_ID, DEFAULT_CENTER_NAME, DEFAULT_CENTER_DISPLAY_NAME, ...MANAGED_CENTER_ALIASES]
+        .map(normalizeCenterText)
+        .filter(Boolean)));
+      if(candidates.some(candidate => targets.includes(candidate))) return true;
+      return candidates.some(candidate => (
+        candidate.includes("carmen") &&
+        candidate.includes("aldaia") &&
+        (candidate.includes("senora") || candidate.includes("senyora") || candidate.includes("nsc"))
+      ));
+    }
+    function toManagedCenter(center){
+      if(!center) return null;
+      return {
+        ...center,
+        id: center.id,
+        displayName: DEFAULT_CENTER_NAME,
+        fullDisplayName: center.fullDisplayName || center.displayName || DEFAULT_CENTER_DISPLAY_NAME,
+        aliasResolvedFrom: center.displayName || center.fullDisplayName || center.id
+      };
+    }
+    function findMatchingCenterInList(list = []){
+      const found = list.find(centerLooksLikeManagedAlias) || null;
+      return found ? toManagedCenter(found) : null;
     }
     async function resolveManagedCenter(){
       if(Array.isArray(state.centers) && state.centers.length){
@@ -1906,7 +1936,10 @@ body::after{
       select.value = matchedCenter?.id || DEFAULT_CENTER_ID;
       const hasCenter = !!matchedCenter;
       if(hasCenter){
-        $("authMessage").textContent = `Centre disponible: ${matchedCenter.displayName || DEFAULT_CENTER_NAME}. Escriu la contrasenya per a entrar com a administrador o entra amb un Gmail vinculat a un mestre.`;
+        const originNote = matchedCenter.aliasResolvedFrom && matchedCenter.aliasResolvedFrom !== matchedCenter.displayName
+          ? ` (usa les dades ja guardades en ${matchedCenter.aliasResolvedFrom})`
+          : "";
+        $("authMessage").textContent = `Centre disponible: ${matchedCenter.displayName || DEFAULT_CENTER_NAME}${originNote}. Escriu la contrasenya per a entrar com a administrador o entra amb un Gmail vinculat a un mestre.`;
       }else{
         $("authMessage").textContent = "Primera entrada: crea el teu centre administrador per començar.";
       }
@@ -1954,8 +1987,11 @@ body::after{
       clearForm();
       await loadClasses();
       subscribeTeachers();
-      $("authMessage").textContent = `Centre actiu: ${center.displayName}. Selecciona o crea un mestre/a.`;
-      setStatus(`Centre carregat: ${center.displayName}`);
+      const resolvedInfo = center.aliasResolvedFrom && center.aliasResolvedFrom !== center.displayName
+        ? ` (classes carregades des de ${center.aliasResolvedFrom})`
+        : "";
+      $("authMessage").textContent = `Centre actiu: ${center.displayName}${resolvedInfo}. Selecciona o crea un mestre/a.`;
+      setStatus(`Centre carregat: ${center.displayName}${resolvedInfo}`);
     }
 
 
@@ -2073,7 +2109,11 @@ body::after{
         updatedAt: serverTimestamp()
       };
       await setDoc(centerDoc(id), center, { merge:true });
-      await setDoc(doc(db, "centers", id, "config", "classes"), { classes: [], updatedAt: serverTimestamp() }, { merge:true });
+      const classesRef = doc(db, "centers", id, "config", "classes");
+      const existingClassesSnap = await getDoc(classesRef);
+      if(!existingClassesSnap.exists()){
+        await setDoc(classesRef, { classes: [], updatedAt: serverTimestamp() }, { merge:true });
+      }
       $("createCenterName").value = "";
       $("createCenterPassword").value = "";
       $("createCenterUser").value = "";
