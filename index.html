@@ -1017,6 +1017,7 @@ body::after{
             <select id="registerTeacherType">
               <option value="tutor">Tutor/a</option>
               <option value="specialist">Especialista</option>
+              <option value="educador">Educador/a</option>
             </select>
           </div>
           <div class="c6 hidden" id="registerSpecialtyWrap">
@@ -1552,9 +1553,16 @@ body::after{
         'C.E.5: Aplicació dels recursos digitals i audiovisuals a la música i dansa.'
       ]},
       { key:'pi', name:'Projectes Interdisciplinars', competencies:[] },
-      { key:'religio', name:'Religió o Atenció Educativa', competencies:[] },
+      { key:'religio', name:'Religió o Atenció Educativa', competencies:[
+        'Identitat i autonomia (Antropologia cristiana)',
+        'Convivència i ètica',
+        'Patrimoni cultural i religiós',
+        'Diàleg intercultural i religiós',
+        'Interioritat i espiritualitat.'
+      ]},
       { key:'al', name:'Audició i Llenguatge', competencies:[] },
       { key:'pt', name:'Pedagogia Terapèutica', competencies:[] },
+      { key:'educador', name:'Educador/a', competencies:[] },
       { key:'valors', name:'Educació en Valors Ètics i Cívics (només 5é)', competencies:[
         'C.E.1- Diàlegs i debats. Acords i consens.',
         'C.E.2- Reconeixement i control de les emocions.',
@@ -1573,14 +1581,12 @@ body::after{
       { key:'plastica', label:'Plàstica (Arts)' },
       { key:'religio', label:'Religió' },
       { key:'al', label:'Audició i Llenguatge' },
-      { key:'pt', label:'Pedagogia Terapèutica' }
+      { key:'pt', label:'Pedagogia Terapèutica' },
+      { key:'educador', label:'Educador/a' }
     ];
 
-    const specialistLabels = {
-      ...Object.fromEntries(specialistOptions.map(item => [item.key, item.label])),
-      educador:'Educador/a'
-    };
-    const specialistSubjectKeys = [...specialistOptions.map(item => item.key), 'educador'];
+    const specialistLabels = Object.fromEntries(specialistOptions.map(item => [item.key, item.label]));
+    const specialistSubjectKeys = specialistOptions.map(item => item.key);
     const tutorLockedSubjectKeys = specialistSubjectKeys.filter(key => key !== 'religio');
 
     function isSpecialistTeacher(teacher){
@@ -2421,7 +2427,7 @@ syncEnterCenterVisibility();
     function updateRegisterTeacherType(){
       const teacherType = valueOf("registerTeacherType");
       const isAreaTeacher = teacherType === "specialist" || teacherType === "educador";
-      const showSpecialtySelect = teacherType === "specialist";
+      const showSpecialtySelect = isAreaTeacher;
       $("registerSpecialtyWrap").classList.toggle("hidden", !showSpecialtySelect);
       $("registerSpecialistClassesWrap").classList.toggle("hidden", !isAreaTeacher);
       $("registerClassModeWrap").classList.toggle("hidden", isAreaTeacher);
@@ -2714,7 +2720,19 @@ syncEnterCenterVisibility();
         const div = document.createElement("div");
         div.className = "subject-card";
         div.dataset.subjectKey = subject.key;
-        div.innerHTML = `
+        const isEducador = subject.key === "educador";
+        div.innerHTML = isEducador ? `
+          <div class="subject-head">
+            <h3>${subject.name}</h3>
+            <span class="chip">${subject.key.toUpperCase()}</span>
+          </div>
+          <div class="row">
+            <div class="c12">
+              <label for="${subject.key}_obs">Observacions de l'Educador/a</label>
+              <textarea id="${subject.key}_obs" placeholder="Escriu ací les observacions de l'Educador/a"></textarea>
+            </div>
+          </div>
+        ` : `
           <div class="subject-head">
             <h3>${subject.name}</h3>
             <span class="chip">${subject.key.toUpperCase()}</span>
