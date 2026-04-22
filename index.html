@@ -1287,8 +1287,7 @@ body::after{
 </div>
 <div class="c4">
 <label for="destaca">Tasques en les quals destaca</label>
-<select id="destaca" multiple>
-<option value="">-- Selecciona --</option>
+<select id="destaca" multiple size="7">
 <option value="verbals">verbals</option>
 <option value="gràfiques">gràfiques</option>
 <option value="motrius">motrius</option>
@@ -1351,8 +1350,7 @@ body::after{
 <div class="row">
 <div class="c4">
 <label for="suports">Suports personals</label>
-<select id="suports">
-<option value="">-- Selecciona --</option>
+<select id="suports" multiple size="5">
 <option value="P.T.">P.T.</option>
 <option value="A.L.">A.L.</option>
 <option value="educador/a">educador/a</option>
@@ -1362,8 +1360,7 @@ body::after{
 </div>
 <div class="c4">
 <label for="reforc">Aspectes que es reforcen</label>
-<select id="reforc">
-<option value="">-- Selecciona --</option>
+<select id="reforc" multiple size="6">
 <option value="autonomia personal">autonomia personal</option>
 <option value="habilitats socials">habilitats socials</option>
 <option value="comprensió lectora">comprensió lectora</option>
@@ -1374,8 +1371,7 @@ body::after{
 </div>
 <div class="c4">
 <label for="materials">Materials i recursos</label>
-<select id="materials">
-<option value="">-- Selecciona --</option>
+<select id="materials" multiple size="6">
 <option value="pictogrames">pictogrames</option>
 <option value="tauleta">tauleta</option>
 <option value="materials visuals">materials visuals</option>
@@ -1386,8 +1382,7 @@ body::after{
 </div>
 <div class="c6">
 <label for="metodologia">Mesures metodològiques</label>
-<select id="metodologia">
-<option value="">-- Selecciona --</option>
+<select id="metodologia" multiple size="5">
 <option value="disposa de major temps en les tasques">disposa de major temps en les tasques</option>
 <option value="rep explicacions individualitzades">rep explicacions individualitzades</option>
 <option value="realitza activitats ajustades al seu nivell">realitza activitats ajustades al seu nivell</option>
@@ -1397,8 +1392,7 @@ body::after{
 </div>
 <div class="c6">
 <label for="avaluacio">Mesures en l'avaluació</label>
-<select id="avaluacio">
-<option value="">-- Selecciona --</option>
+<select id="avaluacio" multiple size="5">
 <option value="disposa de més temps en els exàmens">disposa de més temps en els exàmens</option>
 <option value="rep explicació individualitzada de les tasques">rep explicació individualitzada de les tasques</option>
 <option value="utilitza suports visuals">utilitza suports visuals</option>
@@ -2695,8 +2689,36 @@ syncEnterCenterVisibility();
       el.style.color = error ? "#b42318" : "#2450b8";
     }
 
-    function valueOf(id){ const el=$(id); return el ? el.value : ""; }
-    function setValue(id,val){ const el=$(id); if(el) el.value = val; }
+    function getMultiSelectValues(id){
+      const el = $(id);
+      if(!el) return [];
+      return [...el.selectedOptions].map(option => option.value).filter(Boolean);
+    }
+
+    function valueOf(id){
+      const el=$(id);
+      if(!el) return "";
+      if(el.tagName === "SELECT" && el.multiple) return getMultiSelectValues(id);
+      return el.value;
+    }
+
+    function setValue(id,val){
+      const el=$(id);
+      if(!el) return;
+      if(el.tagName === "SELECT" && el.multiple){
+        const values = Array.isArray(val) ? val : (val ? String(val).split(/\s*[,;]\s*/).filter(Boolean) : []);
+        [...el.options].forEach(option => {
+          option.selected = values.includes(option.value);
+        });
+        return;
+      }
+      el.value = val;
+    }
+
+    function listToText(value){
+      if(Array.isArray(value)) return value.filter(Boolean).join(", ");
+      return value || "";
+    }
 
     function buildSubjects(){
       const container = $("subjectsContainer");
@@ -3076,12 +3098,13 @@ syncEnterCenterVisibility();
       });
 
       const p = data.personal;
+      const destacaText = listToText(p.destaca);
       lines.push("Aspectes personals i evolutius (progressos, talents, fortaleses, febleses, dificultats):");
       let personal = `${genderWord}${alumne ? " " + alumne : ""}`;
       if(p.apren) personal += ` aprén amb més facilitat ${p.apren}`;
       if(p.ritme) personal += `${p.apren ? " i " : " "}presenta un ritme d'aprenentatge ${p.ritme}`;
       if(p.autonomia) personal += `. En relació al seu nivell d'autonomia en el treball, ${p.autonomia}`;
-      if(p.destaca) personal += `. Les tasques en les quals destaca i amb les quals aprén amb més facilitat són ${p.destaca}`;
+      if(destacaText) personal += `. Les tasques en les quals destaca i amb les quals aprén amb més facilitat són ${destacaText}`;
       personal += ".";
       lines.push(personal);
       if(p.habits) lines.push(`Quant als seus hàbits de treball, ${p.habits}.`);
@@ -3092,15 +3115,20 @@ syncEnterCenterVisibility();
       lines.push("");
 
       const spt = data.supports;
-      const hasSupportsSection = !!(spt.suports || spt.reforc || spt.materials || spt.metodologia || spt.avaluacio || spt.obs_suports);
+      const suportsText = listToText(spt.suports);
+      const reforcText = listToText(spt.reforc);
+      const materialsText = listToText(spt.materials);
+      const metodologiaText = listToText(spt.metodologia);
+      const avaluacioText = listToText(spt.avaluacio);
+      const hasSupportsSection = !!(suportsText || reforcText || materialsText || metodologiaText || avaluacioText || spt.obs_suports);
       if(hasSupportsSection){
         lines.push("Mesures i suports d'atenció educativa:");
-        if(spt.suports || spt.reforc){
-          lines.push(`${genderWord}${alumne ? " " + alumne : ""} rep el suport/l'atenció educativa de ${spt.suports || "---"} per a reforçar aspectes relacionats amb ${spt.reforc || "---"}.`);
+        if(suportsText || reforcText){
+          lines.push(`${genderWord}${alumne ? " " + alumne : ""} rep el suport/l'atenció educativa de ${suportsText || "---"} per a reforçar aspectes relacionats amb ${reforcText || "---"}.`);
         }
-        if(spt.materials) lines.push(`Quant als materials, utilitza ${spt.materials}.`);
-        if(spt.metodologia) lines.push(`A nivell metodològic, ${spt.metodologia}.`);
-        if(spt.avaluacio) lines.push(`Finalment, en referència a l'avaluació, ${spt.avaluacio}.`);
+        if(materialsText) lines.push(`Quant als materials, utilitza ${materialsText}.`);
+        if(metodologiaText) lines.push(`A nivell metodològic, ${metodologiaText}.`);
+        if(avaluacioText) lines.push(`Finalment, en referència a l'avaluació, ${avaluacioText}.`);
         if(spt.obs_suports) lines.push(`Observacions lliures: ${spt.obs_suports}.`);
         lines.push("");
       }
