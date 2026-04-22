@@ -2731,7 +2731,10 @@ syncEnterCenterVisibility();
 
     function formatListValue(value){
       const items = normalizeToArray(value);
-      return items.join(', ');
+      if(!items.length) return "";
+      if(items.length === 1) return items[0];
+      if(items.length === 2) return `${items[0]} i ${items[1]}`;
+      return `${items.slice(0, -1).join(', ')} i ${items[items.length - 1]}`;
     }
 
     function surnameSortKey(name=""){
