@@ -1922,8 +1922,8 @@ syncEnterCenterVisibility();
         googleAccessOverlay.classList.remove("active");
         googleAccessOverlay.classList.add("google-access-hidden");
         googleAccessStatus.className = "google-access-status";
-        googleAccessStatus.textContent = `Sessió iniciada com ${state.firebaseUser.email || "usuari"}. Versió Beta.`;
-        updateAccessIndicators("Versió Beta", ` Accés complet`);
+        googleAccessStatus.textContent = `Sessió iniciada com ${state.firebaseUser.email || "usuari"}. Beta`;
+        updateAccessIndicators("Beta", ` In progress`);
         return;
       }
 
