@@ -884,8 +884,8 @@ body::after{
 <div class="google-access-overlay" id="googleAccessOverlay">
   <div class="google-access-card">
     <div class="google-access-badge">Accés amb Google</div>
-    <h2>Prova gratuïta de 10 minuts</h2>
-    <p>Inicia sessió amb Google per a començar la prova. Quan entres per primera vegada es crearà automàticament el teu usuari en Firebase i tindràs accés complet durant 10 minuts.</p>
+    <h2>Mode de Prova</h2>
+    <p>Inicia sessió amb Google per a accedir temporalment i provar totes les funcions durant 10 minuts.</p>
     <div class="google-access-status" id="googleAccessStatus">Comprovant accés…</div>
     <div class="google-access-actions">
       <button class="google-btn" id="googleLoginBtn" type="button">
@@ -1908,7 +1908,7 @@ syncEnterCenterVisibility();
         googleAccessOverlay.classList.remove("google-access-hidden");
         googleLogoutBtn.classList.add("google-access-hidden");
         googleAccessStatus.className = "google-access-status";
-        googleAccessStatus.textContent = "Inicia sessió amb Google per a començar la prova gratuïta de 10 minuts.";
+        googleAccessStatus.textContent = "Inicia sessió amb Google per a començar el mode de prova de 10 minuts.";
         updateAccessIndicators("Sense sessió","Inicia sessió amb Google per a activar la prova de 10 minuts.");
         return;
       }
@@ -1942,8 +1942,8 @@ syncEnterCenterVisibility();
       googleAccessOverlay.classList.add("active");
       googleAccessOverlay.classList.remove("google-access-hidden");
       googleAccessStatus.className = "google-access-status expired";
-      googleAccessStatus.textContent = "La prova gratuïta ha caducat. Sol·licita el Pla Complet a la Comissió TIC - CEIP Nostra Senyora del Carme (Aldaia).";
-      updateAccessIndicators("Prova caducada","La prova de 10 minuts ja ha acabat. Sol·licita el Pla Complet a la Comissió TIC - CEIP Nostra Senyora del Carme (Aldaia) per a continuar.");
+      googleAccessStatus.textContent = "El mode de prova ha finalitzat. Sol·licita el accés complet a la Comissió TIC - CEIP Nostra Senyora del Carme (Aldaia).";
+      updateAccessIndicators("Prova finalitzada","La prova de 10 minuts ja ha finalitzat. Sol·licita el Pla Complet a la Comissió TIC - CEIP Nostra Senyora del Carme (Aldaia) per a continuar.");
     }
 
 
