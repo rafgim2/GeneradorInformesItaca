@@ -1652,6 +1652,7 @@ body::after{
     const googleAccessOverlay = $("googleAccessOverlay");
     const googleAccessStatus = $("googleAccessStatus");
     const googleLoginBtn = $("googleLoginBtn");
+    const microsoftLoginBtn = $("microsoftLoginBtn");
     const emailLoginBtn = $("emailLoginBtn");
     const emailLoginInput = $("emailLoginInput");
     const emailPasswordInput = $("emailPasswordInput");
@@ -2026,6 +2027,18 @@ syncEnterCenterVisibility();
         console.error(error);
         googleAccessStatus.className = "google-access-status expired";
         googleAccessStatus.textContent = "No s'ha pogut completar l'accés amb Google.";
+      }
+    });
+
+    microsoftLoginBtn?.addEventListener("click", async () => {
+      try{
+        microsoftProvider.setCustomParameters({ prompt: "select_account" });
+        const result = await signInWithPopup(auth, microsoftProvider);
+        if(result?.user) markGoogleLoginSeen();
+      }catch(error){
+        console.error(error);
+        googleAccessStatus.className = "google-access-status expired";
+        googleAccessStatus.textContent = "No s'ha pogut completar l'accés amb Microsoft.";
       }
     });
 
