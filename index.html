@@ -113,7 +113,6 @@
       transition:.16s ease;
     }
     textarea{min-height:96px;resize:vertical}
-    select[multiple]{min-height:120px;padding:8px 10px;}
     input[type="text"]:focus,select:focus,textarea:focus{
       border-color:#98b8ff;
       box-shadow:0 0 0 4px rgba(37,99,235,.12);
@@ -1018,7 +1017,6 @@ body::after{
             <select id="registerTeacherType">
               <option value="tutor">Tutor/a</option>
               <option value="specialist">Especialista</option>
-              <option value="educador">Educador/a</option>
             </select>
           </div>
           <div class="c6 hidden" id="registerSpecialtyWrap">
@@ -1260,7 +1258,7 @@ body::after{
 <div class="row">
 <div class="c4">
 <label for="apren">Aprén amb més facilitat</label>
-<select id="apren" multiple>
+<select id="apren">
 <option value="">-- Selecciona --</option>
 <option value="en gran grup">en gran grup</option>
 <option value="en xicotet grup">en xicotet grup</option>
@@ -1288,7 +1286,7 @@ body::after{
 </div>
 <div class="c4">
 <label for="destaca">Tasques en les quals destaca</label>
-<select id="destaca" multiple>
+<select id="destaca">
 <option value="">-- Selecciona --</option>
 <option value="verbals">verbals</option>
 <option value="gràfiques">gràfiques</option>
@@ -1301,7 +1299,7 @@ body::after{
 </div>
 <div class="c4">
 <label for="habits">Hàbits de treball</label>
-<select id="habits" multiple>
+<select id="habits">
 <option value="">-- Selecciona --</option>
 <option value="manté l'atenció i mostra interés">manté l'atenció i mostra interés</option>
 <option value="participa activament en les activitats">participa activament en les activitats</option>
@@ -1312,7 +1310,7 @@ body::after{
 </div>
 <div class="c4">
 <label for="actitud">Actitud davant dels problemes i activitats</label>
-<select id="actitud" multiple>
+<select id="actitud">
 <option value="">-- Selecciona --</option>
 <option value="reflexiona abans de prendre decisions">reflexiona abans de prendre decisions</option>
 <option value="és participatiu/va i mostra interés">és participatiu/va i mostra interés</option>
@@ -1323,7 +1321,7 @@ body::after{
 </div>
 <div class="c6">
 <label for="social">Aspecte afectiu i social</label>
-<select id="social" multiple>
+<select id="social">
 <option value="">-- Selecciona --</option>
 <option value="és alegre i manté bona relació amb el grup">és alegre i manté bona relació amb el grup</option>
 <option value="és respectuós/a i col·laboratiu/va">és respectuós/a i col·laboratiu/va</option>
@@ -1352,7 +1350,7 @@ body::after{
 <div class="row">
 <div class="c4">
 <label for="suports">Suports personals</label>
-<select id="suports" multiple>
+<select id="suports">
 <option value="">-- Selecciona --</option>
 <option value="P.T.">P.T.</option>
 <option value="A.L.">A.L.</option>
@@ -1363,7 +1361,7 @@ body::after{
 </div>
 <div class="c4">
 <label for="reforc">Aspectes que es reforcen</label>
-<select id="reforc" multiple>
+<select id="reforc">
 <option value="">-- Selecciona --</option>
 <option value="autonomia personal">autonomia personal</option>
 <option value="habilitats socials">habilitats socials</option>
@@ -1375,7 +1373,7 @@ body::after{
 </div>
 <div class="c4">
 <label for="materials">Materials i recursos</label>
-<select id="materials" multiple>
+<select id="materials">
 <option value="">-- Selecciona --</option>
 <option value="pictogrames">pictogrames</option>
 <option value="tauleta">tauleta</option>
@@ -1387,7 +1385,7 @@ body::after{
 </div>
 <div class="c6">
 <label for="metodologia">Mesures metodològiques</label>
-<select id="metodologia" multiple>
+<select id="metodologia">
 <option value="">-- Selecciona --</option>
 <option value="disposa de major temps en les tasques">disposa de major temps en les tasques</option>
 <option value="rep explicacions individualitzades">rep explicacions individualitzades</option>
@@ -1398,7 +1396,7 @@ body::after{
 </div>
 <div class="c6">
 <label for="avaluacio">Mesures en l'avaluació</label>
-<select id="avaluacio" multiple>
+<select id="avaluacio">
 <option value="">-- Selecciona --</option>
 <option value="disposa de més temps en els exàmens">disposa de més temps en els exàmens</option>
 <option value="rep explicació individualitzada de les tasques">rep explicació individualitzada de les tasques</option>
@@ -1554,14 +1552,7 @@ body::after{
         'C.E.5: Aplicació dels recursos digitals i audiovisuals a la música i dansa.'
       ]},
       { key:'pi', name:'Projectes Interdisciplinars', competencies:[] },
-      { key:'religio', name:'Religió o Atenció Educativa', competencies:[
-        'Identitat i autonomia (Antropologia cristiana)',
-        'Convivència i ètica',
-        'Patrimoni cultural i religiós',
-        'Diàleg intercultural i religiós',
-        'Interioritat i espiritualitat.'
-      ] },
-      { key:'educador', name:'Educador/a', competencies:[] },
+      { key:'religio', name:'Religió o Atenció Educativa', competencies:[] },
       { key:'al', name:'Audició i Llenguatge', competencies:[] },
       { key:'pt', name:'Pedagogia Terapèutica', competencies:[] },
       { key:'valors', name:'Educació en Valors Ètics i Cívics (només 5é)', competencies:[
@@ -1582,12 +1573,14 @@ body::after{
       { key:'plastica', label:'Plàstica (Arts)' },
       { key:'religio', label:'Religió' },
       { key:'al', label:'Audició i Llenguatge' },
-      { key:'pt', label:'Pedagogia Terapèutica' },
-      { key:'educador', label:'Educador/a' }
+      { key:'pt', label:'Pedagogia Terapèutica' }
     ];
 
-    const specialistLabels = Object.fromEntries(specialistOptions.map(item => [item.key, item.label]));
-    const specialistSubjectKeys = specialistOptions.map(item => item.key);
+    const specialistLabels = {
+      ...Object.fromEntries(specialistOptions.map(item => [item.key, item.label])),
+      educador:'Educador/a'
+    };
+    const specialistSubjectKeys = [...specialistOptions.map(item => item.key), 'educador'];
     const tutorLockedSubjectKeys = specialistSubjectKeys.filter(key => key !== 'religio');
 
     function isSpecialistTeacher(teacher){
@@ -2407,7 +2400,7 @@ syncEnterCenterVisibility();
     function renderSpecialistClassOptions(){
       const wrap = $("registerSpecialistClasses");
       if(!wrap) return;
-      const specialty = teacherType === 'educador' ? 'educador' : valueOf("registerSpecialty");
+      const specialty = valueOf("registerSpecialty");
       const availableClasses = getAvailableSpecialistClasses(specialty);
       if(!availableClasses.length){
         wrap.innerHTML = '<div class="empty">No hi ha classes disponibles per a aquesta especialitat.</div>';
@@ -2428,7 +2421,8 @@ syncEnterCenterVisibility();
     function updateRegisterTeacherType(){
       const teacherType = valueOf("registerTeacherType");
       const isAreaTeacher = teacherType === "specialist" || teacherType === "educador";
-      $("registerSpecialtyWrap").classList.toggle("hidden", teacherType !== "specialist");
+      const showSpecialtySelect = teacherType === "specialist";
+      $("registerSpecialtyWrap").classList.toggle("hidden", !showSpecialtySelect);
       $("registerSpecialistClassesWrap").classList.toggle("hidden", !isAreaTeacher);
       $("registerClassModeWrap").classList.toggle("hidden", isAreaTeacher);
       $("registerExistingClassWrap").classList.toggle("hidden", isAreaTeacher || valueOf("registerClassMode") !== "existing");
@@ -2695,32 +2689,8 @@ syncEnterCenterVisibility();
       el.style.color = error ? "#b42318" : "#2450b8";
     }
 
-    function valueOf(id){
-      const el=$(id);
-      if(!el) return "";
-      if(el.tagName === 'SELECT' && el.multiple){
-        return [...el.selectedOptions].map(option => option.value).filter(Boolean);
-      }
-      return el.value;
-    }
-    function setValue(id,val){
-      const el=$(id);
-      if(!el) return;
-      if(el.tagName === 'SELECT' && el.multiple){
-        const values = Array.isArray(val) ? val : (val ? [val] : []);
-        [...el.options].forEach(option => {
-          option.selected = values.includes(option.value);
-        });
-        return;
-      }
-      el.value = val;
-    }
-    function hasValue(val){
-      return Array.isArray(val) ? val.length > 0 : !!val;
-    }
-    function formatValue(val, separator='; '){
-      return Array.isArray(val) ? val.filter(Boolean).join(separator) : val;
-    }
+    function valueOf(id){ const el=$(id); return el ? el.value : ""; }
+    function setValue(id,val){ const el=$(id); if(el) el.value = val; }
 
     function buildSubjects(){
       const container = $("subjectsContainer");
@@ -2737,7 +2707,6 @@ syncEnterCenterVisibility();
         religio:{bar:"#84cc16", bg:"linear-gradient(90deg, rgba(132,204,22,.13) 0%, rgba(132,204,22,.06) 26%, rgba(255,255,255,.98) 64%, #fff 100%)", chipBg:"rgba(132,204,22,.12)", chipBorder:"rgba(132,204,22,.20)", chipText:"#5e9310"},
         al:{bar:"#14b8a6", bg:"linear-gradient(90deg, rgba(20,184,166,.13) 0%, rgba(20,184,166,.06) 26%, rgba(255,255,255,.98) 64%, #fff 100%)", chipBg:"rgba(20,184,166,.12)", chipBorder:"rgba(20,184,166,.20)", chipText:"#127d72"},
         pt:{bar:"#f97316", bg:"linear-gradient(90deg, rgba(249,115,22,.13) 0%, rgba(249,115,22,.06) 26%, rgba(255,255,255,.98) 64%, #fff 100%)", chipBg:"rgba(249,115,22,.12)", chipBorder:"rgba(249,115,22,.20)", chipText:"#c85c0a"},
-        educador:{bar:"#64748b", bg:"linear-gradient(90deg, rgba(100,116,139,.15) 0%, rgba(100,116,139,.07) 26%, rgba(255,255,255,.98) 64%, #fff 100%)", chipBg:"rgba(100,116,139,.12)", chipBorder:"rgba(100,116,139,.20)", chipText:"#475569"},
         valors:{bar:"#eab308", bg:"linear-gradient(90deg, rgba(234,179,8,.13) 0%, rgba(234,179,8,.06) 26%, rgba(255,255,255,.98) 64%, #fff 100%)", chipBg:"rgba(234,179,8,.12)", chipBorder:"rgba(234,179,8,.20)", chipText:"#b08805"}
       };
       container.innerHTML = "";
@@ -2751,39 +2720,32 @@ syncEnterCenterVisibility();
             <span class="chip">${subject.key.toUpperCase()}</span>
           </div>
           <div class="row">
-            ${subject.key === 'educador' ? `
-              <div class="c12">
-                <label for="${subject.key}_obs">Observació de l'educador/a</label>
-                <textarea id="${subject.key}_obs" placeholder="Escriu les observacions de l'educador/a"></textarea>
+            <div class="c4">
+              <label for="${subject.key}_nivell">Resultat global</label>
+              <select id="${subject.key}_nivell">
+                <option value="">-- Selecciona --</option>
+                <option value="EXCEL·LENT">EXCEL·LENT</option>
+                <option value="NOTABLE">NOTABLE</option>
+                <option value="SUFICIENT">SUFICIENT</option>
+                <option value="NO SUPERAT - HA DE TREBALLAR MÉS PER A ASSIMILAR ELS SABERS PROPOSATS">NO SUPERAT - HA DE TREBALLAR MÉS</option>
+              </select>
+            </div>
+            <div class="c8">
+              <label for="${subject.key}_obs">Observació lliure de l'àrea</label>
+              <input id="${subject.key}_obs" type="text" placeholder="Opcional" />
+            </div>
+            <div class="c6">
+              <label>Competències assolides</label>
+              <div class="checkbox-grid">
+                ${subject.competencies.map(c => `<label class="check"><input type="checkbox" data-group="${subject.key}_ok" value="${escapeHtml(c)}"><span>${c}</span></label>`).join("")}
               </div>
-            ` : `
-              <div class="c4">
-                <label for="${subject.key}_nivell">Resultat global</label>
-                <select id="${subject.key}_nivell">
-                  <option value="">-- Selecciona --</option>
-                  <option value="EXCEL·LENT">EXCEL·LENT</option>
-                  <option value="NOTABLE">NOTABLE</option>
-                  <option value="SUFICIENT">SUFICIENT</option>
-                  <option value="NO SUPERAT - HA DE TREBALLAR MÉS PER A ASSIMILAR ELS SABERS PROPOSATS">NO SUPERAT - HA DE TREBALLAR MÉS</option>
-                </select>
+            </div>
+            <div class="c6">
+              <label>Competències a continuar treballant</label>
+              <div class="checkbox-grid">
+                ${subject.competencies.map(c => `<label class="check"><input type="checkbox" data-group="${subject.key}_ko" value="${escapeHtml(c)}"><span>${c}</span></label>`).join("")}
               </div>
-              <div class="c8">
-                <label for="${subject.key}_obs">Observació lliure de l'àrea</label>
-                <input id="${subject.key}_obs" type="text" placeholder="Opcional" />
-              </div>
-              <div class="c6">
-                <label>Competències assolides</label>
-                <div class="checkbox-grid">
-                  ${subject.competencies.map(c => `<label class="check"><input type="checkbox" data-group="${subject.key}_ok" value="${escapeHtml(c)}"><span>${c}</span></label>`).join("")}
-                </div>
-              </div>
-              <div class="c6">
-                <label>Competències a continuar treballant</label>
-                <div class="checkbox-grid">
-                  ${subject.competencies.map(c => `<label class="check"><input type="checkbox" data-group="${subject.key}_ko" value="${escapeHtml(c)}"><span>${c}</span></label>`).join("")}
-                </div>
-              </div>
-            `}
+            </div>
           </div>
         `;
         const palette = subjectPalette[subject.key];
@@ -3083,48 +3045,44 @@ syncEnterCenterVisibility();
         const s = data.subjects[subject.key];
         if(!s || (!s.nivell && !s.obs && !s.ok.length && !s.ko.length)) return;
         lines.push(`${subject.name}:`);
-        if(subject.key === 'educador'){
-          if(s.obs) lines.push(`Observacions de l'educador/a: ${s.obs}.`);
-        }else{
-          const base = sentenceForLevel(s.nivell, genderWord);
-          if(base) lines.push(base);
-          if(s.ok.length) lines.push(`Destacant els progressos i esforços quant a les següents competències:`);
-            s.ok.forEach(comp => lines.push(comp));
-          if(s.ko.length) {
-            lines.push(`No obstant això, ha de seguir esforçant-se quant a les següents competències que cal continuar treballant:`);
-            s.ko.forEach(comp => lines.push(comp));
-          }
-          if(s.obs) lines.push(`Observacions: ${s.obs}.`);
+        const base = sentenceForLevel(s.nivell, genderWord);
+        if(base) lines.push(base);
+        if(s.ok.length) lines.push(`Destacant els progressos i esforços quant a les següents competències:`);
+          s.ok.forEach(comp => lines.push(comp));
+        if(s.ko.length) {
+          lines.push(`No obstant això, ha de seguir esforçant-se quant a les següents competències que cal continuar treballant:`);
+          s.ko.forEach(comp => lines.push(comp));
         }
+        if(s.obs) lines.push(`Observacions: ${s.obs}.`);
         lines.push("");
       });
 
       const p = data.personal;
       lines.push("Aspectes personals i evolutius (progressos, talents, fortaleses, febleses, dificultats):");
       let personal = `${genderWord}${alumne ? " " + alumne : ""}`;
-      if(hasValue(p.apren)) personal += ` aprén amb més facilitat ${formatValue(p.apren)}`;
-      if(hasValue(p.ritme)) personal += `${hasValue(p.apren) ? " i " : " "}presenta un ritme d'aprenentatge ${formatValue(p.ritme)}`;
-      if(hasValue(p.autonomia)) personal += `. En relació al seu nivell d'autonomia en el treball, ${formatValue(p.autonomia)}`;
-      if(hasValue(p.destaca)) personal += `. Les tasques en les quals destaca i amb les quals aprén amb més facilitat són ${formatValue(p.destaca)}`;
+      if(p.apren) personal += ` aprén amb més facilitat ${p.apren}`;
+      if(p.ritme) personal += `${p.apren ? " i " : " "}presenta un ritme d'aprenentatge ${p.ritme}`;
+      if(p.autonomia) personal += `. En relació al seu nivell d'autonomia en el treball, ${p.autonomia}`;
+      if(p.destaca) personal += `. Les tasques en les quals destaca i amb les quals aprén amb més facilitat són ${p.destaca}`;
       personal += ".";
       lines.push(personal);
-      if(hasValue(p.habits)) lines.push(`Quant als seus hàbits de treball, ${formatValue(p.habits)}.`);
-      if(hasValue(p.actitud)) lines.push(`En relació a la seua actitud, ${formatValue(p.actitud)}.`);
-      if(hasValue(p.social)) lines.push(`Finalment, a nivell afectiu i social, ${formatValue(p.social)}.`);
-      if(hasValue(p.assistencia)) lines.push(`La seua assistència a classe és ${formatValue(p.assistencia)}.`);
+      if(p.habits) lines.push(`Quant als seus hàbits de treball, ${p.habits}.`);
+      if(p.actitud) lines.push(`En relació a la seua actitud, ${p.actitud}.`);
+      if(p.social) lines.push(`Finalment, a nivell afectiu i social, ${p.social}.`);
+      if(p.assistencia) lines.push(`La seua assistència a classe és ${p.assistencia}.`);
       if(p.obs_personals) lines.push(`Observacions lliures: ${p.obs_personals}.`);
       lines.push("");
 
       const spt = data.supports;
-      const hasSupportsSection = !!(hasValue(spt.suports) || hasValue(spt.reforc) || hasValue(spt.materials) || hasValue(spt.metodologia) || hasValue(spt.avaluacio) || spt.obs_suports);
+      const hasSupportsSection = !!(spt.suports || spt.reforc || spt.materials || spt.metodologia || spt.avaluacio || spt.obs_suports);
       if(hasSupportsSection){
         lines.push("Mesures i suports d'atenció educativa:");
-        if(hasValue(spt.suports) || hasValue(spt.reforc)){
-          lines.push(`${genderWord}${alumne ? " " + alumne : ""} rep el suport/l'atenció educativa de ${formatValue(spt.suports) || "---"} per a reforçar aspectes relacionats amb ${formatValue(spt.reforc) || "---"}.`);
+        if(spt.suports || spt.reforc){
+          lines.push(`${genderWord}${alumne ? " " + alumne : ""} rep el suport/l'atenció educativa de ${spt.suports || "---"} per a reforçar aspectes relacionats amb ${spt.reforc || "---"}.`);
         }
-        if(hasValue(spt.materials)) lines.push(`Quant als materials, utilitza ${formatValue(spt.materials)}.`);
-        if(hasValue(spt.metodologia)) lines.push(`A nivell metodològic, ${formatValue(spt.metodologia)}.`);
-        if(hasValue(spt.avaluacio)) lines.push(`Finalment, en referència a l'avaluació, ${formatValue(spt.avaluacio)}.`);
+        if(spt.materials) lines.push(`Quant als materials, utilitza ${spt.materials}.`);
+        if(spt.metodologia) lines.push(`A nivell metodològic, ${spt.metodologia}.`);
+        if(spt.avaluacio) lines.push(`Finalment, en referència a l'avaluació, ${spt.avaluacio}.`);
         if(spt.obs_suports) lines.push(`Observacions lliures: ${spt.obs_suports}.`);
         lines.push("");
       }
@@ -3186,7 +3144,7 @@ syncEnterCenterVisibility();
         ["Diàlegs i debats. Acords i consens.","Diálogos y debates. Acuerdos y consenso."], ["Reconeixement i control de les emocions.","Reconocimiento y control de las emociones."], ["Normes de convivència i drets de la infantesa.","Normas de convivencia y derechos de la infancia."], ["Estereotips: relacions interpersonals igualitàries.","Estereotipos: relaciones interpersonales igualitarias."], ["Valors democràtics: ciutadania participativa i responsable.","Valores democráticos: ciudadanía participativa y responsable."], ["Situacions de desigualtat i injustícia social.","Situaciones de desigualdad e injusticia social."], ["Desafiaments ecològics: ODS.","Desafíos ecológicos: ODS."],
         ["ràpid","rápido"], ["adequat","adecuado"], ["amb dificultats","con dificultades"], ["és capaç de treballar amb autonomia","es capaz de trabajar con autonomía"], ["només necessita atenció constant","solo necesita atención constante"], ["inicia la tasca però necessita supervisió per a la seua finalització","inicia la tarea pero necesita supervisión para finalizarla"], ["inicia la tasca però necessita supervisió","inicia la tarea pero necesita supervisión"], ["en gran grup","en gran grupo"], ["en xicotet grup","en pequeño grupo"], ["amb activitats cooperatives","con actividades cooperativas"], ["amb suport individual","con apoyo individual"], ["amb materials visuals","con materiales visuales"], ["amb materials manipulatius","con materiales manipulativos"], ["verbals","verbales"], ["gràfiques","gráficas"], ["motrius","motrices"], ["manipulatives","manipulativas"], ["lògic-matemàtiques","lógico-matemáticas"], ["musicals","musicales"], ["artístiques","artísticas"],
         ["manté l'atenció i mostra interés","mantiene la atención y muestra interés"], ["participa activament en les activitats","participa activamente en las actividades"], ["realitza les tasques amb constància","realiza las tareas con constancia"], ["es distrau amb facilitat","se distrae con facilidad"], ["necessita ajuda freqüent per mantindre l'atenció","necesita ayuda frecuente para mantener la atención"], ["reflexiona abans de prendre decisions","reflexiona antes de tomar decisiones"], ["és participatiu/va i mostra interés","es participativo/a y muestra interés"], ["s'esforça davant les dificultats","se esfuerza ante las dificultades"], ["mostra inseguretat davant les tasques noves","muestra inseguridad ante las tareas nuevas"], ["necessita motivació externa per iniciar o mantindre la tasca","necesita motivación externa para iniciar o mantener la tarea"],
-        ["és alegre i manté bona relació amb el grup","es alegre y mantiene buena relación con el grupo"], ["és respectuós/a i col·laboratiu/va","es respetuoso/a y colaborativo/a"], ["és tímid/a però s'integra progressivament","es tímido/a pero se integra progresivamente"], ["necessita ajuda per regular les seues emocions","necesita ayuda para regular sus emociones"], ["presenta dificultats en la relació amb iguals","presenta dificultades en la relación con iguales"], ["amb retards freqüents","con retrasos frecuentes"], ["autonomia personal","autonomía personal"], ["habilitats socials","habilidades sociales"], ["comprensió lectora","comprensión lectora"], ["expressió escrita","expresión escrita"], ["raonament matemàtic","razonamiento matemático"], ["atenció i concentració","atención y concentración"], ["pictogrames","pictogramas"], ["tauleta","tableta"], ["quadern adaptat","cuaderno adaptado"], ["sense materials específics","sin materiales específicos"], ["disposa de major temps en les tasques","dispone de más tiempo en las tareas"], ["rep explicacions individualitzades","recibe explicaciones individualizadas"], ["realitza activitats ajustades al seu nivell","realiza actividades ajustadas a su nivel"], ["treballa amb suport visual i seqüenciació","trabaja con apoyo visual y secuenciación"], ["combina activitats manipulatives i guiades","combina actividades manipulativas y guiadas"], ["disposa de més temps en els exàmens","dispone de más tiempo en los exámenes"], ["rep explicació individualitzada de les tasques","recibe explicación individualizada de las tareas"], ["utilitza suports visuals","utiliza apoyos visuales"], ["realitza proves adaptades al seu nivell","realiza pruebas adaptadas a su nivel"], ["l'avaluació es basa principalment en l'observació directa","la evaluación se basa principalmente en la observación directa"], ["sense suport personal específic","sin apoyo personal específico"], ["P.T. i A.L.","P.T. y A.L."], ["Identitat i autonomia (Antropologia cristiana)","Identidad y autonomía (Antropología cristiana)"], ["Convivència i ètica","Convivencia y ética"], ["Patrimoni cultural i religiós","Patrimonio cultural y religioso"], ["Diàleg intercultural i religiós","Diálogo intercultural y religioso"], ["Interioritat i espiritualitat.","Interioridad y espiritualidad."], ["Observacions de l'educador/a:","Observaciones del educador/a:"]
+        ["és alegre i manté bona relació amb el grup","es alegre y mantiene buena relación con el grupo"], ["és respectuós/a i col·laboratiu/va","es respetuoso/a y colaborativo/a"], ["és tímid/a però s'integra progressivament","es tímido/a pero se integra progresivamente"], ["necessita ajuda per regular les seues emocions","necesita ayuda para regular sus emociones"], ["presenta dificultats en la relació amb iguals","presenta dificultades en la relación con iguales"], ["amb retards freqüents","con retrasos frecuentes"], ["autonomia personal","autonomía personal"], ["habilitats socials","habilidades sociales"], ["comprensió lectora","comprensión lectora"], ["expressió escrita","expresión escrita"], ["raonament matemàtic","razonamiento matemático"], ["atenció i concentració","atención y concentración"], ["pictogrames","pictogramas"], ["tauleta","tableta"], ["quadern adaptat","cuaderno adaptado"], ["sense materials específics","sin materiales específicos"], ["disposa de major temps en les tasques","dispone de más tiempo en las tareas"], ["rep explicacions individualitzades","recibe explicaciones individualizadas"], ["realitza activitats ajustades al seu nivell","realiza actividades ajustadas a su nivel"], ["treballa amb suport visual i seqüenciació","trabaja con apoyo visual y secuenciación"], ["combina activitats manipulatives i guiades","combina actividades manipulativas y guiadas"], ["disposa de més temps en els exàmens","dispone de más tiempo en los exámenes"], ["rep explicació individualitzada de les tasques","recibe explicación individualizada de las tareas"], ["utilitza suports visuals","utiliza apoyos visuales"], ["realitza proves adaptades al seu nivell","realiza pruebas adaptadas a su nivel"], ["l'avaluació es basa principalment en l'observació directa","la evaluación se basa principalmente en la observación directa"], ["sense suport personal específic","sin apoyo personal específico"], ["P.T. i A.L.","P.T. y A.L."]
       ];
       let result = text;
       for (const pair of replacements){
