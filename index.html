@@ -199,6 +199,8 @@
       font-size:13px;color:#334155;
     }
     .check input{margin-top:2px}
+    .multi-check-group{display:flex;flex-direction:column;gap:10px}
+    .multi-check-hint{font-size:12px;color:var(--muted);margin-top:2px}
     .empty{
       padding:16px;border:1px dashed #cfd8e6;border-radius:16px;background:#fbfdff;color:#64748b
     }
@@ -1287,15 +1289,16 @@ body::after{
 </div>
 <div class="c4">
 <label for="destaca">Tasques en les quals destaca</label>
-<select id="destaca" multiple size="7">
-<option value="verbals">verbals</option>
-<option value="gràfiques">gràfiques</option>
-<option value="motrius">motrius</option>
-<option value="manipulatives">manipulatives</option>
-<option value="lògic-matemàtiques">lògic-matemàtiques</option>
-<option value="musicals">musicals</option>
-<option value="artístiques">artístiques</option>
-</select>
+<div id="destaca" class="checkbox-grid">
+<label class="check"><input type="checkbox" value="verbals"> <span>verbals</span></label>
+<label class="check"><input type="checkbox" value="gràfiques"> <span>gràfiques</span></label>
+<label class="check"><input type="checkbox" value="motrius"> <span>motrius</span></label>
+<label class="check"><input type="checkbox" value="manipulatives"> <span>manipulatives</span></label>
+<label class="check"><input type="checkbox" value="lògic-matemàtiques"> <span>lògic-matemàtiques</span></label>
+<label class="check"><input type="checkbox" value="musicals"> <span>musicals</span></label>
+<label class="check"><input type="checkbox" value="artístiques"> <span>artístiques</span></label>
+</div>
+<div class="multi-check-hint">Marca una o diverses opcions.</div>
 </div>
 <div class="c4">
 <label for="habits">Hàbits de treball</label>
@@ -1350,55 +1353,60 @@ body::after{
 <div class="row">
 <div class="c4">
 <label for="suports">Suports personals</label>
-<select id="suports" multiple size="5">
-<option value="P.T.">P.T.</option>
-<option value="A.L.">A.L.</option>
-<option value="educador/a">educador/a</option>
-<option value="P.T. i A.L.">P.T. i A.L.</option>
-<option value="sense suport personal específic">sense suport personal específic</option>
-</select>
+<div id="suports" class="checkbox-grid">
+<label class="check"><input type="checkbox" value="P.T."> <span>P.T.</span></label>
+<label class="check"><input type="checkbox" value="A.L."> <span>A.L.</span></label>
+<label class="check"><input type="checkbox" value="educador/a"> <span>educador/a</span></label>
+<label class="check"><input type="checkbox" value="P.T. i A.L."> <span>P.T. i A.L.</span></label>
+<label class="check"><input type="checkbox" value="sense suport personal específic"> <span>sense suport personal específic</span></label>
+</div>
+<div class="multi-check-hint">Marca una o diverses opcions.</div>
 </div>
 <div class="c4">
 <label for="reforc">Aspectes que es reforcen</label>
-<select id="reforc" multiple size="6">
-<option value="autonomia personal">autonomia personal</option>
-<option value="habilitats socials">habilitats socials</option>
-<option value="comprensió lectora">comprensió lectora</option>
-<option value="expressió escrita">expressió escrita</option>
-<option value="raonament matemàtic">raonament matemàtic</option>
-<option value="atenció i concentració">atenció i concentració</option>
-</select>
+<div id="reforc" class="checkbox-grid">
+<label class="check"><input type="checkbox" value="autonomia personal"> <span>autonomia personal</span></label>
+<label class="check"><input type="checkbox" value="habilitats socials"> <span>habilitats socials</span></label>
+<label class="check"><input type="checkbox" value="comprensió lectora"> <span>comprensió lectora</span></label>
+<label class="check"><input type="checkbox" value="expressió escrita"> <span>expressió escrita</span></label>
+<label class="check"><input type="checkbox" value="raonament matemàtic"> <span>raonament matemàtic</span></label>
+<label class="check"><input type="checkbox" value="atenció i concentració"> <span>atenció i concentració</span></label>
+</div>
+<div class="multi-check-hint">Marca una o diverses opcions.</div>
 </div>
 <div class="c4">
 <label for="materials">Materials i recursos</label>
-<select id="materials" multiple size="6">
-<option value="pictogrames">pictogrames</option>
-<option value="tauleta">tauleta</option>
-<option value="materials visuals">materials visuals</option>
-<option value="materials manipulatius">materials manipulatius</option>
-<option value="quadern adaptat">quadern adaptat</option>
-<option value="sense materials específics">sense materials específics</option>
-</select>
+<div id="materials" class="checkbox-grid">
+<label class="check"><input type="checkbox" value="pictogrames"> <span>pictogrames</span></label>
+<label class="check"><input type="checkbox" value="tauleta"> <span>tauleta</span></label>
+<label class="check"><input type="checkbox" value="materials visuals"> <span>materials visuals</span></label>
+<label class="check"><input type="checkbox" value="materials manipulatius"> <span>materials manipulatius</span></label>
+<label class="check"><input type="checkbox" value="quadern adaptat"> <span>quadern adaptat</span></label>
+<label class="check"><input type="checkbox" value="sense materials específics"> <span>sense materials específics</span></label>
+</div>
+<div class="multi-check-hint">Marca una o diverses opcions.</div>
 </div>
 <div class="c6">
 <label for="metodologia">Mesures metodològiques</label>
-<select id="metodologia" multiple size="5">
-<option value="disposa de major temps en les tasques">disposa de major temps en les tasques</option>
-<option value="rep explicacions individualitzades">rep explicacions individualitzades</option>
-<option value="realitza activitats ajustades al seu nivell">realitza activitats ajustades al seu nivell</option>
-<option value="treballa amb suport visual i seqüenciació">treballa amb suport visual i seqüenciació</option>
-<option value="combina activitats manipulatives i guiades">combina activitats manipulatives i guiades</option>
-</select>
+<div id="metodologia" class="checkbox-grid">
+<label class="check"><input type="checkbox" value="disposa de major temps en les tasques"> <span>disposa de major temps en les tasques</span></label>
+<label class="check"><input type="checkbox" value="rep explicacions individualitzades"> <span>rep explicacions individualitzades</span></label>
+<label class="check"><input type="checkbox" value="realitza activitats ajustades al seu nivell"> <span>realitza activitats ajustades al seu nivell</span></label>
+<label class="check"><input type="checkbox" value="treballa amb suport visual i seqüenciació"> <span>treballa amb suport visual i seqüenciació</span></label>
+<label class="check"><input type="checkbox" value="combina activitats manipulatives i guiades"> <span>combina activitats manipulatives i guiades</span></label>
+</div>
+<div class="multi-check-hint">Marca una o diverses opcions.</div>
 </div>
 <div class="c6">
 <label for="avaluacio">Mesures en l'avaluació</label>
-<select id="avaluacio" multiple size="5">
-<option value="disposa de més temps en els exàmens">disposa de més temps en els exàmens</option>
-<option value="rep explicació individualitzada de les tasques">rep explicació individualitzada de les tasques</option>
-<option value="utilitza suports visuals">utilitza suports visuals</option>
-<option value="realitza proves adaptades al seu nivell">realitza proves adaptades al seu nivell</option>
-<option value="l'avaluació es basa principalment en l'observació directa">l'avaluació es basa principalment en l'observació directa</option>
-</select>
+<div id="avaluacio" class="checkbox-grid">
+<label class="check"><input type="checkbox" value="disposa de més temps en els exàmens"> <span>disposa de més temps en els exàmens</span></label>
+<label class="check"><input type="checkbox" value="rep explicació individualitzada de les tasques"> <span>rep explicació individualitzada de les tasques</span></label>
+<label class="check"><input type="checkbox" value="utilitza suports visuals"> <span>utilitza suports visuals</span></label>
+<label class="check"><input type="checkbox" value="realitza proves adaptades al seu nivell"> <span>realitza proves adaptades al seu nivell</span></label>
+<label class="check"><input type="checkbox" value="l'avaluació es basa principalment en l'observació directa"> <span>l'avaluació es basa principalment en l'observació directa</span></label>
+</div>
+<div class="multi-check-hint">Marca una o diverses opcions.</div>
 </div>
 <div class="c12">
 <label for="obs_suports">Observacions lliures de mesures i suports</label>
@@ -2689,35 +2697,48 @@ syncEnterCenterVisibility();
       el.style.color = error ? "#b42318" : "#2450b8";
     }
 
-    function getMultiSelectValues(id){
-      const el = $(id);
-      if(!el) return [];
-      return [...el.selectedOptions].map(option => option.value).filter(Boolean);
+    function isCheckboxGroup(el){
+      return !!(el && el.querySelector && el.querySelector('input[type="checkbox"]'));
+    }
+
+    function normalizeToArray(value){
+      if(Array.isArray(value)) return value.filter(Boolean);
+      if(typeof value === "string") return value.split(/\s*;\s*|\s*,\s*/).map(v => v.trim()).filter(Boolean);
+      return [];
     }
 
     function valueOf(id){
       const el=$(id);
       if(!el) return "";
-      if(el.tagName === "SELECT" && el.multiple) return getMultiSelectValues(id);
+      if(isCheckboxGroup(el)){
+        return [...el.querySelectorAll('input[type="checkbox"]:checked')].map(input => input.value);
+      }
       return el.value;
     }
 
     function setValue(id,val){
       const el=$(id);
       if(!el) return;
-      if(el.tagName === "SELECT" && el.multiple){
-        const values = Array.isArray(val) ? val : (val ? String(val).split(/\s*[,;]\s*/).filter(Boolean) : []);
-        [...el.options].forEach(option => {
-          option.selected = values.includes(option.value);
+      if(isCheckboxGroup(el)){
+        const values = normalizeToArray(val);
+        el.querySelectorAll('input[type="checkbox"]').forEach(input => {
+          input.checked = values.includes(input.value);
         });
         return;
       }
-      el.value = val;
+      el.value = Array.isArray(val) ? val.join(', ') : val;
     }
 
-    function listToText(value){
-      if(Array.isArray(value)) return value.filter(Boolean).join(", ");
-      return value || "";
+    function formatListValue(value){
+      const items = normalizeToArray(value);
+      return items.join(', ');
+    }
+
+    function surnameSortKey(name=""){
+      const parts = String(name).trim().replace(/\s+/g,' ').split(' ').filter(Boolean);
+      if(!parts.length) return '';
+      if(parts.length === 1) return parts[0].toLowerCase();
+      return `${parts.slice(1).join(' ').toLowerCase()} ${parts[0].toLowerCase()}`;
     }
 
     function buildSubjects(){
@@ -2833,7 +2854,9 @@ syncEnterCenterVisibility();
 
     function renderStudents(){
       const term = $("studentSearch").value.trim().toLowerCase();
-      const list = state.students.filter(s => (s.studentName || "").toLowerCase().includes(term));
+      const list = [...state.students]
+        .sort((a,b) => surnameSortKey(a.studentName).localeCompare(surnameSortKey(b.studentName), 'ca'))
+        .filter(s => (s.studentName || "").toLowerCase().includes(term));
       if(!list.length){
         $("studentList").innerHTML = `<div class="empty">No hi ha alumnes en aquesta classe encara. Crea'ls des de zero.</div>`;
         return;
@@ -3067,7 +3090,11 @@ syncEnterCenterVisibility();
       return `${genderWord} PRESENTA DIFICULTATS per a assimilar les competències de l'àrea. És per això que ha de treballar més per a assimilar els sabers proposats.`;
     }
 
-    function joinList(items=[]){ return items.join(" ; "); }
+    function joinList(items=[]){ return normalizeToArray(items).join(" ; "); }
+
+    function formatForSentence(value){
+      return formatListValue(value);
+    }
 
     function generateReport(){
       const data = collectData();
@@ -3098,13 +3125,12 @@ syncEnterCenterVisibility();
       });
 
       const p = data.personal;
-      const destacaText = listToText(p.destaca);
       lines.push("Aspectes personals i evolutius (progressos, talents, fortaleses, febleses, dificultats):");
       let personal = `${genderWord}${alumne ? " " + alumne : ""}`;
       if(p.apren) personal += ` aprén amb més facilitat ${p.apren}`;
       if(p.ritme) personal += `${p.apren ? " i " : " "}presenta un ritme d'aprenentatge ${p.ritme}`;
       if(p.autonomia) personal += `. En relació al seu nivell d'autonomia en el treball, ${p.autonomia}`;
-      if(destacaText) personal += `. Les tasques en les quals destaca i amb les quals aprén amb més facilitat són ${destacaText}`;
+      if(formatForSentence(p.destaca)) personal += `. Les tasques en les quals destaca i amb les quals aprén amb més facilitat són ${formatForSentence(p.destaca)}`;
       personal += ".";
       lines.push(personal);
       if(p.habits) lines.push(`Quant als seus hàbits de treball, ${p.habits}.`);
@@ -3115,20 +3141,15 @@ syncEnterCenterVisibility();
       lines.push("");
 
       const spt = data.supports;
-      const suportsText = listToText(spt.suports);
-      const reforcText = listToText(spt.reforc);
-      const materialsText = listToText(spt.materials);
-      const metodologiaText = listToText(spt.metodologia);
-      const avaluacioText = listToText(spt.avaluacio);
-      const hasSupportsSection = !!(suportsText || reforcText || materialsText || metodologiaText || avaluacioText || spt.obs_suports);
+      const hasSupportsSection = !!(formatForSentence(spt.suports) || formatForSentence(spt.reforc) || formatForSentence(spt.materials) || formatForSentence(spt.metodologia) || formatForSentence(spt.avaluacio) || spt.obs_suports);
       if(hasSupportsSection){
         lines.push("Mesures i suports d'atenció educativa:");
-        if(suportsText || reforcText){
-          lines.push(`${genderWord}${alumne ? " " + alumne : ""} rep el suport/l'atenció educativa de ${suportsText || "---"} per a reforçar aspectes relacionats amb ${reforcText || "---"}.`);
+        if(formatForSentence(spt.suports) || formatForSentence(spt.reforc)){
+          lines.push(`${genderWord}${alumne ? " " + alumne : ""} rep el suport/l'atenció educativa de ${formatForSentence(spt.suports) || "---"} per a reforçar aspectes relacionats amb ${formatForSentence(spt.reforc) || "---"}.`);
         }
-        if(materialsText) lines.push(`Quant als materials, utilitza ${materialsText}.`);
-        if(metodologiaText) lines.push(`A nivell metodològic, ${metodologiaText}.`);
-        if(avaluacioText) lines.push(`Finalment, en referència a l'avaluació, ${avaluacioText}.`);
+        if(formatForSentence(spt.materials)) lines.push(`Quant als materials, utilitza ${formatForSentence(spt.materials)}.`);
+        if(formatForSentence(spt.metodologia)) lines.push(`A nivell metodològic, ${formatForSentence(spt.metodologia)}.`);
+        if(formatForSentence(spt.avaluacio)) lines.push(`Finalment, en referència a l'avaluació, ${formatForSentence(spt.avaluacio)}.`);
         if(spt.obs_suports) lines.push(`Observacions lliures: ${spt.obs_suports}.`);
         lines.push("");
       }
@@ -3284,6 +3305,7 @@ syncEnterCenterVisibility();
         className: state.currentClass,
         studentName,
         studentNameLower: studentName.toLowerCase(),
+        studentSurnameLower: surnameSortKey(studentName),
         course: "primer",
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
@@ -3370,6 +3392,7 @@ syncEnterCenterVisibility();
         className: state.currentClass,
         studentName,
         studentNameLower: studentName.toLowerCase(),
+        studentSurnameLower: surnameSortKey(studentName),
         course: data.general.curs || "",
         updatedAt: serverTimestamp(),
         createdAt: baseRecord.createdAt || serverTimestamp(),
@@ -3386,6 +3409,7 @@ syncEnterCenterVisibility();
         className: state.currentClass,
         studentName,
         studentNameLower: studentName.toLowerCase(),
+        studentSurnameLower: surnameSortKey(studentName),
         course: data.general.curs || "",
         evaluations,
         data: finalData
@@ -3396,7 +3420,7 @@ syncEnterCenterVisibility();
       updateLabels();
     }
 
-    async function removeStudent(){
+    async function deleteCurrentStudent(){
       if(!state.currentStudentId){
         alert("No hi ha cap alumne seleccionat.");
         return;
@@ -3506,6 +3530,12 @@ syncEnterCenterVisibility();
           <th class="subject-subhead" style="background:${palette.cell}">3a</th>
         `;
       }).join("");
+
+      rows.sort((a,b) => {
+        const classCmp = (a.className || '').localeCompare((b.className || ''), 'ca');
+        if(classCmp !== 0) return classCmp;
+        return surnameSortKey(a.studentName).localeCompare(surnameSortKey(b.studentName), 'ca');
+      });
 
       const bodyRows = rows.map(row => `
         <tr>
