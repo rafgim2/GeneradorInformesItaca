@@ -883,9 +883,9 @@ body::after{
 
 <div class="google-access-overlay" id="googleAccessOverlay">
   <div class="google-access-card">
-    <div class="google-access-badge">Accés amb Google</div>
+    <div class="google-access-badge">Accés amb Firebase</div>
     <h2>Prova gratuïta de 10 minuts</h2>
-    <p>Inicia sessió amb Google per a començar la prova. Quan entres per primera vegada es crearà automàticament el teu usuari en Firebase i tindràs accés complet durant 10 minuts.</p>
+    <p>Inicia sessió amb Google o amb correu i contrasenya per a començar la prova. Quan entres per primera vegada es crearà automàticament el teu usuari en Firebase i tindràs accés complet durant 10 minuts.</p>
     <div class="google-access-status" id="googleAccessStatus">Comprovant accés…</div>
     <div class="google-access-actions">
       <button class="google-btn" id="googleLoginBtn" type="button">
@@ -897,7 +897,31 @@ body::after{
         </svg>
         <span class="google-btn-text">Continuar amb Google</span>
       </button>
+      <button class="google-btn" id="microsoftLoginBtn" type="button">
+        <svg aria-hidden="true" viewBox="0 0 24 24">
+          <path fill="#F25022" d="M2 2h9v9H2z"/>
+          <path fill="#7FBA00" d="M13 2h9v9h-9z"/>
+          <path fill="#00A4EF" d="M2 13h9v9H2z"/>
+          <path fill="#FFB900" d="M13 13h9v9h-9z"/>
+        </svg>
+        <span class="google-btn-text">Continuar amb Microsoft</span>
+      </button>
       <button class="ghost google-access-hidden" id="googleLogoutBtn" type="button">Canviar de compte</button>
+    </div>
+    <div class="divider" style="margin:16px 0;"></div>
+    <div class="stack" style="gap:10px;text-align:left;">
+      <div>
+        <label for="emailLoginInput">Correu electrònic</label>
+        <input id="emailLoginInput" type="text" placeholder="Ex.: nom@edu.gva.es" autocomplete="username"/>
+      </div>
+      <div>
+        <label for="emailPasswordInput">Contrasenya</label>
+        <input id="emailPasswordInput" type="password" placeholder="Escriu una contrasenya" autocomplete="current-password"/>
+      </div>
+      <div class="auth-actions" style="margin-top:0;">
+        <button class="primary full" id="emailLoginBtn" type="button">Continuar amb correu i contrasenya</button>
+      </div>
+      <div class="google-access-small" style="margin-top:0;text-align:left;">Si aquest correu encara no existeix, es crearà automàticament en entrar per primera vegada.</div>
     </div>
     <div class="google-access-small"> © Comissió TIC - CEIP Nostra Senyora del Carme (Aldaia)</div>
   </div>
@@ -1435,7 +1459,8 @@ body::after{
       collection, onSnapshot, query, orderBy, serverTimestamp, getDocs
     } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
     import {
-      getAuth, onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signOut
+      getAuth, onAuthStateChanged, signInWithPopup, GoogleAuthProvider, OAuthProvider, signOut,
+      signInWithEmailAndPassword, createUserWithEmailAndPassword
     } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
 
     const firebaseConfig = {
@@ -1453,6 +1478,7 @@ body::after{
     const db = getFirestore(app);
     const auth = getAuth(app);
     const googleProvider = new GoogleAuthProvider();
+    const microsoftProvider = new OAuthProvider("microsoft.com");
     const GOOGLE_LOGIN_SEEN_KEY = "itaca_google_login_seen_v1";
     const CREATE_CENTER_UI_SEEN_KEY = "itaca_create_center_seen_v1";
     const TRIAL_DURATION_HOURS = 10 / 60;
@@ -1626,6 +1652,9 @@ body::after{
     const googleAccessOverlay = $("googleAccessOverlay");
     const googleAccessStatus = $("googleAccessStatus");
     const googleLoginBtn = $("googleLoginBtn");
+    const emailLoginBtn = $("emailLoginBtn");
+    const emailLoginInput = $("emailLoginInput");
+    const emailPasswordInput = $("emailPasswordInput");
     const googleLogoutBtn = $("googleLogoutBtn");
     const trialAccessBadge = $("trialAccessBadge");
     const trialAccessDetail = $("trialAccessDetail");
@@ -1674,11 +1703,59 @@ body::after{
     }
 
     function isValidInviteEmail(email=""){
-      return /^[a-z0-9._%+-]+@(gmail\.com|googlemail\.com)$/i.test(normalizeEmail(email));
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/i.test(normalizeEmail(email));
     }
 
     function accessInviteDoc(email=""){
       return doc(db, "accessInvites", normalizeEmail(email));
+    }
+
+    function getFirebaseAuthErrorMessage(error){
+      const code = String(error?.code || "");
+      if(code === "auth/invalid-email") return "El correu electrònic no és vàlid.";
+      if(code === "auth/missing-password") return "Has d'escriure una contrasenya.";
+      if(code === "auth/weak-password") return "La contrasenya ha de tindre almenys 6 caràcters.";
+      if(code === "auth/email-already-in-use") return "Aquest correu ja està registrat amb una altra contrasenya.";
+      if(code === "auth/invalid-credential" || code === "auth/wrong-password" || code === "auth/user-not-found") return "Correu o contrasenya incorrectes.";
+      if(code === "auth/too-many-requests") return "Hi ha massa intents. Torna-ho a provar d'ací a un moment.";
+      return "No s'ha pogut completar l'accés amb correu i contrasenya.";
+    }
+
+    async function loginWithEmailPassword(){
+      const email = normalizeEmail(emailLoginInput?.value || "");
+      const password = String(emailPasswordInput?.value || "");
+
+      if(!email){
+        googleAccessStatus.className = "google-access-status expired";
+        googleAccessStatus.textContent = "Has d'escriure un correu electrònic.";
+        return;
+      }
+      if(password.length < 6){
+        googleAccessStatus.className = "google-access-status expired";
+        googleAccessStatus.textContent = "La contrasenya ha de tindre almenys 6 caràcters.";
+        return;
+      }
+
+      try{
+        await signInWithEmailAndPassword(auth, email, password);
+        if(emailPasswordInput) emailPasswordInput.value = "";
+      }catch(error){
+        if(error?.code === "auth/invalid-credential" || error?.code === "auth/user-not-found"){
+          try{
+            await createUserWithEmailAndPassword(auth, email, password);
+            if(emailPasswordInput) emailPasswordInput.value = "";
+            return;
+          }catch(createError){
+            console.error(createError);
+            googleAccessStatus.className = "google-access-status expired";
+            googleAccessStatus.textContent = getFirebaseAuthErrorMessage(createError);
+            return;
+          }
+        }
+        console.error(error);
+        googleAccessStatus.className = "google-access-status expired";
+        googleAccessStatus.textContent = getFirebaseAuthErrorMessage(error);
+      }
     }
 
     async function applyInviteAccessToUser(firebaseUser, currentProfile = null){
@@ -1899,8 +1976,8 @@ syncEnterCenterVisibility();
         googleAccessOverlay.classList.remove("google-access-hidden");
         googleLogoutBtn.classList.add("google-access-hidden");
         googleAccessStatus.className = "google-access-status";
-        googleAccessStatus.textContent = "Inicia sessió amb Google per a començar la prova gratuïta de 10 minuts.";
-        updateAccessIndicators("Sense sessió","Inicia sessió amb Google per a activar la prova de 10 minuts.");
+        googleAccessStatus.textContent = "Inicia sessió amb Google o amb correu i contrasenya per a començar la prova gratuïta de 10 minuts.";
+        updateAccessIndicators("Sense sessió","Inicia sessió per a activar la prova de 10 minuts.");
         return;
       }
 
@@ -1952,6 +2029,16 @@ syncEnterCenterVisibility();
       }
     });
 
+    emailLoginBtn?.addEventListener("click", loginWithEmailPassword);
+
+    emailPasswordInput?.addEventListener("keydown", (event) => {
+      if(event.key === "Enter") loginWithEmailPassword();
+    });
+
+    emailLoginInput?.addEventListener("keydown", (event) => {
+      if(event.key === "Enter") loginWithEmailPassword();
+    });
+
     googleLogoutBtn?.addEventListener("click", async () => {
       try{
         await signOut(auth);
@@ -1968,7 +2055,11 @@ syncEnterCenterVisibility();
       state.accessProfile = null;
       document.body.classList.add("preaccess-loading");
 
-      if(firebaseUser) markGoogleLoginSeen();
+      if(firebaseUser){
+        if((firebaseUser.providerData || []).some(provider => provider?.providerId === "google.com")){
+          markGoogleLoginSeen();
+        }
+      }
 
       if(!firebaseUser){
         state.authResolved = true;
@@ -2253,7 +2344,7 @@ syncEnterCenterVisibility();
       }
       const invalidInviteEmails = inviteEmails.filter(email => !isValidInviteEmail(email));
       if(invalidInviteEmails.length){
-        alert(`Revisa aquests correus de Gmail: ${invalidInviteEmails.join(", ")}`);
+        alert(`Revisa aquests correus electrònics: ${invalidInviteEmails.join(", ")}`);
         return;
       }
       const id = normalizeCenterId(displayName);
