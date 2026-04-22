@@ -833,6 +833,46 @@ body::after{
   .floating-access-status .teacher-badge,.floating-access-status .tag{box-shadow:0 10px 24px rgba(0,0,0,.08);}
 </style>
 
+
+<style id="change-password-modal-styles">
+  .modal-overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(15,23,42,.42);
+    backdrop-filter:blur(4px);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+    z-index:1000000;
+  }
+  .modal-card{
+    width:min(460px,100%);
+    background:linear-gradient(180deg, rgba(255,255,255,.96), rgba(244,249,255,.94));
+    border:1px solid rgba(84,126,207,.24);
+    border-radius:24px;
+    box-shadow:0 24px 54px rgba(20,46,92,.25);
+    padding:24px;
+  }
+  .modal-card h3{
+    margin:0 0 8px;
+    font-size:24px;
+    color:#153775;
+  }
+  .modal-card p{
+    margin:0 0 16px;
+    color:#5d7097;
+    line-height:1.5;
+  }
+  .modal-actions{
+    display:flex;
+    justify-content:flex-end;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-top:14px;
+  }
+</style>
+
 </head>
 <body class="preaccess-loading">
 
@@ -1017,6 +1057,28 @@ body::after{
   </div>
 </div>
 
+
+<div class="modal-overlay hidden" id="changePasswordModal">
+  <div class="modal-card">
+    <h3>Canviar contrasenya</h3>
+    <p>Escriu dues vegades la nova contrasenya del mestre/a actual.</p>
+    <div class="stack">
+      <div>
+        <label for="newTeacherPassword">Nova contrasenya</label>
+        <input id="newTeacherPassword" type="password" placeholder="Mínim 4 caràcters"/>
+      </div>
+      <div>
+        <label for="confirmTeacherPassword">Repetix la nova contrasenya</label>
+        <input id="confirmTeacherPassword" type="password" placeholder="Torna a escriure la contrasenya"/>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="ghost" id="cancelChangePasswordBtn" type="button">Cancel·lar</button>
+      <button class="primary" id="saveChangePasswordBtn" type="button">Guardar nova contrasenya</button>
+    </div>
+  </div>
+</div>
+
 <div class="app hidden-before-login" id="appShell">
 <aside class="sidebar">
 <input id="centerName" type="hidden" value=""/>
@@ -1113,7 +1175,6 @@ body::after{
         <option value="eval1">1a Avaluació</option>
         <option value="eval2">2a Avaluació</option>
         <option value="eval3">3a Avaluació</option>
-        <option value="evalFinal">Avaluació Final</option>
       </select>
     </div>
 
@@ -1152,6 +1213,7 @@ body::after{
 <div class="sticky-tools" style="display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:nowrap;overflow-x:auto;">
 <span class="teacher-badge" id="loggedTeacherBadge">Mestre/a: —</span>
 <button class="primary" id="summaryBtn">Resum de qualificacions</button>
+<button class="secondary" id="changePasswordBtn">Canviar contrasenya</button>
 <button class="primary logout-btn" id="logoutBtn">Canviar de mestre/a</button>
 <span class="tag" id="lastSavedTag">Sense guardar encara</span>
 </div>
@@ -1946,8 +2008,7 @@ syncEnterCenterVisibility();
     const evaluationOptions = [
       { key:"eval1", label:"1a Avaluació" },
       { key:"eval2", label:"2a Avaluació" },
-      { key:"eval3", label:"3a Avaluació" },
-      { key:"evalFinal", label:"Avaluació Final" }
+      { key:"eval3", label:"3a Avaluació" }
     ];
     const evaluationLabels = Object.fromEntries(evaluationOptions.map(item => [item.key, item.label]));
 
@@ -1968,7 +2029,7 @@ syncEnterCenterVisibility();
     }
 
     function createEmptyEvaluationMap(){
-      return { eval1:{}, eval2:{}, eval3:{}, evalFinal:{} };
+      return { eval1:{}, eval2:{}, eval3:{} };
     }
 
     function slugify(text=""){
@@ -2409,6 +2470,51 @@ syncEnterCenterVisibility();
       applyEditingPermissions();
       subscribeStudents();
       setStatus(`Sessió iniciada com a ${teacher.displayName}`);
+    }
+
+
+    function openChangePasswordModal(){
+      if(!state.teacher){
+        alert("Primer has d'entrar com a mestre/a.");
+        return;
+      }
+      $("newTeacherPassword").value = "";
+      $("confirmTeacherPassword").value = "";
+      $("changePasswordModal").classList.remove("hidden");
+      setTimeout(() => $("newTeacherPassword")?.focus(), 0);
+    }
+
+    function closeChangePasswordModal(){
+      $("changePasswordModal").classList.add("hidden");
+      $("newTeacherPassword").value = "";
+      $("confirmTeacherPassword").value = "";
+    }
+
+    async function changeTeacherPassword(){
+      if(!state.teacher?.id){
+        alert("No hi ha cap mestre/a actiu.");
+        return;
+      }
+      const newPassword = valueOf("newTeacherPassword");
+      const confirmPassword = valueOf("confirmTeacherPassword");
+      if(!newPassword || newPassword.length < 4){
+        alert("La nova contrasenya ha de tindre almenys 4 caràcters.");
+        return;
+      }
+      if(newPassword !== confirmPassword){
+        alert("Les dues contrasenyes no coincideixen.");
+        return;
+      }
+      const newHash = await sha256(newPassword);
+      await setDoc(teacherDoc(state.teacher.id), {
+        passwordHash: newHash,
+        updatedAt: serverTimestamp()
+      }, { merge:true });
+      state.teacher = { ...(state.teacher || {}), passwordHash: newHash };
+      closeChangePasswordModal();
+      $("lastSavedTag").textContent = "Contrasenya actualitzada";
+      setStatus("Contrasenya canviada correctament");
+      alert("La contrasenya s'ha actualitzat correctament.");
     }
 
     function logoutTeacher(){
@@ -3137,8 +3243,7 @@ syncEnterCenterVisibility();
         evaluations:{
           eval1:{},
           eval2:{},
-          eval3:{},
-          evalFinal:{}
+          eval3:{}
         }
       };
       await setDoc(studentDoc(state.currentClass, id), payload, { merge:true });
@@ -3294,8 +3399,7 @@ syncEnterCenterVisibility();
               name: subject.name,
               eval1: ((((evaluations.eval1 || {}).subjects || {})[subject.key]) || {}).nivell || "",
               eval2: ((((evaluations.eval2 || {}).subjects || {})[subject.key]) || {}).nivell || "",
-              eval3: ((((evaluations.eval3 || {}).subjects || {})[subject.key]) || {}).nivell || "",
-              evalFinal: ((((evaluations.evalFinal || {}).subjects || {})[subject.key]) || {}).nivell || ""
+              eval3: ((((evaluations.eval3 || {}).subjects || {})[subject.key]) || {}).nivell || ""
             }))
           });
         }
@@ -3337,7 +3441,7 @@ syncEnterCenterVisibility();
 
       const headers = visibleSubjects.map((s, idx) => {
         const palette = summaryPalette[idx % summaryPalette.length];
-        return `<th class="subject-group" colspan="4" style="background:${palette.head}">${s.name}</th>`;
+        return `<th class="subject-group" colspan="3" style="background:${palette.head}">${s.name}</th>`;
       }).join("");
 
       const subHeaders = visibleSubjects.map((s, idx) => {
@@ -3346,7 +3450,6 @@ syncEnterCenterVisibility();
           <th class="subject-subhead" style="background:${palette.cell}">1a</th>
           <th class="subject-subhead" style="background:${palette.cell}">2a</th>
           <th class="subject-subhead" style="background:${palette.cell}">3a</th>
-          <th class="subject-subhead" style="background:${palette.cell}">Final</th>
         `;
       }).join("");
 
@@ -3360,7 +3463,6 @@ syncEnterCenterVisibility();
               <td class="eval-cell" style="background:${palette.cell}">${s.eval1 || "—"}</td>
               <td class="eval-cell" style="background:${palette.cell}">${s.eval2 || "—"}</td>
               <td class="eval-cell" style="background:${palette.cell}">${s.eval3 || "—"}</td>
-              <td class="eval-cell" style="background:${palette.cell}">${s.evalFinal || "—"}</td>
             `;
           }).join("")}
         </tr>
@@ -3428,6 +3530,46 @@ syncEnterCenterVisibility();
 <title>${title}</title>
 <style>${style}
 ${zoomStyle}</style>
+
+<style id="change-password-modal-styles">
+  .modal-overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(15,23,42,.42);
+    backdrop-filter:blur(4px);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+    z-index:1000000;
+  }
+  .modal-card{
+    width:min(460px,100%);
+    background:linear-gradient(180deg, rgba(255,255,255,.96), rgba(244,249,255,.94));
+    border:1px solid rgba(84,126,207,.24);
+    border-radius:24px;
+    box-shadow:0 24px 54px rgba(20,46,92,.25);
+    padding:24px;
+  }
+  .modal-card h3{
+    margin:0 0 8px;
+    font-size:24px;
+    color:#153775;
+  }
+  .modal-card p{
+    margin:0 0 16px;
+    color:#5d7097;
+    line-height:1.5;
+  }
+  .modal-actions{
+    display:flex;
+    justify-content:flex-end;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-top:14px;
+  }
+</style>
+
 </head>
 <body>
 
@@ -3481,6 +3623,9 @@ ${zoomStyle}</style>
     });
 
       $("summaryBtn").addEventListener("click", openSummaryPage);
+      $("changePasswordBtn").addEventListener("click", openChangePasswordModal);
+      $("cancelChangePasswordBtn").addEventListener("click", closeChangePasswordModal);
+      $("saveChangePasswordBtn").addEventListener("click", changeTeacherPassword);
       $("evaluationSelect").addEventListener("change", async e => {
         state.currentEvaluation = e.target.value || "eval1";
         if(state.currentStudentId){
@@ -3515,6 +3660,18 @@ ${zoomStyle}</style>
       });
       $("centerPassword").addEventListener("keydown", e => {
         if(e.key === "Enter") enterCenter();
+      });
+      $("confirmTeacherPassword").addEventListener("keydown", e => {
+        if(e.key === "Enter") changeTeacherPassword();
+      });
+      $("newTeacherPassword").addEventListener("keydown", e => {
+        if(e.key === "Escape") closeChangePasswordModal();
+      });
+      $("confirmTeacherPassword").addEventListener("keydown", e => {
+        if(e.key === "Escape") closeChangePasswordModal();
+      });
+      $("changePasswordModal").addEventListener("click", e => {
+        if(e.target?.id === "changePasswordModal") closeChangePasswordModal();
       });
 
       document.querySelectorAll("input,select,textarea").forEach(el => {
