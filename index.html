@@ -3111,52 +3111,31 @@ syncEnterCenterVisibility();
       const genderWord = data.general.genere === "alumna" ? "L'alumna" : "L'alumne";
       const curs = data.general.curs || "";
       const lines = [];
-      const supportSubjectKeys = ["al","pt","educador","mestreSuport"];
-      const academicSubjects = subjects.filter(subject => !supportSubjectKeys.includes(subject.key));
-      const supportSubjects = subjects.filter(subject => supportSubjectKeys.includes(subject.key));
+      const supportSpecialistKeys = ["al","pt","educador","mestreSuport"];
+      const academicSubjects = subjects.filter(subject => !supportSpecialistKeys.includes(subject.key));
 
-      const hasAcademicContent = academicSubjects.some(subject => {
-        const s = data.subjects[subject.key];
-        return !!(s && (s.nivell || s.obs || s.ok.length || s.ko.length));
-      });
-
-      const hasSupportMeasures =
-        !!(formatForSentence(data.supports.suports) ||
-           formatForSentence(data.supports.reforc) ||
-           formatForSentence(data.supports.materials) ||
-           formatForSentence(data.supports.metodologia) ||
-           formatForSentence(data.supports.avaluacio) ||
-           data.supports.obs_suports);
-
-      const hasSupportSpecialistContent = supportSubjects.some(subject => {
-        const s = data.subjects[subject.key];
-        return !!(s && (s.nivell || s.obs || s.ok.length || s.ko.length));
-      });
+      const hasSubjectContent = (s) => !!(s && (s.nivell || s.obs || (s.ok && s.ok.length) || (s.ko && s.ko.length)));
 
       lines.push(`RESULTATS OBTINGUTS EN ${getCurrentEvaluationLabel().toUpperCase()}`);
       lines.push("");
       lines.push(`${genderWord}${alumne ? " " + alumne : ""} ha adquirit les competències específiques relatives a les àrees de ${curs} curs d'Educació Primària de la següent manera:`);
       lines.push("");
 
-      if(hasAcademicContent){
-        academicSubjects.forEach(subject => {
-          const s = data.subjects[subject.key];
-          if(!s || (!s.nivell && !s.obs && !s.ok.length && !s.ko.length)) return;
-          lines.push(`${subject.name}:`);
-          const base = sentenceForLevel(s.nivell, genderWord);
-          if(base) lines.push(base);
-          if(s.ok.length) {
-            lines.push(`Destacant els progressos i esforços quant a les següents competències:`);
-            s.ok.forEach(comp => lines.push(comp));
-          }
-          if(s.ko.length) {
-            lines.push(`No obstant això, ha de seguir esforçant-se quant a les següents competències que cal continuar treballant:`);
-            s.ko.forEach(comp => lines.push(comp));
-          }
-          if(s.obs) lines.push(`Observacions: ${s.obs}.`);
-          lines.push("");
-        });
-      }
+      academicSubjects.forEach(subject => {
+        const s = data.subjects[subject.key];
+        if(!hasSubjectContent(s)) return;
+        lines.push(`${subject.name}:`);
+        const base = sentenceForLevel(s.nivell, genderWord);
+        if(base) lines.push(base);
+        if(s.ok.length) lines.push(`Destacant els progressos i esforços quant a les següents competències:`);
+        s.ok.forEach(comp => lines.push(comp));
+        if(s.ko.length) {
+          lines.push(`No obstant això, ha de seguir esforçant-se quant a les següents competències que cal continuar treballant:`);
+          s.ko.forEach(comp => lines.push(comp));
+        }
+        if(s.obs) lines.push(`Observacions: ${s.obs}.`);
+        lines.push("");
+      });
 
       const p = data.personal;
       lines.push("Aspectes personals i evolutius (progressos, talents, fortaleses, febleses, dificultats):");
@@ -3174,10 +3153,24 @@ syncEnterCenterVisibility();
       if(p.obs_personals) lines.push(`Observacions lliures: ${p.obs_personals}.`);
       lines.push("");
 
-      if(hasSupportMeasures || hasSupportSpecialistContent || data.general.specialistNotes){
-        lines.push("Mesures i suports d'atenció educativa:");
+      const spt = data.supports;
+      const specialistSupportEntries = supportSpecialistKeys
+        .map(key => ({ subject: subjects.find(subject => subject.key === key), data: data.subjects[key] }))
+        .filter(item => item.subject && hasSubjectContent(item.data));
 
-        const spt = data.supports;
+      const hasSupportsSection = !!(
+        formatForSentence(spt.suports) ||
+        formatForSentence(spt.reforc) ||
+        formatForSentence(spt.materials) ||
+        formatForSentence(spt.metodologia) ||
+        formatForSentence(spt.avaluacio) ||
+        spt.obs_suports ||
+        data.general.specialistNotes ||
+        specialistSupportEntries.length
+      );
+
+      if(hasSupportsSection){
+        lines.push("Mesures i suports d'atenció educativa:");
         if(formatForSentence(spt.suports) || formatForSentence(spt.reforc)){
           lines.push(`${genderWord}${alumne ? " " + alumne : ""} rep el suport/l'atenció educativa de ${formatForSentence(spt.suports) || "---"} per a reforçar aspectes relacionats amb ${formatForSentence(spt.reforc) || "---"}.`);
         }
@@ -3185,35 +3178,28 @@ syncEnterCenterVisibility();
         if(formatForSentence(spt.metodologia)) lines.push(`A nivell metodològic, ${formatForSentence(spt.metodologia)}.`);
         if(formatForSentence(spt.avaluacio)) lines.push(`Finalment, en referència a l'avaluació, ${formatForSentence(spt.avaluacio)}.`);
         if(spt.obs_suports) lines.push(`Observacions lliures: ${spt.obs_suports}.`);
+        if(data.general.specialistNotes) lines.push(`Observació general: ${data.general.specialistNotes}.`);
 
-        supportSubjects.forEach(subject => {
-          const s = data.subjects[subject.key];
-          if(!s || (!s.nivell && !s.obs && !s.ok.length && !s.ko.length)) return;
+        specialistSupportEntries.forEach(({ subject, data: subjectData }) => {
           lines.push("");
           lines.push(`${subject.name}:`);
-          const base = sentenceForLevel(s.nivell, genderWord);
+          const base = sentenceForLevel(subjectData.nivell, genderWord);
           if(base) lines.push(base);
-          if(s.ok.length) {
+          if(subjectData.ok.length) {
             lines.push(`Destacant els progressos i esforços quant a les següents competències:`);
-            s.ok.forEach(comp => lines.push(comp));
+            subjectData.ok.forEach(comp => lines.push(comp));
           }
-          if(s.ko.length) {
+          if(subjectData.ko.length) {
             lines.push(`No obstant això, ha de seguir esforçant-se quant a les següents competències que cal continuar treballant:`);
-            s.ko.forEach(comp => lines.push(comp));
+            subjectData.ko.forEach(comp => lines.push(comp));
           }
-          if(s.obs) lines.push(`Observacions: ${s.obs}.`);
+          if(subjectData.obs) lines.push(`Observacions: ${subjectData.obs}.`);
         });
-
-        if(data.general.specialistNotes){
-          lines.push("");
-          lines.push(`Observació general: ${data.general.specialistNotes}.`);
-        }
 
         lines.push("");
       }
 
-      return lines.join("
-");
+      return lines.join("\n");
     }
 
     function translateReportText(text, lang){
