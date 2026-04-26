@@ -5,10 +5,6 @@
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Centre d'Avaluació Compartida</title>
-<link rel="icon" type="image/jpeg" href="https://raw.githubusercontent.com/rafgim2/GeneradorInformesItaca/main/Bannerapp.jpg"/>
-<link rel="shortcut icon" type="image/jpeg" href="https://raw.githubusercontent.com/rafgim2/GeneradorInformesItaca/main/Bannerapp.jpg"/>
-<link rel="apple-touch-icon" href="https://raw.githubusercontent.com/rafgim2/GeneradorInformesItaca/main/Bannerapp.jpg"/>
-<meta name="theme-color" content="#2563eb"/>
 <style>
     :root{
       --bg:#edf4ff;
@@ -72,21 +68,6 @@
       background:linear-gradient(135deg,var(--primary),var(--violet));
       color:#fff;font-weight:800;font-size:18px;
       box-shadow:0 10px 24px rgba(37,99,235,.28);
-    }
-
-    .app-title-banner{
-      width:min(640px,100%);
-      max-height:150px;
-      object-fit:contain;
-      display:block;
-      border-radius:18px;
-      box-shadow:0 12px 28px rgba(37,99,235,.16);
-      background:#fff;
-    }
-    .brand.banner-brand{
-      align-items:flex-start;
-      flex-direction:column;
-      gap:14px;
     }
     .muted{color:var(--muted)}
     .panel{
@@ -894,6 +875,33 @@ body::after{
   }
 </style>
 
+
+<link rel="icon" type="image/jpeg" href="https://raw.githubusercontent.com/rafgim2/GeneradorInformesItaca/main/iconapp3.jpg"/>
+<link rel="shortcut icon" type="image/jpeg" href="https://raw.githubusercontent.com/rafgim2/GeneradorInformesItaca/main/iconapp3.jpg"/>
+<link rel="apple-touch-icon" href="https://raw.githubusercontent.com/rafgim2/GeneradorInformesItaca/main/iconapp3.jpg"/>
+<meta name="theme-color" content="#2563eb"/>
+
+<style id="app-banner-styles">
+  .app-title-banner-wrap{
+    width:100%;
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+    align-items:flex-start;
+  }
+  .app-title-banner{
+    width:min(720px,100%);
+    max-height:190px;
+    object-fit:contain;
+    display:block;
+    border-radius:20px;
+    box-shadow:0 12px 28px rgba(37,99,235,.12);
+    background:rgba(255,255,255,.72);
+  }
+  @media (max-width:780px){
+    .app-title-banner{max-height:150px;border-radius:16px;}
+  }
+</style>
 </head>
 <body class="preaccess-loading">
 
@@ -928,14 +936,11 @@ body::after{
 <div class="auth-screen" id="authScreen">
   <div class="auth-wrap">
     <section class="auth-card auth-hero stack">
-      <div class="brand banner-brand">
+      <div class="brand app-title-banner-wrap">
         <img class="app-title-banner" src="https://raw.githubusercontent.com/rafgim2/GeneradorInformesItaca/main/Bannerapp.jpg" alt="Centre d'avaluació compartida"/>
-        <div>
-          <div class="teacher-badge">Accés per centres educatius</div>
-          <p class="muted" style="margin:0;max-width:700px;">
-            El primer pas és entrar en un centre educatiu existent o crear-ne un de nou. Una vegada dins del centre, podràs afegir mestres, classes i alumnat des de zero.
-          </p>
-        </div>
+        <p class="muted" style="margin:0;max-width:700px;">
+          El primer pas és entrar en un centre educatiu existent o crear-ne un de nou. Una vegada dins del centre, podràs afegir mestres, classes i alumnat des de zero.
+        </p>
       </div>
       <div class="info-list">
         <div class="info-item"><strong>1. Seleccionar o crear un centre</strong><br/>Cada centre té la seua pròpia contrasenya i el seu propi espai independent.</div>
@@ -3210,7 +3215,7 @@ syncEnterCenterVisibility();
         specialistSupportEntries.length
       );
 
-      lines.push("3. Mesures i suports d’atenció educativa");
+      lines.push("3. Mesures i suports d'atenció educativa");
       if(hasSupportsSection){
         if(formatForSentence(spt.suports) || formatForSentence(spt.reforc)){
           lines.push(`${genderWord}${alumne ? " " + alumne : ""} rep el suport/l'atenció educativa de ${formatForSentence(spt.suports) || "---"} per a reforçar aspectes relacionats amb ${formatForSentence(spt.reforc) || "---"}.`);
@@ -3268,7 +3273,7 @@ syncEnterCenterVisibility();
         ["Finalment, a nivell afectiu i social, ","Finalmente, a nivel afectivo y social, "],
         ["La seua assistència a classe és ","Su asistencia a clase es "],
         ["Observacions lliures:","Observaciones libres:"],
-        ["3. Mesures i suports","3. Medidas y apoyos"],
+        ["3. Mesures i suports d'atenció educativa","3. Medidas y apoyos de atención educativa"],
         [" rep el suport/l'atenció educativa de "," recibe el apoyo/la atención educativa de "],
         [" per a reforçar aspectes relacionats amb "," para reforzar aspectos relacionados con "],
         ["Quant als materials, utilitza ","En cuanto a los materiales, utiliza "],
@@ -4205,5 +4210,30 @@ if(evalBig && evalSmall){
 })();
 </script>
 
+
+<script id="dynamic-app-manifest">
+(function(){
+  try{
+    const iconUrl = "https://raw.githubusercontent.com/rafgim2/GeneradorInformesItaca/main/iconapp.jpg";
+    const manifest = {
+      name: "Centre d'avaluació compartida",
+      short_name: "Avaluació",
+      start_url: ".",
+      display: "standalone",
+      background_color: "#edf4ff",
+      theme_color: "#2563eb",
+      icons: [
+        { src: iconUrl, sizes: "192x192", type: "image/jpeg", purpose: "any" },
+        { src: iconUrl, sizes: "512x512", type: "image/jpeg", purpose: "any" }
+      ]
+    };
+    const blob = new Blob([JSON.stringify(manifest)], { type: "application/manifest+json" });
+    const link = document.createElement("link");
+    link.rel = "manifest";
+    link.href = URL.createObjectURL(blob);
+    document.head.appendChild(link);
+  }catch(e){}
+})();
+</script>
 </body>
 </html>
