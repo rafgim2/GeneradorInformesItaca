@@ -5,6 +5,10 @@
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Centre d'Avaluació Compartida</title>
+<link rel="icon" type="image/jpeg" href="https://raw.githubusercontent.com/rafgim2/GeneradorInformesItaca/main/Bannerapp.jpg"/>
+<link rel="shortcut icon" type="image/jpeg" href="https://raw.githubusercontent.com/rafgim2/GeneradorInformesItaca/main/Bannerapp.jpg"/>
+<link rel="apple-touch-icon" href="https://raw.githubusercontent.com/rafgim2/GeneradorInformesItaca/main/Bannerapp.jpg"/>
+<meta name="theme-color" content="#2563eb"/>
 <style>
     :root{
       --bg:#edf4ff;
@@ -68,6 +72,21 @@
       background:linear-gradient(135deg,var(--primary),var(--violet));
       color:#fff;font-weight:800;font-size:18px;
       box-shadow:0 10px 24px rgba(37,99,235,.28);
+    }
+
+    .app-title-banner{
+      width:min(640px,100%);
+      max-height:150px;
+      object-fit:contain;
+      display:block;
+      border-radius:18px;
+      box-shadow:0 12px 28px rgba(37,99,235,.16);
+      background:#fff;
+    }
+    .brand.banner-brand{
+      align-items:flex-start;
+      flex-direction:column;
+      gap:14px;
     }
     .muted{color:var(--muted)}
     .panel{
@@ -909,11 +928,10 @@ body::after{
 <div class="auth-screen" id="authScreen">
   <div class="auth-wrap">
     <section class="auth-card auth-hero stack">
-      <div class="brand">
-        <div class="logo">IT</div>
+      <div class="brand banner-brand">
+        <img class="app-title-banner" src="https://raw.githubusercontent.com/rafgim2/GeneradorInformesItaca/main/Bannerapp.jpg" alt="Centre d'avaluació compartida"/>
         <div>
           <div class="teacher-badge">Accés per centres educatius</div>
-          <h1 class="auth-title">CENTRE D'AVALUACIÓ COMPARTIDA</h1>
           <p class="muted" style="margin:0;max-width:700px;">
             El primer pas és entrar en un centre educatiu existent o crear-ne un de nou. Una vegada dins del centre, podràs afegir mestres, classes i alumnat des de zero.
           </p>
@@ -3192,7 +3210,7 @@ syncEnterCenterVisibility();
         specialistSupportEntries.length
       );
 
-      lines.push("3. Mesures i suports");
+      lines.push("3. Mesures i suports d’atenció educativa");
       if(hasSupportsSection){
         if(formatForSentence(spt.suports) || formatForSentence(spt.reforc)){
           lines.push(`${genderWord}${alumne ? " " + alumne : ""} rep el suport/l'atenció educativa de ${formatForSentence(spt.suports) || "---"} per a reforçar aspectes relacionats amb ${formatForSentence(spt.reforc) || "---"}.`);
