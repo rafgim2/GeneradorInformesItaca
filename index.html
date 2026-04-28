@@ -3956,8 +3956,8 @@ if(evalBig && evalSmall){
 (function(){
   const LIMITS={
     tutorGeneral:800,
-    areaSpecialistTotal:700,
-    areaSpecialistIndividual:180,
+    areasTotal:700,
+    specialistIndividual:180,
     generalOptional:200,
     al:200,
     pt:200,
@@ -3966,7 +3966,12 @@ if(evalBig && evalSmall){
     supportsGeneral:200
   };
 
+  // IMPORTANTE:
+  // - areasTotal (700) se aplica SOLO a las observaciones de áreas del tutor.
+  // - specialistIndividual (180) se aplica individualmente a cada especialista.
+  // - No se mezclan ambos límites.
   const supportSubjectKeys=new Set(['al','pt','educador','mestreSuport']);
+  const specialistSubjectKeys=new Set(['ef','angles','musica','plastica','religio']);
 
   function byId(id){return document.getElementById(id);}
   function len(el){return (el&&typeof el.value==='string')?el.value.length:0;}
@@ -3990,10 +3995,10 @@ if(evalBig && evalSmall){
     else c.classList.add('ok');
 
     const safeRemaining=Math.max(0,remaining);
-    if(mode==='shared'){
-      c.textContent=`Queden ${safeRemaining} de ${max} caràcters compartits`;
-    }else if(mode==='individualAndShared'){
-      c.textContent=`Queden ${safeRemaining} de ${max} caràcters individuals. També compta en el límit compartit.`;
+    if(mode==='areasShared'){
+      c.textContent=`Queden ${safeRemaining} de ${max} caràcters compartits per a observacions d'àrees`;
+    }else if(mode==='specialistIndividual'){
+      c.textContent=`Queden ${safeRemaining} de ${max} caràcters per a aquest especialista`;
     }else{
       c.textContent=`Queden ${safeRemaining} de ${max} caràcters`;
     }
@@ -4014,44 +4019,28 @@ if(evalBig && evalSmall){
     el.classList.toggle('counter-danger',el.value.length>=max);
   }
 
-  function subjectAreaSpecialistFields(){
+  function subjectObsFields(filterFn){
     return [...document.querySelectorAll('.subject-card[data-subject-key]')]
-      .filter(card=>!supportSubjectKeys.has(card.dataset.subjectKey))
+      .filter(card=>filterFn(card.dataset.subjectKey))
       .map(card=>card.querySelector('input[id$="_obs"], textarea[id$="_obs"]'))
       .filter(Boolean);
   }
 
-  function areaSpecialistInputs(){
-    const fields=subjectAreaSpecialistFields();
-    const generalOptional=byId('specialistNotes');
-    return generalOptional ? [generalOptional,...fields] : fields;
+  function areaFields(){
+    // Áreas del tutor: no son especialistas ni apoyos personales.
+    return subjectObsFields(key=>!supportSubjectKeys.has(key)&&!specialistSubjectKeys.has(key));
   }
 
-  function enforceAreaSpecialistIndividual(){
-    const generalOptional=byId('specialistNotes');
-    if(generalOptional){
-      generalOptional.maxLength=LIMITS.generalOptional;
-      trimToMax(generalOptional,LIMITS.generalOptional);
-      const c=ensureCounter(generalOptional,'specialistNotes_counter');
-      setCounter(c,LIMITS.generalOptional-generalOptional.value.length,LIMITS.generalOptional,'individualAndShared');
-      generalOptional.classList.toggle('counter-danger',generalOptional.value.length>=LIMITS.generalOptional);
-    }
-
-    subjectAreaSpecialistFields().forEach(el=>{
-      el.maxLength=LIMITS.areaSpecialistIndividual;
-      trimToMax(el,LIMITS.areaSpecialistIndividual);
-      const c=ensureCounter(el,`${el.id}_individual_counter`);
-      setCounter(c,LIMITS.areaSpecialistIndividual-el.value.length,LIMITS.areaSpecialistIndividual,'individualAndShared');
-      el.classList.toggle('counter-danger',el.value.length>=LIMITS.areaSpecialistIndividual);
-    });
+  function specialistFields(){
+    // Especialistas: cada uno tiene 180 caracteres propios. Sin límite compartido de 700.
+    return subjectObsFields(key=>specialistSubjectKeys.has(key));
   }
 
-  function enforceAreaSpecialistShared(currentEl){
-    const fields=areaSpecialistInputs();
+  function enforceAreasShared(currentEl){
+    const fields=areaFields();
     if(!fields.length)return;
-
+    const max=LIMITS.areasTotal;
     let total=fields.reduce((s,el)=>s+len(el),0);
-    const max=LIMITS.areaSpecialistTotal;
 
     if(total>max&&currentEl&&fields.includes(currentEl)){
       const overflow=total-max;
@@ -4061,22 +4050,43 @@ if(evalBig && evalSmall){
 
     const remaining=max-total;
     fields.forEach(el=>{
-      const c=ensureCounter(el,`${el.id}_shared_counter`);
-      setCounter(c,remaining,max,'shared');
-      if(remaining<=0) el.classList.add('counter-danger');
+      const c=ensureCounter(el,`${el.id}_areas_shared_counter`);
+      setCounter(c,remaining,max,'areasShared');
+      el.classList.toggle('counter-danger',remaining<=0);
+    });
+  }
+
+  function enforceSpecialistsIndividual(){
+    specialistFields().forEach(el=>{
+      el.maxLength=LIMITS.specialistIndividual;
+      trimToMax(el,LIMITS.specialistIndividual);
+      const c=ensureCounter(el,`${el.id}_specialist_counter`);
+      setCounter(c,LIMITS.specialistIndividual-el.value.length,LIMITS.specialistIndividual,'specialistIndividual');
+      el.classList.toggle('counter-danger',el.value.length>=LIMITS.specialistIndividual);
     });
   }
 
   function updateAllCounters(currentEl=null){
+    // Tutoría / aspectos personales
     enforceIndividual('obs_personals',LIMITS.tutorGeneral,'obs_personals_counter');
+
+    // Observación general opcional: independiente, no entra en los 700 de áreas ni en los 180 de especialistas.
+    enforceIndividual('specialistNotes',LIMITS.generalOptional,'specialistNotes_counter');
+
+    // Medidas y apoyos generales
     enforceIndividual('obs_suports',LIMITS.supportsGeneral,'obs_suports_counter');
+
+    // AL, PT, educador/a y mestre/a de suport: 200 cada uno.
     enforceIndividual('al_obs',LIMITS.al,'al_obs_counter');
     enforceIndividual('pt_obs',LIMITS.pt,'pt_obs_counter');
     enforceIndividual('educador_obs',LIMITS.educador,'educador_obs_counter');
     enforceIndividual('mestreSuport_obs',LIMITS.mestreSuport,'mestreSuport_obs_counter');
 
-    enforceAreaSpecialistIndividual();
-    enforceAreaSpecialistShared(currentEl);
+    // Áreas del tutor: 700 compartidos.
+    enforceAreasShared(currentEl);
+
+    // Especialistas: 180 individuales, sin mezclarse con el límite de áreas.
+    enforceSpecialistsIndividual();
   }
 
   document.addEventListener('input',e=>{
