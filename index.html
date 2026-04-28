@@ -3793,160 +3793,6 @@ ${zoomStyle}</style>
       </table>
     </div>
   </div>
-
-
-<style id="observation-counters-safe-styles">
-  .obs-counter-safe{
-    margin-top:6px;
-    font-size:12px;
-    font-weight:800;
-    text-align:right;
-    color:#2563eb;
-  }
-  .obs-counter-safe.warning{ color:#b45309; }
-  .obs-counter-safe.danger{ color:#dc2626; }
-  .obs-counter-safe.over{ color:#dc2626; }
-  .obs-field-over{
-    border-color:#dc2626 !important;
-    box-shadow:0 0 0 4px rgba(220,38,38,.12) !important;
-  }
-</style>
-<script id="observation-counters-safe-script">
-(function(){
-  "use strict";
-
-  const OBS_LIMITS = {
-    tutorTotal: 800,
-    areasAndSpecialistsTotal: 700,
-    pt: 200,
-    al: 200,
-    mestreSuport: 200,
-    educador: 200
-  };
-
-  const SUPPORT_KEYS = ["pt", "al", "mestreSuport", "educador"];
-
-  function $(id){ return document.getElementById(id); }
-  function valueLength(el){ return el && typeof el.value === "string" ? el.value.length : 0; }
-  function sumLength(list){ return list.reduce((total, el) => total + valueLength(el), 0); }
-
-  function getTutorFields(){
-    return [$("obs_personals"), $("obs_suports")].filter(Boolean);
-  }
-
-  function getAreaSpecialistFields(){
-    const excluded = new Set(SUPPORT_KEYS.map(key => key + "_obs"));
-    const fields = Array.from(document.querySelectorAll("textarea[id$='_obs'], input[id$='_obs']"))
-      .filter(el => el.id !== "obs_personals" && el.id !== "obs_suports" && !excluded.has(el.id));
-    const generalSpecialistNote = $("specialistNotes");
-    if(generalSpecialistNote) fields.push(generalSpecialistNote);
-    return fields;
-  }
-
-  function getSupportField(key){
-    return $(key + "_obs");
-  }
-
-  function ensureCounter(el, groupName){
-    if(!el || !el.parentNode) return null;
-    const id = el.id + "__obs_counter_safe";
-    let counter = $(id);
-    if(!counter){
-      counter = document.createElement("div");
-      counter.id = id;
-      counter.className = "obs-counter-safe";
-      counter.dataset.groupName = groupName;
-      el.insertAdjacentElement("afterend", counter);
-    }
-    return counter;
-  }
-
-  function paintCounter(el, used, limit, label){
-    const counter = ensureCounter(el, label);
-    if(!counter) return;
-    const remaining = limit - used;
-    counter.textContent = remaining >= 0
-      ? "Te quedan " + remaining + " caracteres (" + label + ": " + limit + ")"
-      : "Te has pasado " + Math.abs(remaining) + " caracteres (" + label + ": " + limit + ")";
-    counter.classList.toggle("warning", remaining <= 80 && remaining > 20);
-    counter.classList.toggle("danger", remaining <= 20 && remaining >= 0);
-    counter.classList.toggle("over", remaining < 0);
-    el.classList.toggle("obs-field-over", remaining < 0);
-  }
-
-  function setIndividualMaxLength(el, limit){
-    if(!el) return;
-    el.maxLength = limit;
-  }
-
-  function refreshObservationCounters(){
-    const tutorFields = getTutorFields();
-    const tutorUsed = sumLength(tutorFields);
-    tutorFields.forEach(el => paintCounter(el, tutorUsed, OBS_LIMITS.tutorTotal, "tutoría total"));
-
-    const areaFields = getAreaSpecialistFields();
-    const areaUsed = sumLength(areaFields);
-    areaFields.forEach(el => paintCounter(el, areaUsed, OBS_LIMITS.areasAndSpecialistsTotal, "áreas + especialistas total"));
-
-    SUPPORT_KEYS.forEach(key => {
-      const el = getSupportField(key);
-      if(!el) return;
-      const limit = OBS_LIMITS[key];
-      const label = key === "mestreSuport" ? "maestro/a de apoyo" : key === "educador" ? "educador/a" : key.toUpperCase();
-      setIndividualMaxLength(el, limit);
-      paintCounter(el, valueLength(el), limit, label);
-    });
-  }
-
-  function attachObservationCounters(){
-    const fields = []
-      .concat(getTutorFields())
-      .concat(getAreaSpecialistFields())
-      .concat(SUPPORT_KEYS.map(getSupportField).filter(Boolean));
-
-    fields.forEach(el => {
-      if(el.dataset.obsCounterSafeAttached === "1") return;
-      el.dataset.obsCounterSafeAttached = "1";
-      el.addEventListener("input", refreshObservationCounters);
-      el.addEventListener("change", refreshObservationCounters);
-    });
-
-    refreshObservationCounters();
-  }
-
-  function installAfterRenderHooks(){
-    const originalRenderSubjectCards = window.renderSubjectCards;
-    if(typeof originalRenderSubjectCards === "function" && !originalRenderSubjectCards.__obsCounterSafeWrapped){
-      window.renderSubjectCards = function(){
-        const result = originalRenderSubjectCards.apply(this, arguments);
-        setTimeout(attachObservationCounters, 0);
-        return result;
-      };
-      window.renderSubjectCards.__obsCounterSafeWrapped = true;
-    }
-
-    const originalFillData = window.fillData;
-    if(typeof originalFillData === "function" && !originalFillData.__obsCounterSafeWrapped){
-      window.fillData = function(){
-        const result = originalFillData.apply(this, arguments);
-        setTimeout(refreshObservationCounters, 0);
-        return result;
-      };
-      window.fillData.__obsCounterSafeWrapped = true;
-    }
-  }
-
-  document.addEventListener("DOMContentLoaded", function(){
-    installAfterRenderHooks();
-    attachObservationCounters();
-    setTimeout(attachObservationCounters, 300);
-    setTimeout(attachObservationCounters, 1000);
-  });
-
-  window.refreshObservationCounters = refreshObservationCounters;
-})();
-</script>
-
 </body>
 </html>`);
       newWin.document.close();
@@ -4097,6 +3943,94 @@ if(evalBig && evalSmall){
 }
 
 </script>
+
+<style id="observation-counters-styles">
+  .char-counter-note{margin-top:6px;font-size:12px;font-weight:700;color:#475569;display:flex;justify-content:flex-end;gap:6px;}
+  .char-counter-note.warning{color:#b45309;}
+  .char-counter-note.danger{color:#b91c1c;}
+  .char-counter-note.ok{color:#166534;}
+  textarea.counter-danger,input.counter-danger{border-color:#ef4444 !important;box-shadow:0 0 0 4px rgba(239,68,68,.12) !important;}
+</style>
+
+<script id="observation-counters-script">
+(function(){
+  const LIMITS={tutorGeneral:800,areaSpecialistTotal:700,al:200,pt:200,educador:200,mestreSuport:200,supportsGeneral:200};
+  const supportSubjectKeys=new Set(['al','pt','educador','mestreSuport']);
+  function byId(id){return document.getElementById(id);}
+  function len(el){return (el&&typeof el.value==='string')?el.value.length:0;}
+  function ensureCounter(el,id){
+    if(!el||!el.parentElement)return null;
+    let c=document.getElementById(id);
+    if(c)return c;
+    c=document.createElement('div');
+    c.id=id;
+    c.className='char-counter-note ok';
+    el.insertAdjacentElement('afterend',c);
+    return c;
+  }
+  function setCounter(c,remaining,max,shared){
+    if(!c)return;
+    c.classList.remove('ok','warning','danger');
+    if(remaining<0)c.classList.add('danger');
+    else if(remaining<=Math.max(20,Math.round(max*.15)))c.classList.add('warning');
+    else c.classList.add('ok');
+    c.textContent=shared
+      ? `Queden ${Math.max(0,remaining)} de ${max} caràcters compartits`
+      : `Queden ${Math.max(0,remaining)} de ${max} caràcters`;
+  }
+  function enforceIndividual(id,max,counterId){
+    const el=byId(id);
+    if(!el)return;
+    el.maxLength=max;
+    if(el.value.length>max)el.value=el.value.slice(0,max);
+    const c=ensureCounter(el,counterId||`${id}_counter`);
+    setCounter(c,max-el.value.length,max,false);
+    el.classList.toggle('counter-danger',el.value.length>=max);
+  }
+  function areaSpecialistInputs(){
+    return [...document.querySelectorAll('.subject-card[data-subject-key]')]
+      .filter(card=>!supportSubjectKeys.has(card.dataset.subjectKey))
+      .map(card=>card.querySelector('input[id$="_obs"], textarea[id$="_obs"]'))
+      .filter(Boolean);
+  }
+  function enforceAreaSpecialistShared(currentEl){
+    const fields=areaSpecialistInputs();
+    if(!fields.length)return;
+    let total=fields.reduce((s,el)=>s+len(el),0);
+    const max=LIMITS.areaSpecialistTotal;
+    if(total>max&&currentEl&&fields.includes(currentEl)){
+      const overflow=total-max;
+      currentEl.value=currentEl.value.slice(0,Math.max(0,currentEl.value.length-overflow));
+      total=fields.reduce((s,el)=>s+len(el),0);
+    }
+    const remaining=max-total;
+    fields.forEach(el=>{
+      const c=ensureCounter(el,`${el.id}_shared_counter`);
+      setCounter(c,remaining,max,true);
+      el.classList.toggle('counter-danger',remaining<=0);
+    });
+  }
+  function updateAllCounters(currentEl=null){
+    enforceIndividual('obs_personals',LIMITS.tutorGeneral,'obs_personals_counter');
+    enforceIndividual('obs_suports',LIMITS.supportsGeneral,'obs_suports_counter');
+    enforceIndividual('al_obs',LIMITS.al,'al_obs_counter');
+    enforceIndividual('pt_obs',LIMITS.pt,'pt_obs_counter');
+    enforceIndividual('educador_obs',LIMITS.educador,'educador_obs_counter');
+    enforceIndividual('mestreSuport_obs',LIMITS.mestreSuport,'mestreSuport_obs_counter');
+    enforceAreaSpecialistShared(currentEl);
+  }
+  document.addEventListener('input',e=>{
+    const el=e.target;
+    if(!el||!el.matches||!el.matches('input, textarea'))return;
+    updateAllCounters(el);
+  },true);
+  document.addEventListener('change',()=>updateAllCounters(),true);
+  function bootCounters(){updateAllCounters();setTimeout(updateAllCounters,250);setTimeout(updateAllCounters,800);}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bootCounters);else bootCounters();
+  setInterval(updateAllCounters,1000);
+})();
+</script>
+
 <script>
 document.addEventListener("DOMContentLoaded", function () {
 
