@@ -3954,10 +3954,23 @@ if(evalBig && evalSmall){
 
 <script id="observation-counters-script">
 (function(){
-  const LIMITS={tutorGeneral:800,areaSpecialistTotal:700,al:200,pt:200,educador:200,mestreSuport:200,supportsGeneral:200};
+  const LIMITS={
+    tutorGeneral:800,
+    areaSpecialistTotal:700,
+    areaSpecialistIndividual:180,
+    generalOptional:200,
+    al:200,
+    pt:200,
+    educador:200,
+    mestreSuport:200,
+    supportsGeneral:200
+  };
+
   const supportSubjectKeys=new Set(['al','pt','educador','mestreSuport']);
+
   function byId(id){return document.getElementById(id);}
   function len(el){return (el&&typeof el.value==='string')?el.value.length:0;}
+
   function ensureCounter(el,id){
     if(!el||!el.parentElement)return null;
     let c=document.getElementById(id);
@@ -3968,48 +3981,92 @@ if(evalBig && evalSmall){
     el.insertAdjacentElement('afterend',c);
     return c;
   }
-  function setCounter(c,remaining,max,shared){
+
+  function setCounter(c,remaining,max,mode){
     if(!c)return;
     c.classList.remove('ok','warning','danger');
     if(remaining<0)c.classList.add('danger');
     else if(remaining<=Math.max(20,Math.round(max*.15)))c.classList.add('warning');
     else c.classList.add('ok');
-    c.textContent=shared
-      ? `Queden ${Math.max(0,remaining)} de ${max} caràcters compartits`
-      : `Queden ${Math.max(0,remaining)} de ${max} caràcters`;
+
+    const safeRemaining=Math.max(0,remaining);
+    if(mode==='shared'){
+      c.textContent=`Queden ${safeRemaining} de ${max} caràcters compartits`;
+    }else if(mode==='individualAndShared'){
+      c.textContent=`Queden ${safeRemaining} de ${max} caràcters individuals. També compta en el límit compartit.`;
+    }else{
+      c.textContent=`Queden ${safeRemaining} de ${max} caràcters`;
+    }
   }
-  function enforceIndividual(id,max,counterId){
+
+  function trimToMax(el,max){
+    if(!el)return;
+    if(el.value.length>max)el.value=el.value.slice(0,max);
+  }
+
+  function enforceIndividual(id,max,counterId,mode){
     const el=byId(id);
     if(!el)return;
     el.maxLength=max;
-    if(el.value.length>max)el.value=el.value.slice(0,max);
+    trimToMax(el,max);
     const c=ensureCounter(el,counterId||`${id}_counter`);
-    setCounter(c,max-el.value.length,max,false);
+    setCounter(c,max-el.value.length,max,mode||'individual');
     el.classList.toggle('counter-danger',el.value.length>=max);
   }
-  function areaSpecialistInputs(){
+
+  function subjectAreaSpecialistFields(){
     return [...document.querySelectorAll('.subject-card[data-subject-key]')]
       .filter(card=>!supportSubjectKeys.has(card.dataset.subjectKey))
       .map(card=>card.querySelector('input[id$="_obs"], textarea[id$="_obs"]'))
       .filter(Boolean);
   }
+
+  function areaSpecialistInputs(){
+    const fields=subjectAreaSpecialistFields();
+    const generalOptional=byId('specialistNotes');
+    return generalOptional ? [generalOptional,...fields] : fields;
+  }
+
+  function enforceAreaSpecialistIndividual(){
+    const generalOptional=byId('specialistNotes');
+    if(generalOptional){
+      generalOptional.maxLength=LIMITS.generalOptional;
+      trimToMax(generalOptional,LIMITS.generalOptional);
+      const c=ensureCounter(generalOptional,'specialistNotes_counter');
+      setCounter(c,LIMITS.generalOptional-generalOptional.value.length,LIMITS.generalOptional,'individualAndShared');
+      generalOptional.classList.toggle('counter-danger',generalOptional.value.length>=LIMITS.generalOptional);
+    }
+
+    subjectAreaSpecialistFields().forEach(el=>{
+      el.maxLength=LIMITS.areaSpecialistIndividual;
+      trimToMax(el,LIMITS.areaSpecialistIndividual);
+      const c=ensureCounter(el,`${el.id}_individual_counter`);
+      setCounter(c,LIMITS.areaSpecialistIndividual-el.value.length,LIMITS.areaSpecialistIndividual,'individualAndShared');
+      el.classList.toggle('counter-danger',el.value.length>=LIMITS.areaSpecialistIndividual);
+    });
+  }
+
   function enforceAreaSpecialistShared(currentEl){
     const fields=areaSpecialistInputs();
     if(!fields.length)return;
+
     let total=fields.reduce((s,el)=>s+len(el),0);
     const max=LIMITS.areaSpecialistTotal;
+
     if(total>max&&currentEl&&fields.includes(currentEl)){
       const overflow=total-max;
       currentEl.value=currentEl.value.slice(0,Math.max(0,currentEl.value.length-overflow));
       total=fields.reduce((s,el)=>s+len(el),0);
     }
+
     const remaining=max-total;
     fields.forEach(el=>{
       const c=ensureCounter(el,`${el.id}_shared_counter`);
-      setCounter(c,remaining,max,true);
-      el.classList.toggle('counter-danger',remaining<=0);
+      setCounter(c,remaining,max,'shared');
+      if(remaining<=0) el.classList.add('counter-danger');
     });
   }
+
   function updateAllCounters(currentEl=null){
     enforceIndividual('obs_personals',LIMITS.tutorGeneral,'obs_personals_counter');
     enforceIndividual('obs_suports',LIMITS.supportsGeneral,'obs_suports_counter');
@@ -4017,15 +4074,25 @@ if(evalBig && evalSmall){
     enforceIndividual('pt_obs',LIMITS.pt,'pt_obs_counter');
     enforceIndividual('educador_obs',LIMITS.educador,'educador_obs_counter');
     enforceIndividual('mestreSuport_obs',LIMITS.mestreSuport,'mestreSuport_obs_counter');
+
+    enforceAreaSpecialistIndividual();
     enforceAreaSpecialistShared(currentEl);
   }
+
   document.addEventListener('input',e=>{
     const el=e.target;
     if(!el||!el.matches||!el.matches('input, textarea'))return;
     updateAllCounters(el);
   },true);
+
   document.addEventListener('change',()=>updateAllCounters(),true);
-  function bootCounters(){updateAllCounters();setTimeout(updateAllCounters,250);setTimeout(updateAllCounters,800);}
+
+  function bootCounters(){
+    updateAllCounters();
+    setTimeout(updateAllCounters,250);
+    setTimeout(updateAllCounters,800);
+  }
+
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bootCounters);else bootCounters();
   setInterval(updateAllCounters,1000);
 })();
