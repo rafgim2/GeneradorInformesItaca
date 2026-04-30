@@ -1238,6 +1238,7 @@ body::after{
 <div class="sticky-tools" style="display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:nowrap;overflow-x:auto;">
 <span class="teacher-badge" id="loggedTeacherBadge">Mestre/a: —</span>
 <button class="primary" id="summaryBtn">Resum de qualificacions</button>
+<button class="secondary" id="singleStudentSummaryBtn">Qualificacions alumne seleccionat</button>
 <button class="secondary" id="changePasswordBtn">Canviar contrasenya</button>
 <button class="primary logout-btn" id="logoutBtn">Canviar de mestre/a</button>
 <span class="tag" id="lastSavedTag">Sense guardar encara</span>
@@ -2765,6 +2766,69 @@ syncEnterCenterVisibility();
       return `${parts.slice(1).join(' ').toLowerCase()} ${parts[0].toLowerCase()}`;
     }
 
+
+    function normalizePersonPart(value=""){
+      return String(value).trim().replace(/\s+/g,' ');
+    }
+
+    function buildStudentFullName(firstName="", lastName=""){
+      return [normalizePersonPart(firstName), normalizePersonPart(lastName)].filter(Boolean).join(' ');
+    }
+
+    function buildStudentSortKey(firstName="", lastName=""){
+      const first = normalizePersonPart(firstName).toLowerCase();
+      const last = normalizePersonPart(lastName).toLowerCase();
+      return `${last} ${first}`.trim();
+    }
+
+    function getStudentSortKey(student={}){
+      return student.studentSurnameLower || buildStudentSortKey(student.firstName, student.lastName) || surnameSortKey(student.studentName || "");
+    }
+
+    function askStudentNameParts(){
+      return new Promise(resolve => {
+        const overlay = document.createElement('div');
+        overlay.className = 'modal-overlay';
+        overlay.innerHTML = `
+          <div class="modal-card">
+            <h3>Afegir alumne/a</h3>
+            <p>Escriu el nom i els cognoms per separat. Així el llistat s'ordenarà automàticament pels cognoms.</p>
+            <div class="stack">
+              <div>
+                <label for="newStudentFirstNameModal">Nom</label>
+                <input id="newStudentFirstNameModal" type="text" placeholder="Ex.: Maria" autocomplete="off"/>
+              </div>
+              <div>
+                <label for="newStudentLastNameModal">Cognoms</label>
+                <input id="newStudentLastNameModal" type="text" placeholder="Ex.: Pérez García" autocomplete="off"/>
+              </div>
+            </div>
+            <div class="modal-actions">
+              <button class="ghost" id="cancelNewStudentModal" type="button">Cancel·lar</button>
+              <button class="primary" id="saveNewStudentModal" type="button">Crear alumne/a</button>
+            </div>
+          </div>`;
+        document.body.appendChild(overlay);
+        const firstInput = overlay.querySelector('#newStudentFirstNameModal');
+        const lastInput = overlay.querySelector('#newStudentLastNameModal');
+        const close = (value=null) => { overlay.remove(); resolve(value); };
+        overlay.querySelector('#cancelNewStudentModal').addEventListener('click', () => close(null));
+        overlay.addEventListener('click', e => { if(e.target === overlay) close(null); });
+        overlay.querySelector('#saveNewStudentModal').addEventListener('click', () => {
+          const firstName = normalizePersonPart(firstInput.value);
+          const lastName = normalizePersonPart(lastInput.value);
+          if(!firstName){ alert('Has d’escriure el nom.'); firstInput.focus(); return; }
+          if(!lastName){ alert('Has d’escriure els cognoms.'); lastInput.focus(); return; }
+          close({ firstName, lastName, studentName: buildStudentFullName(firstName, lastName) });
+        });
+        overlay.addEventListener('keydown', e => {
+          if(e.key === 'Escape') close(null);
+          if(e.key === 'Enter') overlay.querySelector('#saveNewStudentModal').click();
+        });
+        setTimeout(() => firstInput.focus(), 0);
+      });
+    }
+
     function buildSubjects(){
       const container = $("subjectsContainer");
       const subjectPalette = {
@@ -2887,7 +2951,7 @@ syncEnterCenterVisibility();
     function renderStudents(){
       const term = $("studentSearch").value.trim().toLowerCase();
       const list = [...state.students]
-        .sort((a,b) => surnameSortKey(a.studentName).localeCompare(surnameSortKey(b.studentName), 'ca'))
+        .sort((a,b) => getStudentSortKey(a).localeCompare(getStudentSortKey(b), 'ca'))
         .filter(s => (s.studentName || "").toLowerCase().includes(term));
       if(!list.length){
         $("studentList").innerHTML = `<div class="empty">No hi ha alumnes en aquesta classe encara. Crea'ls des de zero.</div>`;
@@ -3407,19 +3471,20 @@ syncEnterCenterVisibility();
         alert("Primer selecciona una classe.");
         return;
       }
-      const name = prompt(`Nom del nou alumne per a ${state.currentClass}:`);
-      if(!name) return;
-      const studentName = name.trim();
-      if(!studentName) return;
+      const parts = await askStudentNameParts();
+      if(!parts) return;
+      const { firstName, lastName, studentName } = parts;
 
       const teacher = valueOf("teacherName").trim();
       const role = valueOf("teacherRole");
       const id = `${slugify(studentName)}-${Date.now()}`;
       const payload = {
         className: state.currentClass,
+        firstName,
+        lastName,
         studentName,
         studentNameLower: studentName.toLowerCase(),
-        studentSurnameLower: surnameSortKey(studentName),
+        studentSurnameLower: buildStudentSortKey(firstName, lastName),
         course: "primer",
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
@@ -3438,10 +3503,12 @@ syncEnterCenterVisibility();
       };
       await setDoc(studentDoc(state.currentClass, id), payload, { merge:true });
       state.currentStudentId = id;
+      state.currentStudentRecord = structuredClone(payload);
       fillData(payload.data);
       setValue("alumne", studentName);
+      renderStudents();
       $("lastSavedTag").textContent = "Nou alumne creat";
-      setStatus("Alumne creat");
+      setStatus("Alumne creat i ordenat pels cognoms");
     }
 
     async function loadStudent(id){
@@ -3502,11 +3569,20 @@ syncEnterCenterVisibility();
       const evaluations = structuredClone(baseRecord.evaluations || createEmptyEvaluationMap());
       evaluations[getCurrentEvaluationKey()] = structuredClone(finalData);
 
+      const existingFirstName = normalizePersonPart(baseRecord.firstName || "");
+      const existingLastName = normalizePersonPart(baseRecord.lastName || "");
+      const nameParts = studentName.split(/\s+/).filter(Boolean);
+      const firstNameForSave = existingFirstName || nameParts[0] || studentName;
+      const lastNameForSave = existingLastName || nameParts.slice(1).join(' ');
+      const sortKeyForSave = existingLastName ? buildStudentSortKey(firstNameForSave, lastNameForSave) : surnameSortKey(studentName);
+
       await setDoc(studentDoc(state.currentClass, id), {
         className: state.currentClass,
+        firstName: firstNameForSave,
+        lastName: lastNameForSave,
         studentName,
         studentNameLower: studentName.toLowerCase(),
-        studentSurnameLower: surnameSortKey(studentName),
+        studentSurnameLower: sortKeyForSave,
         course: data.general.curs || "",
         updatedAt: serverTimestamp(),
         createdAt: baseRecord.createdAt || serverTimestamp(),
@@ -3521,9 +3597,11 @@ syncEnterCenterVisibility();
       state.currentStudentRecord = {
         ...(baseRecord || {}),
         className: state.currentClass,
+        firstName: firstNameForSave,
+        lastName: lastNameForSave,
         studentName,
         studentNameLower: studentName.toLowerCase(),
-        studentSurnameLower: surnameSortKey(studentName),
+        studentSurnameLower: sortKeyForSave,
         course: data.general.curs || "",
         evaluations,
         data: finalData
@@ -3799,6 +3877,46 @@ ${zoomStyle}</style>
     }
 
 
+    async function openSingleStudentSummaryPage(){
+      if(!state.teacher){
+        alert("Primer has d'entrar com a mestre/a.");
+        return;
+      }
+      if(!state.currentClass || !state.currentStudentId){
+        alert("Selecciona primer un alumne/a.");
+        return;
+      }
+      const snap = await getDoc(studentDoc(state.currentClass, state.currentStudentId));
+      if(!snap.exists()){
+        alert("No s'han trobat les dades de l'alumne/a seleccionat.");
+        return;
+      }
+      const rec = snap.data();
+      const specialist = isSpecialistTeacher(state.teacher);
+      const visibleSubjects = specialist ? subjects.filter(s => s.key === getSpecialistSubjectKey()) : subjects;
+      const evaluations = rec.evaluations || {};
+      const summaryPalette = [
+        { head:"#dbeafe", cell:"#eff6ff" }, { head:"#dcfce7", cell:"#f0fdf4" },
+        { head:"#f3e8ff", cell:"#faf5ff" }, { head:"#fef3c7", cell:"#fffbeb" },
+        { head:"#fee2e2", cell:"#fef2f2" }, { head:"#cffafe", cell:"#ecfeff" },
+        { head:"#d1fae5", cell:"#ecfdf5" }, { head:"#fce7f3", cell:"#fdf2f8" }
+      ];
+      const title = `Qualificacions de ${rec.studentName || "alumne/a"} - Totes les avaluacions`;
+      const rows = visibleSubjects.map((subject, idx) => {
+        const palette = summaryPalette[idx % summaryPalette.length];
+        const e1 = ((((evaluations.eval1 || {}).subjects || {})[subject.key]) || {}).nivell || "—";
+        const e2 = ((((evaluations.eval2 || {}).subjects || {})[subject.key]) || {}).nivell || "—";
+        const e3 = ((((evaluations.eval3 || {}).subjects || {})[subject.key]) || {}).nivell || "—";
+        return `<tr><td style="background:${palette.head};font-weight:800">${subject.name}</td><td class="eval-cell" style="background:${palette.cell}">${e1}</td><td class="eval-cell" style="background:${palette.cell}">${e2}</td><td class="eval-cell" style="background:${palette.cell}">${e3}</td></tr>`;
+      }).join("");
+      const newWin = window.open("", "_blank");
+      if(!newWin){ alert("El navegador ha bloquejat la finestra emergent. Permet les finestres emergents per a aquesta pàgina."); return; }
+      const style = `body{font-family:Inter,Arial,sans-serif;background:#f7faff;color:#1f2937;padding:24px}h1{margin:0 0 8px 0;font-size:28px}p{margin:0 0 16px 0;color:#667085}.card{background:#fff;border:1px solid #d9e4f2;border-radius:18px;padding:18px;box-shadow:0 8px 24px rgba(26,42,79,.08);overflow:auto}table{width:100%;border-collapse:collapse;font-size:14px}th,td{border:1px solid #d9e4f2;padding:9px 11px;text-align:left;vertical-align:top}th{background:#eef4ff}.eval-cell{text-align:center;font-weight:800}.toolbar{margin-bottom:14px}.print{border:0;border-radius:12px;padding:10px 14px;font-weight:800;cursor:pointer;background:#2563eb;color:#fff}`;
+      newWin.document.write(`<!DOCTYPE html><html lang="ca"><head><meta charset="utf-8"><title>${title}</title><style>${style}</style></head><body><div class="card"><div class="toolbar"><button class="print" onclick="window.print()">Imprimir / Guardar PDF</button></div><h1>${title}</h1><p>Centre: ${state.center?.displayName || "—"} · Classe: ${state.currentClass || "—"} · Mestre/a: ${state.teacher?.displayName || "—"}</p><table><thead><tr><th>Àrea</th><th>1a Avaluació</th><th>2a Avaluació</th><th>3a Avaluació</th></tr></thead><tbody>${rows || `<tr><td colspan="4">No hi ha qualificacions disponibles.</td></tr>`}</tbody></table></div></body></html>`);
+      newWin.document.close();
+    }
+
+
     function attachEvents(){
       $("newClassBtn").addEventListener("click", createClass);
       $("newStudentBtn").addEventListener("click", createStudent);
@@ -3821,6 +3939,7 @@ ${zoomStyle}</style>
     });
 
       $("summaryBtn").addEventListener("click", openSummaryPage);
+      $("singleStudentSummaryBtn").addEventListener("click", openSingleStudentSummaryPage);
       $("changePasswordBtn").addEventListener("click", openChangePasswordModal);
       $("cancelChangePasswordBtn").addEventListener("click", closeChangePasswordModal);
       $("saveChangePasswordBtn").addEventListener("click", changeTeacherPassword);
