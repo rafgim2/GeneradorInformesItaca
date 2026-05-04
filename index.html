@@ -1450,6 +1450,11 @@ body::after{
 <div class="small" style="margin-bottom:8px;">La vista prèvia s’actualitza automàticament</div>
 <textarea class="preview" id="output" placeholder="Ací apareixerà el text complet per a pegar al sistema oficial..."></textarea>
 </div>
+
+<div style="text-align:center;margin-top:20px;">
+  <button class="ghost" onclick="volverApp()">⬅️ Tornar</button>
+</div>
+
 </main>
 </div>
 <script type="module">
@@ -3771,7 +3776,7 @@ syncEnterCenterVisibility();
         </tr>
       `).join("");
 
-      const newWin = window.location.href = "";
+      const newWin = window.location.href =("", "_blank");
       if(!newWin){
         alert("El navegador ha bloquejat la finestra emergent. Permet les finestres emergents per a aquesta pàgina.");
         return;
@@ -3899,22 +3904,8 @@ ${zoomStyle}</style>
     </div>
   </div>
 
-<button id="volverBtn" style="
-position:fixed;
-bottom:20px;
-left:50%;
-transform:translateX(-50%);
-padding:12px 20px;
-border-radius:14px;
-background:#2563eb;
-color:white;
-font-weight:700;
-border:none;
-z-index:9999;
-">⬅️ Tornar</button>
-
 <script>
-document.getElementById("volverBtn").onclick = function(){
+function volverApp() {
   if (window.history.length > 1) {
     history.back();
   } else {
@@ -3961,26 +3952,12 @@ document.getElementById("volverBtn").onclick = function(){
         const e3 = ((((evaluations.eval3 || {}).subjects || {})[subject.key]) || {}).nivell || "—";
         return `<tr><td style="background:${palette.head};font-weight:800">${subject.name}</td><td class="eval-cell" style="background:${palette.cell}">${e1}</td><td class="eval-cell" style="background:${palette.cell}">${e2}</td><td class="eval-cell" style="background:${palette.cell}">${e3}</td></tr>`;
       }).join("");
-      const newWin = window.location.href = "";
+      const newWin = window.location.href =("", "_blank");
       if(!newWin){ alert("El navegador ha bloquejat la finestra emergent. Permet les finestres emergents per a aquesta pàgina."); return; }
       const style = `body{font-family:Inter,Arial,sans-serif;background:#f7faff;color:#1f2937;padding:24px}h1{margin:0 0 8px 0;font-size:28px}p{margin:0 0 16px 0;color:#667085}.card{background:#fff;border:1px solid #d9e4f2;border-radius:18px;padding:18px;box-shadow:0 8px 24px rgba(26,42,79,.08);overflow:auto}table{width:100%;border-collapse:collapse;font-size:14px}th,td{border:1px solid #d9e4f2;padding:9px 11px;text-align:left;vertical-align:top}th{background:#eef4ff}.eval-cell{text-align:center;font-weight:800}.toolbar{margin-bottom:14px}.print{border:0;border-radius:12px;padding:10px 14px;font-weight:800;cursor:pointer;background:#2563eb;color:#fff}`;
       newWin.document.write(`<!DOCTYPE html><html lang="ca"><head><meta charset="utf-8"><title>${title}</title><style>${style}</style></head><body><div class="card"><div class="toolbar"><button class="print" onclick="window.print()">Imprimir / Guardar PDF</button></div><h1>${title}</h1><p>Centre: ${state.center?.displayName || "—"} · Classe: ${state.currentClass || "—"} · Mestre/a: ${state.teacher?.displayName || "—"}</p><table><thead><tr><th>Àrea</th><th>1a Avaluació</th><th>2a Avaluació</th><th>3a Avaluació</th></tr></thead><tbody>${rows || `<tr><td colspan="4">No hi ha qualificacions disponibles.</td></tr>`}</tbody></table></div>
-<button id="volverBtn" style="
-position:fixed;
-bottom:20px;
-left:50%;
-transform:translateX(-50%);
-padding:12px 20px;
-border-radius:14px;
-background:#2563eb;
-color:white;
-font-weight:700;
-border:none;
-z-index:9999;
-">⬅️ Tornar</button>
-
 <script>
-document.getElementById("volverBtn").onclick = function(){
+function volverApp() {
   if (window.history.length > 1) {
     history.back();
   } else {
@@ -4447,7 +4424,7 @@ function showEasterEgg() {
       opacity:0;
       transition:opacity 0.8s ease;
     ">
-      <a id="easterLink" href="https://www.youtube.com/@rafgim" target="_blank" style="
+      <a id="easterLink" href="https://www.youtube.com/@rafgim"  style="
         color:white;
         text-decoration:none;
         font-size:22px;
@@ -4619,22 +4596,8 @@ if(evalBig && evalSmall){
 })();
 </script>
 
-<button id="volverBtn" style="
-position:fixed;
-bottom:20px;
-left:50%;
-transform:translateX(-50%);
-padding:12px 20px;
-border-radius:14px;
-background:#2563eb;
-color:white;
-font-weight:700;
-border:none;
-z-index:9999;
-">⬅️ Tornar</button>
-
 <script>
-document.getElementById("volverBtn").onclick = function(){
+function volverApp() {
   if (window.history.length > 1) {
     history.back();
   } else {
