@@ -989,50 +989,37 @@ body::after{
 </style>
 
 
-<style id="sticky-identity-real-fix">
-  /* Corrección real: el bloque ya no está dentro de .hero, por eso no se libera al acabar esa sección. */
-  .main{
-    overflow:visible !important;
-  }
-  #identityStickyCard{
-    position:sticky !important;
+
+<style id="identity-fixed-real-fix">
+  /*
+    Corrección real del bloque Classe / Mestre/a / Alumne/a.
+    El fallo venía de que .app tiene transform: scale(0.92); cualquier fixed/sticky
+    dentro de un elemento transformado deja de fijarse al viewport real.
+    Por eso movemos el bloque a <body> con JS y dejamos un hueco fantasma en su sitio.
+  */
+  #identityStickyCard.identity-fixed-real{
+    position:fixed !important;
     top:14px !important;
-    z-index:99999 !important;
-    margin-bottom:14px !important;
-    transform:none !important;
-    will-change:auto !important;
+    left:18px;
+    width:auto;
+    max-width:none !important;
+    margin:0 !important;
+    z-index:1000001 !important;
+    box-shadow:0 18px 44px rgba(37,99,235,.24) !important;
+    backdrop-filter:blur(16px) saturate(130%);
   }
-  #identityStickyCard::after{
-    content:"";
-    position:absolute;
-    left:0;
-    right:0;
-    bottom:-18px;
-    height:18px;
-    pointer-events:none;
-    background:linear-gradient(180deg, rgba(237,244,255,.94), rgba(237,244,255,0));
+  #identityStickyPlaceholder{
+    display:block;
+    width:100%;
+    flex:0 0 auto;
   }
-  #identityStickyCard .top-save-holder{
-    position:absolute;
-    right:22px;
-    top:50%;
-    transform:translateY(-50%);
-    width:145px;
-    z-index:3;
+  body.identity-card-hidden #identityStickyCard.identity-fixed-real,
+  body.identity-card-hidden #identityStickyPlaceholder{
+    display:none !important;
   }
   @media (max-width:900px){
-    #identityStickyCard{
-      top:8px !important;
-      padding-right:22px !important;
-      padding-bottom:88px !important;
-    }
-    #identityStickyCard .top-save-holder{
-      left:22px;
-      right:22px;
-      top:auto;
-      bottom:18px;
-      width:auto;
-      transform:none;
+    #identityStickyCard.identity-fixed-real{
+      top:10px !important;
     }
   }
 </style>
@@ -1272,6 +1259,7 @@ body::after{
 </aside>
 <main class="main">
 
+<div class="hero" style="flex-direction:column;gap:12px;">
   <div class="hero-card" id="identityStickyCard" style="
   width:100%;
   padding:22px 26px;
@@ -1306,9 +1294,6 @@ body::after{
       <button class="success full" id="saveTop" type="button" onclick="document.getElementById('saveSide') && document.getElementById('saveSide').click();">Guardar</button>
     </div>
   </div>
-
-<div class="hero" style="flex-direction:column;gap:12px;">
-
 
 
 
@@ -4042,55 +4027,6 @@ ${zoomStyle}</style>
 </style>
 
 
-
-<style id="sticky-identity-real-fix">
-  /* Corrección real: el bloque ya no está dentro de .hero, por eso no se libera al acabar esa sección. */
-  .main{
-    overflow:visible !important;
-  }
-  #identityStickyCard{
-    position:sticky !important;
-    top:14px !important;
-    z-index:99999 !important;
-    margin-bottom:14px !important;
-    transform:none !important;
-    will-change:auto !important;
-  }
-  #identityStickyCard::after{
-    content:"";
-    position:absolute;
-    left:0;
-    right:0;
-    bottom:-18px;
-    height:18px;
-    pointer-events:none;
-    background:linear-gradient(180deg, rgba(237,244,255,.94), rgba(237,244,255,0));
-  }
-  #identityStickyCard .top-save-holder{
-    position:absolute;
-    right:22px;
-    top:50%;
-    transform:translateY(-50%);
-    width:145px;
-    z-index:3;
-  }
-  @media (max-width:900px){
-    #identityStickyCard{
-      top:8px !important;
-      padding-right:22px !important;
-      padding-bottom:88px !important;
-    }
-    #identityStickyCard .top-save-holder{
-      left:22px;
-      right:22px;
-      top:auto;
-      bottom:18px;
-      width:auto;
-      transform:none;
-    }
-  }
-</style>
-
 </head>
 <body>
 
@@ -4116,6 +4052,81 @@ ${zoomStyle}</style>
       </table>
     </div>
   </div>
+
+
+<script id="identity-fixed-real-script">
+(function(){
+  function ready(fn){
+    if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fn);
+    else fn();
+  }
+
+  ready(function(){
+    var card = document.getElementById('identityStickyCard');
+    var app = document.getElementById('appShell');
+    var main = document.querySelector('main.main');
+    if(!card || !app || !main) return;
+
+    var placeholder = document.getElementById('identityStickyPlaceholder');
+    if(!placeholder){
+      placeholder = document.createElement('div');
+      placeholder.id = 'identityStickyPlaceholder';
+      card.parentNode.insertBefore(placeholder, card);
+    }
+
+    if(card.parentNode !== document.body){
+      document.body.appendChild(card);
+    }
+    card.classList.add('identity-fixed-real');
+
+    function isVisible(){
+      return app && !app.classList.contains('hidden-before-login') && getComputedStyle(app).display !== 'none';
+    }
+
+    function updateFixedIdentityCard(){
+      var visible = isVisible();
+      document.body.classList.toggle('identity-card-hidden', !visible);
+      if(!visible) return;
+
+      // Medimos la columna principal ya renderizada. Esto evita depender de valores fijos
+      // y funciona tanto en escritorio como cuando la interfaz pasa a una sola columna.
+      var rect = main.getBoundingClientRect();
+      var viewportW = document.documentElement.clientWidth || window.innerWidth;
+      var margin = 14;
+      var left = Math.max(margin, rect.left);
+      var width = Math.min(rect.width, viewportW - left - margin);
+
+      card.style.left = left + 'px';
+      card.style.width = Math.max(280, width) + 'px';
+      card.style.right = 'auto';
+
+      // Reservamos espacio dentro de la página para que el bloque fijo no tape
+      // la tarjeta de evaluación ni los controles que van debajo.
+      var h = card.getBoundingClientRect().height;
+      placeholder.style.height = (h + 18) + 'px';
+    }
+
+    updateFixedIdentityCard();
+    window.addEventListener('resize', updateFixedIdentityCard, {passive:true});
+    window.addEventListener('orientationchange', function(){ setTimeout(updateFixedIdentityCard, 80); }, {passive:true});
+    window.addEventListener('scroll', updateFixedIdentityCard, {passive:true});
+
+    if(window.ResizeObserver){
+      var ro = new ResizeObserver(updateFixedIdentityCard);
+      ro.observe(main);
+      ro.observe(card);
+    }
+
+    var mo = new MutationObserver(updateFixedIdentityCard);
+    mo.observe(app, {attributes:true, attributeFilter:['class','style']});
+
+    // Por si la app rellena Classe / Mestre / Alumne de forma asíncrona después del login.
+    setTimeout(updateFixedIdentityCard, 250);
+    setTimeout(updateFixedIdentityCard, 1000);
+  });
+})();
+</script>
+
 </body>
 </html>`);
       newWin.document.close();
@@ -4158,55 +4169,6 @@ ${zoomStyle}</style>
       if(!newWin){ alert("El navegador ha bloquejat la finestra emergent. Permet les finestres emergents per a aquesta pàgina."); return; }
       const style = `body{font-family:Inter,Arial,sans-serif;background:#f7faff;color:#1f2937;padding:24px}h1{margin:0 0 8px 0;font-size:28px}p{margin:0 0 16px 0;color:#667085}.card{background:#fff;border:1px solid #d9e4f2;border-radius:18px;padding:18px;box-shadow:0 8px 24px rgba(26,42,79,.08);overflow:auto}table{width:100%;border-collapse:collapse;font-size:14px}th,td{border:1px solid #d9e4f2;padding:9px 11px;text-align:left;vertical-align:top}th{background:#eef4ff}.eval-cell{text-align:center;font-weight:800}.toolbar{margin-bottom:14px}.print{border:0;border-radius:12px;padding:10px 14px;font-weight:800;cursor:pointer;background:#2563eb;color:#fff}`;
       newWin.document.write(`<!DOCTYPE html><html lang="ca"><head><meta charset="utf-8"><title>${title}</title><style>${style}</style>
-
-<style id="sticky-identity-real-fix">
-  /* Corrección real: el bloque ya no está dentro de .hero, por eso no se libera al acabar esa sección. */
-  .main{
-    overflow:visible !important;
-  }
-  #identityStickyCard{
-    position:sticky !important;
-    top:14px !important;
-    z-index:99999 !important;
-    margin-bottom:14px !important;
-    transform:none !important;
-    will-change:auto !important;
-  }
-  #identityStickyCard::after{
-    content:"";
-    position:absolute;
-    left:0;
-    right:0;
-    bottom:-18px;
-    height:18px;
-    pointer-events:none;
-    background:linear-gradient(180deg, rgba(237,244,255,.94), rgba(237,244,255,0));
-  }
-  #identityStickyCard .top-save-holder{
-    position:absolute;
-    right:22px;
-    top:50%;
-    transform:translateY(-50%);
-    width:145px;
-    z-index:3;
-  }
-  @media (max-width:900px){
-    #identityStickyCard{
-      top:8px !important;
-      padding-right:22px !important;
-      padding-bottom:88px !important;
-    }
-    #identityStickyCard .top-save-holder{
-      left:22px;
-      right:22px;
-      top:auto;
-      bottom:18px;
-      width:auto;
-      transform:none;
-    }
-  }
-</style>
-
 </head><body><div class="card"><div class="toolbar"><button class="print" onclick="window.print()">Imprimir / Guardar PDF</button></div><h1>${title}</h1><p>Centre: ${state.center?.displayName || "—"} · Classe: ${state.currentClass || "—"} · Mestre/a: ${state.teacher?.displayName || "—"}</p><table><thead><tr><th>Àrea</th><th>1a Avaluació</th><th>2a Avaluació</th><th>3a Avaluació</th></tr></thead><tbody>${rows || `<tr><td colspan="4">No hi ha qualificacions disponibles.</td></tr>`}</tbody></table></div></body></html>`);
       newWin.document.close();
     }
