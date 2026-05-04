@@ -988,6 +988,48 @@ body::after{
   }
 </style>
 
+
+
+<style id="identity-sticky-safe-fix">
+  /* Corrección segura: el bloque Classe / Mestre/a / Alumne/a queda pegado arriba
+     durante el scroll de la página, sin sacarlo del flujo ni romper botones/listas. */
+  .main{
+    overflow:visible !important;
+  }
+
+  #identityStickyCard{
+    position:-webkit-sticky !important;
+    position:sticky !important;
+    top:12px !important;
+    z-index:99999 !important;
+    align-self:start !important;
+    margin-bottom:12px !important;
+    background:linear-gradient(180deg, rgba(238,244,255,.97), rgba(248,251,255,.95)) !important;
+    border:1px solid rgba(147,197,253,.85) !important;
+    box-shadow:0 18px 42px rgba(37,99,235,.22) !important;
+    backdrop-filter:blur(14px) saturate(130%);
+  }
+
+  #identityStickyCard::after{
+    content:"";
+    position:absolute;
+    left:0;
+    right:0;
+    bottom:-18px;
+    height:18px;
+    pointer-events:none;
+    background:linear-gradient(180deg, rgba(237,244,255,.92), rgba(237,244,255,0));
+  }
+
+  @media (max-width:900px){
+    #identityStickyCard{
+      top:8px !important;
+      padding-right:22px !important;
+      padding-bottom:88px !important;
+    }
+  }
+</style>
+
 </head>
 <body class="preaccess-loading">
 
@@ -4016,117 +4058,6 @@ ${zoomStyle}</style>
       </table>
     </div>
   </div>
-
-
-<style id="identity-fixed-viewport-final">
-  /* Bloque Classe / Mestre/a / Alumne/a fijo REAL al hacer scroll de página */
-  body.identity-fixed-active #identityStickyCard{
-    position:fixed !important;
-    top:12px !important;
-    left:var(--identity-fixed-left, 390px) !important;
-    width:var(--identity-fixed-width, calc(100vw - 420px)) !important;
-    z-index:100000 !important;
-    margin:0 !important;
-    padding-right:190px !important;
-    box-shadow:0 18px 42px rgba(37,99,235,.24) !important;
-    backdrop-filter:blur(16px) saturate(130%);
-  }
-
-  body.identity-fixed-active #identityStickySpacer{
-    display:block !important;
-    height:var(--identity-fixed-height, 120px) !important;
-    flex:0 0 auto !important;
-  }
-
-  #identityStickySpacer{
-    display:none;
-  }
-
-  @media (max-width:1100px){
-    body.identity-fixed-active #identityStickyCard{
-      left:18px !important;
-      width:calc(100vw - 36px) !important;
-    }
-  }
-
-  @media (max-width:900px){
-    body.identity-fixed-active #identityStickyCard{
-      top:8px !important;
-      left:10px !important;
-      width:calc(100vw - 20px) !important;
-      padding-right:22px !important;
-      padding-bottom:88px !important;
-    }
-  }
-
-  @media (max-width:700px){
-    body.identity-fixed-active #identityStickyCard .hero-main-grid{
-      grid-template-columns:1fr !important;
-    }
-    body.identity-fixed-active #identityStickyCard .hero-main-grid > div{
-      border-left:0 !important;
-      border-right:0 !important;
-      border-top:1px solid rgba(185,205,191,.8);
-    }
-    body.identity-fixed-active #identityStickyCard .hero-main-grid > div:first-child{
-      border-top:0 !important;
-    }
-  }
-</style>
-
-<script id="identity-fixed-viewport-script">
-(function(){
-  function setupIdentityFixedBlock(){
-    var card = document.getElementById('identityStickyCard');
-    if(!card) return;
-
-    var hero = card.parentElement;
-    var spacer = document.getElementById('identityStickySpacer');
-    if(!spacer){
-      spacer = document.createElement('div');
-      spacer.id = 'identityStickySpacer';
-      card.insertAdjacentElement('afterend', spacer);
-    }
-
-    function updateFixedMeasurements(){
-      var appShell = document.getElementById('appShell');
-      if(appShell && appShell.classList.contains('hidden-before-login')){
-        document.body.classList.remove('identity-fixed-active');
-        return;
-      }
-
-      document.body.classList.remove('identity-fixed-active');
-      var rect = card.getBoundingClientRect();
-      var height = Math.ceil(rect.height + 14);
-      var left = Math.max(10, Math.round(rect.left));
-      var width = Math.round(rect.width);
-
-      document.documentElement.style.setProperty('--identity-fixed-left', left + 'px');
-      document.documentElement.style.setProperty('--identity-fixed-width', width + 'px');
-      document.documentElement.style.setProperty('--identity-fixed-height', height + 'px');
-      document.body.classList.add('identity-fixed-active');
-    }
-
-    function scheduleUpdate(){
-      requestAnimationFrame(updateFixedMeasurements);
-    }
-
-    scheduleUpdate();
-    window.addEventListener('resize', scheduleUpdate);
-    window.addEventListener('orientationchange', scheduleUpdate);
-
-    var observer = new MutationObserver(scheduleUpdate);
-    observer.observe(document.body, {attributes:true, childList:true, subtree:true, attributeFilter:['class','style']});
-  }
-
-  if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', setupIdentityFixedBlock);
-  }else{
-    setupIdentityFixedBlock();
-  }
-})();
-</script>
-
 </body>
 </html>`);
       newWin.document.close();
