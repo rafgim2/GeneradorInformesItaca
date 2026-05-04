@@ -925,14 +925,15 @@ body::after{
     margin-top:4px;
   }
 
-  /* Enfoque definitivo:
-     solo queda fijo arriba el bloque Classe / Mestre/a / Alumne/a,
-     con el botón Guardar integrado dentro de ese mismo bloque. */
+  /* Bloque superior fijo:
+     el bloque Classe / Mestre/a / Alumne/a queda fuera del contenedor .hero
+     para que position: sticky funcione durante todo el scroll del panel principal. */
   #identityStickyCard{
     position:sticky !important;
     top:0 !important;
     z-index:10000 !important;
     padding-right:190px !important;
+    margin-bottom:12px !important;
     box-shadow:0 14px 34px rgba(37,99,235,.18) !important;
   }
   #identityStickyCard::after{
@@ -988,124 +989,6 @@ body::after{
   }
 </style>
 
-
-
-<style id="identity-fixed-real-fix">
-  /* SOLUCIÓN REAL:
-     El bloque Classe / Mestre/a / Alumne/a se ha sacado de #appShell.
-     Motivo: #appShell tiene transform:scale(...), y cualquier position:fixed dentro de un elemento transformado
-     deja de ser fijo respecto a la ventana. Por eso antes parecía quedarse fijo y luego desaparecía. */
-  body:not(.identity-bar-visible) #identityStickyCard{
-    display:none !important;
-  }
-
-  body.identity-bar-visible #identityStickyCard{
-    display:block !important;
-    position:fixed !important;
-    top:12px !important;
-    left:370px !important;
-    right:24px !important;
-    width:auto !important;
-    max-width:none !important;
-    z-index:1000001 !important;
-    margin:0 !important;
-    padding:18px 205px 18px 24px !important;
-    transform:none !important;
-    background:linear-gradient(180deg, rgba(244,249,255,.96), rgba(232,241,255,.92)) !important;
-    border:1px solid rgba(84,126,207,.35) !important;
-    border-radius:24px !important;
-    box-shadow:0 18px 42px rgba(31,74,150,.22), inset 0 1px 0 rgba(255,255,255,.68) !important;
-    backdrop-filter:blur(16px) saturate(130%) !important;
-  }
-
-  body.identity-bar-visible #identityStickyCard::after{
-    content:"";
-    position:absolute;
-    left:0;
-    right:0;
-    bottom:-18px;
-    height:18px;
-    pointer-events:none;
-    background:linear-gradient(180deg, rgba(223,238,255,.82), rgba(223,238,255,0));
-  }
-
-  #identityStickyCard .top-save-holder{
-    position:absolute !important;
-    right:22px !important;
-    top:50% !important;
-    bottom:auto !important;
-    left:auto !important;
-    width:155px !important;
-    transform:translateY(-50%) !important;
-    z-index:4 !important;
-  }
-
-  #identityStickyCard #saveTop{
-    width:100% !important;
-    min-height:54px !important;
-    font-size:16px !important;
-  }
-
-  /* Este hueco sustituye al bloque que antes estaba dentro del contenido,
-     para que la barra fija no tape la evaluación ni los botones superiores. */
-  body.identity-bar-visible #identityStickyPlaceholder{
-    display:block !important;
-    height:122px !important;
-    flex:0 0 122px !important;
-  }
-  body:not(.identity-bar-visible) #identityStickyPlaceholder{
-    display:none !important;
-  }
-
-  @media (max-width:1100px){
-    body.identity-bar-visible #identityStickyCard{
-      left:18px !important;
-      right:18px !important;
-      top:10px !important;
-    }
-    body.identity-bar-visible #identityStickyPlaceholder{
-      height:132px !important;
-      flex-basis:132px !important;
-    }
-  }
-
-  @media (max-width:900px){
-    body.identity-bar-visible #identityStickyCard{
-      padding:14px 16px 84px 16px !important;
-    }
-    #identityStickyCard .hero-main-grid{
-      grid-template-columns:1fr !important;
-      gap:8px !important;
-    }
-    #identityStickyCard .hero-main-grid > div{
-      border-left:0 !important;
-      border-right:0 !important;
-      border-top:1px solid rgba(84,126,207,.24) !important;
-      padding:8px 10px !important;
-    }
-    #identityStickyCard .hero-main-grid > div:first-child{
-      border-top:0 !important;
-    }
-    #identityStickyCard #currentClass,
-    #identityStickyCard #bigTeacher,
-    #identityStickyCard #currentStudent{
-      font-size:22px !important;
-    }
-    #identityStickyCard .top-save-holder{
-      left:16px !important;
-      right:16px !important;
-      bottom:14px !important;
-      top:auto !important;
-      width:auto !important;
-      transform:none !important;
-    }
-    body.identity-bar-visible #identityStickyPlaceholder{
-      height:260px !important;
-      flex-basis:260px !important;
-    }
-  }
-</style>
-
 </head>
 <body class="preaccess-loading">
 
@@ -1113,42 +996,6 @@ body::after{
   <span class="teacher-badge" id="floatingAccessBadge">Comprovant accés…</span>
   <span class="tag" id="floatingAccessDetail">Comprovant l’estat de la prova…</span>
 </div>
-
-<!-- Barra fija real: está fuera de #appShell para que ningún transform/overflow del layout pueda arrastrarla con el scroll. -->
-<div class="hero-card fixed-identity-card" id="identityStickyCard" style="
-  width:100%;
-  padding:22px 26px;
-  background:#eef4ff;
-  border:1px solid #d6e4ff;
-  box-shadow:0 8px 22px rgba(37,99,235,.08);
-  border-radius:24px;
-">
-    <div class="hero-main-grid" style="
-  display:grid;
-  grid-template-columns:1fr 1fr 1fr;
-  gap:0;
-  align-items:stretch;
-  text-align:center;
-">
-      <div style="padding:12px 20px;display:flex;flex-direction:column;justify-content:center;">
-        <div class="small" style="font-weight:900;letter-spacing:.02em;font-size:15px;color:#475569;">Classe:</div>
-        <div id="currentClass" style="font-size:30px;font-weight:900;color:#2563eb;line-height:1.15;margin-top:5px;">—</div>
-      </div>
-
-      <div style="padding:12px 20px;border-left:1px solid #b9cdbf;border-right:1px solid #b9cdbf;display:flex;flex-direction:column;justify-content:center;">
-        <div class="small" style="font-weight:900;letter-spacing:.02em;font-size:15px;color:#475569;">Mestre/a:</div>
-        <div id="bigTeacher" style="font-size:30px;font-weight:900;color:#2563eb;line-height:1.15;margin-top:5px;">—</div>
-      </div>
-
-      <div style="padding:12px 20px;display:flex;flex-direction:column;justify-content:center;">
-        <div class="small" style="font-weight:900;letter-spacing:.02em;font-size:15px;color:#475569;">Alumne/a:</div>
-        <div id="currentStudent" style="font-size:30px;font-weight:900;color:#2563eb;line-height:1.15;margin-top:5px;">—</div>
-      </div>
-    </div>
-    <div class="top-save-holder">
-      <button class="success full" id="saveTop" type="button" onclick="document.getElementById('saveSide') && document.getElementById('saveSide').click();">Guardar</button>
-    </div>
-  </div>
 
 <div class="google-access-overlay" id="googleAccessOverlay">
   <div class="google-access-card">
@@ -1377,8 +1224,44 @@ body::after{
 </aside>
 <main class="main">
 
+<div class="hero-card" id="identityStickyCard" style="
+  width:100%;
+  padding:22px 26px;
+  background:#eef4ff;
+  border:1px solid #d6e4ff;
+  box-shadow:0 8px 22px rgba(37,99,235,.08);
+  border-radius:24px;
+">
+    <div class="hero-main-grid" style="
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr;
+  gap:0;
+  align-items:stretch;
+  text-align:center;
+">
+      <div style="padding:12px 20px;display:flex;flex-direction:column;justify-content:center;">
+        <div class="small" style="font-weight:900;letter-spacing:.02em;font-size:15px;color:#475569;">Classe:</div>
+        <div id="currentClass" style="font-size:30px;font-weight:900;color:#2563eb;line-height:1.15;margin-top:5px;">—</div>
+      </div>
+
+      <div style="padding:12px 20px;border-left:1px solid #b9cdbf;border-right:1px solid #b9cdbf;display:flex;flex-direction:column;justify-content:center;">
+        <div class="small" style="font-weight:900;letter-spacing:.02em;font-size:15px;color:#475569;">Mestre/a:</div>
+        <div id="bigTeacher" style="font-size:30px;font-weight:900;color:#2563eb;line-height:1.15;margin-top:5px;">—</div>
+      </div>
+
+      <div style="padding:12px 20px;display:flex;flex-direction:column;justify-content:center;">
+        <div class="small" style="font-weight:900;letter-spacing:.02em;font-size:15px;color:#475569;">Alumne/a:</div>
+        <div id="currentStudent" style="font-size:30px;font-weight:900;color:#2563eb;line-height:1.15;margin-top:5px;">—</div>
+      </div>
+    </div>
+    <div class="top-save-holder">
+      <button class="success full" id="saveTop" type="button" onclick="document.getElementById('saveSide') && document.getElementById('saveSide').click();">Guardar</button>
+    </div>
+  </div>
+
+
 <div class="hero" style="flex-direction:column;gap:12px;">
-  <div id="identityStickyPlaceholder" aria-hidden="true"></div>
+
 
 
 
@@ -4137,30 +4020,6 @@ ${zoomStyle}</style>
       </table>
     </div>
   </div>
-
-
-<script id="identity-fixed-real-controller">
-(function(){
-  function syncIdentityFixedBar(){
-    var app = document.getElementById('appShell');
-    var card = document.getElementById('identityStickyCard');
-    var visible = !!(app && card && !app.classList.contains('hidden-before-login'));
-    document.body.classList.toggle('identity-bar-visible', visible);
-  }
-
-  document.addEventListener('DOMContentLoaded', function(){
-    syncIdentityFixedBar();
-    var app = document.getElementById('appShell');
-    if(app && window.MutationObserver){
-      new MutationObserver(syncIdentityFixedBar).observe(app, { attributes:true, attributeFilter:['class'] });
-    }
-  });
-
-  window.addEventListener('load', syncIdentityFixedBar);
-  window.addEventListener('pageshow', syncIdentityFixedBar);
-})();
-</script>
-
 </body>
 </html>`);
       newWin.document.close();
