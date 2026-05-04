@@ -925,148 +925,82 @@ body::after{
     margin-top:4px;
   }
 
-  /* Barra fija real: está fuera del contenedor .app, por eso no desaparece con el scroll. */
-  #fixedIdentitySaveBar{
-    display:none;
-    position:fixed;
-    top:12px;
-    left:394px;
-    right:18px;
-    z-index:1000001;
-    padding:14px 18px;
-    border-radius:24px;
-    background:linear-gradient(180deg, rgba(238,244,255,.97), rgba(246,250,255,.94));
-    border:1px solid rgba(147,197,253,.85);
-    box-shadow:0 18px 44px rgba(37,99,235,.22);
-    backdrop-filter:blur(14px) saturate(125%);
+  /* Corrección definitiva: el bloque superior queda fijo respecto a la ventana.
+     Se elimina el transform global de .app porque impedía que position:fixed
+     se comportara como fijo real durante el scroll de la página. */
+  .app{
+    transform:none !important;
+    transform-origin:initial !important;
+    width:auto !important;
   }
-  body.app-is-open #fixedIdentitySaveBar{
-    display:block;
+  .main{
+    overflow:visible !important;
+    padding-top:170px !important;
   }
-  #fixedIdentitySaveBar .fixed-identity-grid{
-    display:grid;
-    grid-template-columns:1fr 1fr 1fr 150px;
-    gap:0;
-    align-items:stretch;
-    text-align:center;
+  #identityStickyCard{
+    position:fixed !important;
+    top:14px !important;
+    left:396px !important;
+    right:18px !important;
+    width:auto !important;
+    z-index:999999 !important;
+    padding-right:190px !important;
+    box-shadow:0 16px 38px rgba(37,99,235,.24) !important;
   }
-  #fixedIdentitySaveBar .fixed-cell{
-    padding:8px 16px;
-    display:flex;
-    flex-direction:column;
-    justify-content:center;
-    min-width:0;
+  #identityStickyCard::after{
+    content:"";
+    position:absolute;
+    left:0;
+    right:0;
+    bottom:-18px;
+    height:18px;
+    pointer-events:none;
+    background:linear-gradient(180deg, rgba(237,244,255,.96), rgba(237,244,255,0));
   }
-  #fixedIdentitySaveBar .fixed-cell + .fixed-cell{
-    border-left:1px solid rgba(185,205,191,.95);
+  .top-save-holder{
+    position:absolute;
+    right:22px;
+    top:50%;
+    transform:translateY(-50%);
+    width:145px;
+    z-index:3;
   }
-  #fixedIdentitySaveBar .fixed-label{
-    font-weight:900;
-    letter-spacing:.02em;
-    font-size:14px;
-    color:#475569;
-  }
-  #fixedIdentitySaveBar .fixed-value{
-    font-size:26px;
-    font-weight:900;
-    color:#153775;
-    line-height:1.15;
-    margin-top:4px;
-    white-space:nowrap;
-    overflow:hidden;
-    text-overflow:ellipsis;
-  }
-  #fixedIdentitySaveBar .fixed-save-cell{
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    padding-left:16px;
-    border-left:1px solid rgba(185,205,191,.95);
-  }
-  #saveSide{
+  #saveTop{
     width:100%;
-    min-height:52px;
+    min-height:54px;
     font-size:16px;
     box-shadow:0 14px 30px rgba(22,163,74,.20) !important;
   }
 
-  /* El bloque original queda como espacio visual inicial, pero sin botón duplicado ni comportamiento sticky. */
-  #identityStickyCard{
-    position:static !important;
-    padding-right:26px !important;
-  }
-  #identityStickyCard::after,
-  .top-save-holder{
+  /* Solo debe verse un botón Guardar: el del bloque fijo superior. */
+  #saveSide,
+  .sidebar .panel:has(#saveSide){
     display:none !important;
-  }
-  .main,
-  .sidebar,
-  #studentList,
-  #studentList .student-item.active{
-    position:static !important;
-    top:auto !important;
-    bottom:auto !important;
-  }
-  body.app-is-open .main{
-    padding-top:122px !important;
   }
 
   @media (max-width:1100px){
-    #fixedIdentitySaveBar{
-      left:18px;
+    .main{
+      padding-top:220px !important;
     }
-    body.app-is-open .main{
-      padding-top:132px !important;
+    #identityStickyCard{
+      left:18px !important;
+      right:18px !important;
+      padding-right:22px !important;
+      padding-bottom:86px !important;
     }
-  }
-  @media (max-width:780px){
-    #fixedIdentitySaveBar{
-      left:10px;
-      right:10px;
-      top:8px;
-      padding:10px;
-      border-radius:18px;
-    }
-    #fixedIdentitySaveBar .fixed-identity-grid{
-      grid-template-columns:1fr;
-      gap:8px;
-    }
-    #fixedIdentitySaveBar .fixed-cell,
-    #fixedIdentitySaveBar .fixed-save-cell{
-      border-left:0 !important;
-      padding:4px 8px;
-    }
-    #fixedIdentitySaveBar .fixed-value{
-      font-size:20px;
-    }
-    body.app-is-open .main{
-      padding-top:250px !important;
+    .top-save-holder{
+      left:22px;
+      right:22px;
+      top:auto;
+      bottom:18px;
+      width:auto;
+      transform:none;
     }
   }
 </style>
 
 </head>
 <body class="preaccess-loading">
-
-<div id="fixedIdentitySaveBar" aria-live="polite">
-  <div class="fixed-identity-grid">
-    <div class="fixed-cell">
-      <div class="fixed-label">Classe:</div>
-      <div class="fixed-value" id="fixedCurrentClass">—</div>
-    </div>
-    <div class="fixed-cell">
-      <div class="fixed-label">Mestre/a:</div>
-      <div class="fixed-value" id="fixedBigTeacher">—</div>
-    </div>
-    <div class="fixed-cell">
-      <div class="fixed-label">Alumne/a:</div>
-      <div class="fixed-value" id="fixedCurrentStudent">—</div>
-    </div>
-    <div class="fixed-save-cell">
-      <button class="success full" id="saveSide" type="button">Guardar</button>
-    </div>
-  </div>
-</div>
 
 <div class="floating-access-status" id="floatingAccessStatus">
   <span class="teacher-badge" id="floatingAccessBadge">Comprovant accés…</span>
@@ -1294,6 +1228,9 @@ body::after{
 <input id="studentSearch" placeholder="Buscar per número de llista..." type="text"/>
 <div class="student-list" id="studentList"></div>
 </div>
+<div class="panel soft stack">
+<button class="success full" id="saveSide">Guardar</button>
+</div>
 </aside>
 <main class="main">
 
@@ -1327,6 +1264,9 @@ body::after{
         <div class="small" style="font-weight:900;letter-spacing:.02em;font-size:15px;color:#475569;">Alumne/a:</div>
         <div id="currentStudent" style="font-size:30px;font-weight:900;color:#2563eb;line-height:1.15;margin-top:5px;">—</div>
       </div>
+    </div>
+    <div class="top-save-holder">
+      <button class="success full" id="saveTop" type="button">Guardar</button>
     </div>
   </div>
 
@@ -4087,38 +4027,6 @@ ${zoomStyle}</style>
       </table>
     </div>
   </div>
-
-<script id="fixed-identity-save-sync">
-(function(){
-  function text(id){
-    var el=document.getElementById(id);
-    return el ? el.textContent : "—";
-  }
-  function set(id,value){
-    var el=document.getElementById(id);
-    if(el) el.textContent = value || "—";
-  }
-  function syncFixedIdentity(){
-    set("fixedCurrentClass", text("currentClass"));
-    set("fixedBigTeacher", text("bigTeacher"));
-    set("fixedCurrentStudent", text("currentStudent"));
-    var app=document.getElementById("appShell");
-    document.body.classList.toggle("app-is-open", !!app && !app.classList.contains("hidden-before-login"));
-  }
-  var obs=new MutationObserver(syncFixedIdentity);
-  function watch(id){
-    var el=document.getElementById(id);
-    if(el) obs.observe(el,{childList:true,characterData:true,subtree:true});
-  }
-  document.addEventListener("DOMContentLoaded", function(){
-    ["currentClass","bigTeacher","currentStudent"].forEach(watch);
-    var app=document.getElementById("appShell");
-    if(app) obs.observe(app,{attributes:true,attributeFilter:["class"]});
-    syncFixedIdentity();
-    setInterval(syncFixedIdentity, 500);
-  });
-})();
-</script>
 </body>
 </html>`);
       newWin.document.close();
@@ -4172,10 +4080,12 @@ ${zoomStyle}</style>
       $("classSelect").addEventListener("change", e => switchClass(e.target.value));
       $("studentSearch").addEventListener("input", renderStudents);
 
-      $("saveSide").addEventListener("click", async () => {
-  await saveStudent();
-  alert("Els canvis s'han guardat correctament.");
-});
+      async function handleSaveClick(){
+        await saveStudent();
+        alert("Els canvis s'han guardat correctament.");
+      }
+      if($("saveSide")) $("saveSide").addEventListener("click", handleSaveClick);
+      if($("saveTop")) $("saveTop").addEventListener("click", handleSaveClick);
       $("deleteStudentBtn").addEventListener("click", async () => {
       if(!state.currentClass || !state.currentStudentId){
         alert("Selecciona primer un alumne/a.");
