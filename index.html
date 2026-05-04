@@ -925,31 +925,33 @@ body::after{
     margin-top:4px;
   }
 
-  /* Nuevo enfoque: NO se bloquea la columna izquierda ni el listado.
-     Se fija arriba el bloque Classe / Mestre / Alumne dentro de la página. */
-  .main{
-    overflow:visible !important;
-  }
-  .hero{
+  /* Enfoque definitivo:
+     solo queda fijo arriba el bloque Classe / Mestre/a / Alumne/a,
+     con el botón Guardar integrado dentro de ese mismo bloque. */
+  #identityStickyCard{
     position:sticky !important;
     top:0 !important;
-    z-index:5000 !important;
-    padding:0 0 12px 0 !important;
-    background:linear-gradient(180deg, rgba(237,244,255,.98), rgba(237,244,255,.92) 72%, rgba(237,244,255,0)) !important;
-    backdrop-filter:blur(12px);
+    z-index:10000 !important;
+    padding-right:190px !important;
+    box-shadow:0 14px 34px rgba(37,99,235,.18) !important;
   }
-  .hero > .hero-card:first-child{
-    position:relative !important;
-    padding-right:180px !important;
-    box-shadow:0 14px 34px rgba(37,99,235,.16) !important;
+  #identityStickyCard::after{
+    content:"";
+    position:absolute;
+    left:0;
+    right:0;
+    bottom:-16px;
+    height:16px;
+    pointer-events:none;
+    background:linear-gradient(180deg, rgba(237,244,255,.92), rgba(237,244,255,0));
   }
   .top-save-holder{
     position:absolute;
     right:22px;
     top:50%;
     transform:translateY(-50%);
-    width:140px;
-    z-index:2;
+    width:145px;
+    z-index:3;
   }
   #saveTop{
     width:100%;
@@ -958,22 +960,20 @@ body::after{
     box-shadow:0 14px 30px rgba(22,163,74,.20) !important;
   }
 
-  /* El botón original de la izquierda se deja normal para no bloquear otros elementos. */
+  /* Nada más queda bloqueado: ni columna izquierda, ni listado, ni panel principal. */
+  .main,
+  .sidebar,
+  #studentList,
+  #studentList .student-item.active,
   .sidebar .panel:has(#saveSide),
   #saveSide{
     position:static !important;
-    bottom:auto !important;
     top:auto !important;
-  }
-
-  /* El alumno seleccionado del listado ya no se fija aquí: lo visible fijo será el bloque superior. */
-  #studentList .student-item.active{
-    position:static !important;
-    box-shadow:0 10px 22px rgba(37,99,235,.14), inset 0 1px 0 rgba(255,255,255,.65) !important;
+    bottom:auto !important;
   }
 
   @media (max-width:900px){
-    .hero > .hero-card:first-child{
+    #identityStickyCard{
       padding-right:22px !important;
       padding-bottom:88px !important;
     }
@@ -1224,7 +1224,7 @@ body::after{
 <main class="main">
 
 <div class="hero" style="flex-direction:column;gap:12px;">
-  <div class="hero-card" style="
+  <div class="hero-card" id="identityStickyCard" style="
   width:100%;
   padding:22px 26px;
   background:#eef4ff;
