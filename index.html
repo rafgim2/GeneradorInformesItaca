@@ -989,84 +989,30 @@ body::after{
 </style>
 
 
-
-<style id="viewport-fixed-identity-fix">
-  /* SOLUCIÓN DEFINITIVA:
-     El bloque visible queda fuera del scroll real de la página.
-     El bloque original conserva sus IDs para que el JavaScript existente no se rompa,
-     pero se oculta visualmente y solo sirve como fuente de datos. */
+<style id="sticky-identity-real-fix">
+  /* Corrección real: el bloque ya no está dentro de .hero, por eso no se libera al acabar esa sección. */
+  .main{
+    overflow:visible !important;
+  }
   #identityStickyCard{
-    position:static !important;
-    top:auto !important;
-    z-index:auto !important;
-    padding-right:26px !important;
-  }
-  #identityStickyCard.identity-source-hidden{
-    display:none !important;
-  }
-
-  #fixedIdentityViewportBar{
-    position:fixed !important;
-    top:10px !important;
-    left:18px !important;
-    right:18px !important;
-    z-index:999990 !important;
-    display:none;
-    pointer-events:auto;
+    position:sticky !important;
+    top:14px !important;
+    z-index:99999 !important;
+    margin-bottom:14px !important;
     transform:none !important;
+    will-change:auto !important;
   }
-  body.identity-fixed-active #fixedIdentityViewportBar{
-    display:block !important;
+  #identityStickyCard::after{
+    content:"";
+    position:absolute;
+    left:0;
+    right:0;
+    bottom:-18px;
+    height:18px;
+    pointer-events:none;
+    background:linear-gradient(180deg, rgba(237,244,255,.94), rgba(237,244,255,0));
   }
-  body.identity-fixed-active .app:not(.hidden-before-login){
-    padding-top:150px !important;
-  }
-  #fixedIdentityViewportBar .fixed-identity-card{
-    width:100%;
-    min-height:116px;
-    padding:22px 200px 22px 26px;
-    border-radius:24px;
-    background:linear-gradient(180deg, rgba(244,249,255,.96), rgba(231,241,255,.92));
-    border:1px solid rgba(84,126,207,.34);
-    box-shadow:0 18px 44px rgba(31,74,150,.18), inset 0 1px 0 rgba(255,255,255,.68);
-    backdrop-filter:blur(16px) saturate(130%);
-    position:relative;
-  }
-  #fixedIdentityViewportBar .fixed-identity-grid{
-    display:grid;
-    grid-template-columns:1fr 1fr 1fr;
-    gap:0;
-    align-items:stretch;
-    text-align:center;
-  }
-  #fixedIdentityViewportBar .fixed-identity-cell{
-    padding:12px 20px;
-    display:flex;
-    flex-direction:column;
-    justify-content:center;
-    min-width:0;
-  }
-  #fixedIdentityViewportBar .fixed-identity-cell.middle{
-    border-left:1px solid rgba(37,99,235,.25);
-    border-right:1px solid rgba(37,99,235,.25);
-  }
-  #fixedIdentityViewportBar .fixed-identity-label{
-    font-weight:900;
-    letter-spacing:.02em;
-    font-size:15px;
-    color:#475569;
-  }
-  #fixedIdentityViewportBar .fixed-identity-value{
-    font-size:30px;
-    font-weight:900;
-    color:#153775;
-    line-height:1.15;
-    margin-top:5px;
-    overflow:hidden;
-    text-overflow:ellipsis;
-    white-space:nowrap;
-  }
-  #fixedIdentityViewportBar .fixed-save-holder{
+  #identityStickyCard .top-save-holder{
     position:absolute;
     right:22px;
     top:50%;
@@ -1074,41 +1020,15 @@ body::after{
     width:145px;
     z-index:3;
   }
-  #fixedSaveTop{
-    width:100%;
-    min-height:54px;
-    font-size:16px;
-    border-radius:14px;
-  }
-  #fixedSaveTop.save-clean{
-    background:#16a34a !important;
-    color:#fff !important;
-    border-color:#16a34a !important;
-  }
-  #fixedSaveTop.save-dirty{
-    background:#dc2626 !important;
-    color:#fff !important;
-    border-color:#dc2626 !important;
-  }
   @media (max-width:900px){
-    body.identity-fixed-active .app:not(.hidden-before-login){
-      padding-top:225px !important;
+    #identityStickyCard{
+      top:8px !important;
+      padding-right:22px !important;
+      padding-bottom:88px !important;
     }
-    #fixedIdentityViewportBar .fixed-identity-card{
-      padding:18px 18px 88px 18px;
-    }
-    #fixedIdentityViewportBar .fixed-identity-grid{
-      grid-template-columns:1fr;
-    }
-    #fixedIdentityViewportBar .fixed-identity-cell.middle{
-      border-left:0;
-      border-right:0;
-      border-top:1px solid rgba(37,99,235,.18);
-      border-bottom:1px solid rgba(37,99,235,.18);
-    }
-    #fixedIdentityViewportBar .fixed-save-holder{
-      left:18px;
-      right:18px;
+    #identityStickyCard .top-save-holder{
+      left:22px;
+      right:22px;
       top:auto;
       bottom:18px;
       width:auto;
@@ -1119,29 +1039,6 @@ body::after{
 
 </head>
 <body class="preaccess-loading">
-
-<div id="fixedIdentityViewportBar" aria-hidden="false">
-  <div class="fixed-identity-card">
-    <div class="fixed-identity-grid">
-      <div class="fixed-identity-cell">
-        <div class="fixed-identity-label">Classe:</div>
-        <div class="fixed-identity-value" id="fixedCurrentClass">—</div>
-      </div>
-      <div class="fixed-identity-cell middle">
-        <div class="fixed-identity-label">Mestre/a:</div>
-        <div class="fixed-identity-value" id="fixedBigTeacher">—</div>
-      </div>
-      <div class="fixed-identity-cell">
-        <div class="fixed-identity-label">Alumne/a:</div>
-        <div class="fixed-identity-value" id="fixedCurrentStudent">—</div>
-      </div>
-    </div>
-    <div class="fixed-save-holder">
-      <button class="success full" id="fixedSaveTop" type="button">Guardar</button>
-    </div>
-  </div>
-</div>
-
 
 <div class="floating-access-status" id="floatingAccessStatus">
   <span class="teacher-badge" id="floatingAccessBadge">Comprovant accés…</span>
@@ -1375,7 +1272,6 @@ body::after{
 </aside>
 <main class="main">
 
-<div class="hero" style="flex-direction:column;gap:12px;">
   <div class="hero-card" id="identityStickyCard" style="
   width:100%;
   padding:22px 26px;
@@ -1410,6 +1306,9 @@ body::after{
       <button class="success full" id="saveTop" type="button" onclick="document.getElementById('saveSide') && document.getElementById('saveSide').click();">Guardar</button>
     </div>
   </div>
+
+<div class="hero" style="flex-direction:column;gap:12px;">
+
 
 
 
@@ -4144,84 +4043,30 @@ ${zoomStyle}</style>
 
 
 
-
-<style id="viewport-fixed-identity-fix">
-  /* SOLUCIÓN DEFINITIVA:
-     El bloque visible queda fuera del scroll real de la página.
-     El bloque original conserva sus IDs para que el JavaScript existente no se rompa,
-     pero se oculta visualmente y solo sirve como fuente de datos. */
+<style id="sticky-identity-real-fix">
+  /* Corrección real: el bloque ya no está dentro de .hero, por eso no se libera al acabar esa sección. */
+  .main{
+    overflow:visible !important;
+  }
   #identityStickyCard{
-    position:static !important;
-    top:auto !important;
-    z-index:auto !important;
-    padding-right:26px !important;
-  }
-  #identityStickyCard.identity-source-hidden{
-    display:none !important;
-  }
-
-  #fixedIdentityViewportBar{
-    position:fixed !important;
-    top:10px !important;
-    left:18px !important;
-    right:18px !important;
-    z-index:999990 !important;
-    display:none;
-    pointer-events:auto;
+    position:sticky !important;
+    top:14px !important;
+    z-index:99999 !important;
+    margin-bottom:14px !important;
     transform:none !important;
+    will-change:auto !important;
   }
-  body.identity-fixed-active #fixedIdentityViewportBar{
-    display:block !important;
+  #identityStickyCard::after{
+    content:"";
+    position:absolute;
+    left:0;
+    right:0;
+    bottom:-18px;
+    height:18px;
+    pointer-events:none;
+    background:linear-gradient(180deg, rgba(237,244,255,.94), rgba(237,244,255,0));
   }
-  body.identity-fixed-active .app:not(.hidden-before-login){
-    padding-top:150px !important;
-  }
-  #fixedIdentityViewportBar .fixed-identity-card{
-    width:100%;
-    min-height:116px;
-    padding:22px 200px 22px 26px;
-    border-radius:24px;
-    background:linear-gradient(180deg, rgba(244,249,255,.96), rgba(231,241,255,.92));
-    border:1px solid rgba(84,126,207,.34);
-    box-shadow:0 18px 44px rgba(31,74,150,.18), inset 0 1px 0 rgba(255,255,255,.68);
-    backdrop-filter:blur(16px) saturate(130%);
-    position:relative;
-  }
-  #fixedIdentityViewportBar .fixed-identity-grid{
-    display:grid;
-    grid-template-columns:1fr 1fr 1fr;
-    gap:0;
-    align-items:stretch;
-    text-align:center;
-  }
-  #fixedIdentityViewportBar .fixed-identity-cell{
-    padding:12px 20px;
-    display:flex;
-    flex-direction:column;
-    justify-content:center;
-    min-width:0;
-  }
-  #fixedIdentityViewportBar .fixed-identity-cell.middle{
-    border-left:1px solid rgba(37,99,235,.25);
-    border-right:1px solid rgba(37,99,235,.25);
-  }
-  #fixedIdentityViewportBar .fixed-identity-label{
-    font-weight:900;
-    letter-spacing:.02em;
-    font-size:15px;
-    color:#475569;
-  }
-  #fixedIdentityViewportBar .fixed-identity-value{
-    font-size:30px;
-    font-weight:900;
-    color:#153775;
-    line-height:1.15;
-    margin-top:5px;
-    overflow:hidden;
-    text-overflow:ellipsis;
-    white-space:nowrap;
-  }
-  #fixedIdentityViewportBar .fixed-save-holder{
+  #identityStickyCard .top-save-holder{
     position:absolute;
     right:22px;
     top:50%;
@@ -4229,41 +4074,15 @@ ${zoomStyle}</style>
     width:145px;
     z-index:3;
   }
-  #fixedSaveTop{
-    width:100%;
-    min-height:54px;
-    font-size:16px;
-    border-radius:14px;
-  }
-  #fixedSaveTop.save-clean{
-    background:#16a34a !important;
-    color:#fff !important;
-    border-color:#16a34a !important;
-  }
-  #fixedSaveTop.save-dirty{
-    background:#dc2626 !important;
-    color:#fff !important;
-    border-color:#dc2626 !important;
-  }
   @media (max-width:900px){
-    body.identity-fixed-active .app:not(.hidden-before-login){
-      padding-top:225px !important;
+    #identityStickyCard{
+      top:8px !important;
+      padding-right:22px !important;
+      padding-bottom:88px !important;
     }
-    #fixedIdentityViewportBar .fixed-identity-card{
-      padding:18px 18px 88px 18px;
-    }
-    #fixedIdentityViewportBar .fixed-identity-grid{
-      grid-template-columns:1fr;
-    }
-    #fixedIdentityViewportBar .fixed-identity-cell.middle{
-      border-left:0;
-      border-right:0;
-      border-top:1px solid rgba(37,99,235,.18);
-      border-bottom:1px solid rgba(37,99,235,.18);
-    }
-    #fixedIdentityViewportBar .fixed-save-holder{
-      left:18px;
-      right:18px;
+    #identityStickyCard .top-save-holder{
+      left:22px;
+      right:22px;
       top:auto;
       bottom:18px;
       width:auto;
@@ -4297,77 +4116,6 @@ ${zoomStyle}</style>
       </table>
     </div>
   </div>
-
-
-<script id="viewport-fixed-identity-sync">
-(function(){
-  function byId(id){ return document.getElementById(id); }
-  function copyText(sourceId, targetId){
-    var source = byId(sourceId);
-    var target = byId(targetId);
-    if(source && target){ target.textContent = source.textContent || '—'; }
-  }
-  function syncIdentity(){
-    copyText('currentClass','fixedCurrentClass');
-    copyText('bigTeacher','fixedBigTeacher');
-    copyText('currentStudent','fixedCurrentStudent');
-
-    var sideSave = byId('saveSide');
-    var fixedSave = byId('fixedSaveTop');
-    if(sideSave && fixedSave){
-      fixedSave.textContent = sideSave.textContent || 'Guardar';
-      fixedSave.className = sideSave.className || 'success full';
-    }
-  }
-  function updateVisibility(){
-    var app = byId('appShell');
-    var active = !!(app && !app.classList.contains('hidden-before-login'));
-    document.body.classList.toggle('identity-fixed-active', active);
-  }
-  function initFixedIdentityBar(){
-    var original = byId('identityStickyCard');
-    if(original){ original.classList.add('identity-source-hidden'); }
-
-    var fixedSave = byId('fixedSaveTop');
-    if(fixedSave){
-      fixedSave.addEventListener('click', function(){
-        var sideSave = byId('saveSide');
-        if(sideSave){ sideSave.click(); }
-      });
-    }
-
-    ['currentClass','bigTeacher','currentStudent','saveSide'].forEach(function(id){
-      var el = byId(id);
-      if(!el) return;
-      new MutationObserver(syncIdentity).observe(el, {
-        childList:true,
-        subtree:true,
-        characterData:true,
-        attributes:true,
-        attributeFilter:['class']
-      });
-    });
-
-    var app = byId('appShell');
-    if(app){
-      new MutationObserver(function(){ updateVisibility(); syncIdentity(); }).observe(app, {
-        attributes:true,
-        attributeFilter:['class']
-      });
-    }
-
-    window.addEventListener('resize', syncIdentity);
-    syncIdentity();
-    updateVisibility();
-  }
-  if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', initFixedIdentityBar);
-  }else{
-    initFixedIdentityBar();
-  }
-})();
-</script>
-
 </body>
 </html>`);
       newWin.document.close();
@@ -4411,84 +4159,30 @@ ${zoomStyle}</style>
       const style = `body{font-family:Inter,Arial,sans-serif;background:#f7faff;color:#1f2937;padding:24px}h1{margin:0 0 8px 0;font-size:28px}p{margin:0 0 16px 0;color:#667085}.card{background:#fff;border:1px solid #d9e4f2;border-radius:18px;padding:18px;box-shadow:0 8px 24px rgba(26,42,79,.08);overflow:auto}table{width:100%;border-collapse:collapse;font-size:14px}th,td{border:1px solid #d9e4f2;padding:9px 11px;text-align:left;vertical-align:top}th{background:#eef4ff}.eval-cell{text-align:center;font-weight:800}.toolbar{margin-bottom:14px}.print{border:0;border-radius:12px;padding:10px 14px;font-weight:800;cursor:pointer;background:#2563eb;color:#fff}`;
       newWin.document.write(`<!DOCTYPE html><html lang="ca"><head><meta charset="utf-8"><title>${title}</title><style>${style}</style>
 
-
-<style id="viewport-fixed-identity-fix">
-  /* SOLUCIÓN DEFINITIVA:
-     El bloque visible queda fuera del scroll real de la página.
-     El bloque original conserva sus IDs para que el JavaScript existente no se rompa,
-     pero se oculta visualmente y solo sirve como fuente de datos. */
+<style id="sticky-identity-real-fix">
+  /* Corrección real: el bloque ya no está dentro de .hero, por eso no se libera al acabar esa sección. */
+  .main{
+    overflow:visible !important;
+  }
   #identityStickyCard{
-    position:static !important;
-    top:auto !important;
-    z-index:auto !important;
-    padding-right:26px !important;
-  }
-  #identityStickyCard.identity-source-hidden{
-    display:none !important;
-  }
-
-  #fixedIdentityViewportBar{
-    position:fixed !important;
-    top:10px !important;
-    left:18px !important;
-    right:18px !important;
-    z-index:999990 !important;
-    display:none;
-    pointer-events:auto;
+    position:sticky !important;
+    top:14px !important;
+    z-index:99999 !important;
+    margin-bottom:14px !important;
     transform:none !important;
+    will-change:auto !important;
   }
-  body.identity-fixed-active #fixedIdentityViewportBar{
-    display:block !important;
+  #identityStickyCard::after{
+    content:"";
+    position:absolute;
+    left:0;
+    right:0;
+    bottom:-18px;
+    height:18px;
+    pointer-events:none;
+    background:linear-gradient(180deg, rgba(237,244,255,.94), rgba(237,244,255,0));
   }
-  body.identity-fixed-active .app:not(.hidden-before-login){
-    padding-top:150px !important;
-  }
-  #fixedIdentityViewportBar .fixed-identity-card{
-    width:100%;
-    min-height:116px;
-    padding:22px 200px 22px 26px;
-    border-radius:24px;
-    background:linear-gradient(180deg, rgba(244,249,255,.96), rgba(231,241,255,.92));
-    border:1px solid rgba(84,126,207,.34);
-    box-shadow:0 18px 44px rgba(31,74,150,.18), inset 0 1px 0 rgba(255,255,255,.68);
-    backdrop-filter:blur(16px) saturate(130%);
-    position:relative;
-  }
-  #fixedIdentityViewportBar .fixed-identity-grid{
-    display:grid;
-    grid-template-columns:1fr 1fr 1fr;
-    gap:0;
-    align-items:stretch;
-    text-align:center;
-  }
-  #fixedIdentityViewportBar .fixed-identity-cell{
-    padding:12px 20px;
-    display:flex;
-    flex-direction:column;
-    justify-content:center;
-    min-width:0;
-  }
-  #fixedIdentityViewportBar .fixed-identity-cell.middle{
-    border-left:1px solid rgba(37,99,235,.25);
-    border-right:1px solid rgba(37,99,235,.25);
-  }
-  #fixedIdentityViewportBar .fixed-identity-label{
-    font-weight:900;
-    letter-spacing:.02em;
-    font-size:15px;
-    color:#475569;
-  }
-  #fixedIdentityViewportBar .fixed-identity-value{
-    font-size:30px;
-    font-weight:900;
-    color:#153775;
-    line-height:1.15;
-    margin-top:5px;
-    overflow:hidden;
-    text-overflow:ellipsis;
-    white-space:nowrap;
-  }
-  #fixedIdentityViewportBar .fixed-save-holder{
+  #identityStickyCard .top-save-holder{
     position:absolute;
     right:22px;
     top:50%;
@@ -4496,41 +4190,15 @@ ${zoomStyle}</style>
     width:145px;
     z-index:3;
   }
-  #fixedSaveTop{
-    width:100%;
-    min-height:54px;
-    font-size:16px;
-    border-radius:14px;
-  }
-  #fixedSaveTop.save-clean{
-    background:#16a34a !important;
-    color:#fff !important;
-    border-color:#16a34a !important;
-  }
-  #fixedSaveTop.save-dirty{
-    background:#dc2626 !important;
-    color:#fff !important;
-    border-color:#dc2626 !important;
-  }
   @media (max-width:900px){
-    body.identity-fixed-active .app:not(.hidden-before-login){
-      padding-top:225px !important;
+    #identityStickyCard{
+      top:8px !important;
+      padding-right:22px !important;
+      padding-bottom:88px !important;
     }
-    #fixedIdentityViewportBar .fixed-identity-card{
-      padding:18px 18px 88px 18px;
-    }
-    #fixedIdentityViewportBar .fixed-identity-grid{
-      grid-template-columns:1fr;
-    }
-    #fixedIdentityViewportBar .fixed-identity-cell.middle{
-      border-left:0;
-      border-right:0;
-      border-top:1px solid rgba(37,99,235,.18);
-      border-bottom:1px solid rgba(37,99,235,.18);
-    }
-    #fixedIdentityViewportBar .fixed-save-holder{
-      left:18px;
-      right:18px;
+    #identityStickyCard .top-save-holder{
+      left:22px;
+      right:22px;
       top:auto;
       bottom:18px;
       width:auto;
@@ -4539,78 +4207,7 @@ ${zoomStyle}</style>
   }
 </style>
 
-</head><body><div class="card"><div class="toolbar"><button class="print" onclick="window.print()">Imprimir / Guardar PDF</button></div><h1>${title}</h1><p>Centre: ${state.center?.displayName || "—"} · Classe: ${state.currentClass || "—"} · Mestre/a: ${state.teacher?.displayName || "—"}</p><table><thead><tr><th>Àrea</th><th>1a Avaluació</th><th>2a Avaluació</th><th>3a Avaluació</th></tr></thead><tbody>${rows || `<tr><td colspan="4">No hi ha qualificacions disponibles.</td></tr>`}</tbody></table></div>
-
-<script id="viewport-fixed-identity-sync">
-(function(){
-  function byId(id){ return document.getElementById(id); }
-  function copyText(sourceId, targetId){
-    var source = byId(sourceId);
-    var target = byId(targetId);
-    if(source && target){ target.textContent = source.textContent || '—'; }
-  }
-  function syncIdentity(){
-    copyText('currentClass','fixedCurrentClass');
-    copyText('bigTeacher','fixedBigTeacher');
-    copyText('currentStudent','fixedCurrentStudent');
-
-    var sideSave = byId('saveSide');
-    var fixedSave = byId('fixedSaveTop');
-    if(sideSave && fixedSave){
-      fixedSave.textContent = sideSave.textContent || 'Guardar';
-      fixedSave.className = sideSave.className || 'success full';
-    }
-  }
-  function updateVisibility(){
-    var app = byId('appShell');
-    var active = !!(app && !app.classList.contains('hidden-before-login'));
-    document.body.classList.toggle('identity-fixed-active', active);
-  }
-  function initFixedIdentityBar(){
-    var original = byId('identityStickyCard');
-    if(original){ original.classList.add('identity-source-hidden'); }
-
-    var fixedSave = byId('fixedSaveTop');
-    if(fixedSave){
-      fixedSave.addEventListener('click', function(){
-        var sideSave = byId('saveSide');
-        if(sideSave){ sideSave.click(); }
-      });
-    }
-
-    ['currentClass','bigTeacher','currentStudent','saveSide'].forEach(function(id){
-      var el = byId(id);
-      if(!el) return;
-      new MutationObserver(syncIdentity).observe(el, {
-        childList:true,
-        subtree:true,
-        characterData:true,
-        attributes:true,
-        attributeFilter:['class']
-      });
-    });
-
-    var app = byId('appShell');
-    if(app){
-      new MutationObserver(function(){ updateVisibility(); syncIdentity(); }).observe(app, {
-        attributes:true,
-        attributeFilter:['class']
-      });
-    }
-
-    window.addEventListener('resize', syncIdentity);
-    syncIdentity();
-    updateVisibility();
-  }
-  if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', initFixedIdentityBar);
-  }else{
-    initFixedIdentityBar();
-  }
-})();
-</script>
-
-</body></html>`);
+</head><body><div class="card"><div class="toolbar"><button class="print" onclick="window.print()">Imprimir / Guardar PDF</button></div><h1>${title}</h1><p>Centre: ${state.center?.displayName || "—"} · Classe: ${state.currentClass || "—"} · Mestre/a: ${state.teacher?.displayName || "—"}</p><table><thead><tr><th>Àrea</th><th>1a Avaluació</th><th>2a Avaluació</th><th>3a Avaluació</th></tr></thead><tbody>${rows || `<tr><td colspan="4">No hi ha qualificacions disponibles.</td></tr>`}</tbody></table></div></body></html>`);
       newWin.document.close();
     }
 
@@ -5239,76 +4836,5 @@ if(evalBig && evalSmall){
   }catch(e){}
 })();
 </script>
-
-
-<script id="viewport-fixed-identity-sync">
-(function(){
-  function byId(id){ return document.getElementById(id); }
-  function copyText(sourceId, targetId){
-    var source = byId(sourceId);
-    var target = byId(targetId);
-    if(source && target){ target.textContent = source.textContent || '—'; }
-  }
-  function syncIdentity(){
-    copyText('currentClass','fixedCurrentClass');
-    copyText('bigTeacher','fixedBigTeacher');
-    copyText('currentStudent','fixedCurrentStudent');
-
-    var sideSave = byId('saveSide');
-    var fixedSave = byId('fixedSaveTop');
-    if(sideSave && fixedSave){
-      fixedSave.textContent = sideSave.textContent || 'Guardar';
-      fixedSave.className = sideSave.className || 'success full';
-    }
-  }
-  function updateVisibility(){
-    var app = byId('appShell');
-    var active = !!(app && !app.classList.contains('hidden-before-login'));
-    document.body.classList.toggle('identity-fixed-active', active);
-  }
-  function initFixedIdentityBar(){
-    var original = byId('identityStickyCard');
-    if(original){ original.classList.add('identity-source-hidden'); }
-
-    var fixedSave = byId('fixedSaveTop');
-    if(fixedSave){
-      fixedSave.addEventListener('click', function(){
-        var sideSave = byId('saveSide');
-        if(sideSave){ sideSave.click(); }
-      });
-    }
-
-    ['currentClass','bigTeacher','currentStudent','saveSide'].forEach(function(id){
-      var el = byId(id);
-      if(!el) return;
-      new MutationObserver(syncIdentity).observe(el, {
-        childList:true,
-        subtree:true,
-        characterData:true,
-        attributes:true,
-        attributeFilter:['class']
-      });
-    });
-
-    var app = byId('appShell');
-    if(app){
-      new MutationObserver(function(){ updateVisibility(); syncIdentity(); }).observe(app, {
-        attributes:true,
-        attributeFilter:['class']
-      });
-    }
-
-    window.addEventListener('resize', syncIdentity);
-    syncIdentity();
-    updateVisibility();
-  }
-  if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', initFixedIdentityBar);
-  }else{
-    initFixedIdentityBar();
-  }
-})();
-</script>
-
 </body>
 </html>
