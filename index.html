@@ -4805,7 +4805,7 @@ syncEnterCenterVisibility();
       document.body.classList.remove("report-open");
     }
 
-    function openInAppReport(title, contentHtml, reportStyle){
+    function openInAppReport(title, contentHtml, reportStyle, options = {}){
       closeInAppReport();
       const overlay = document.createElement("div");
       overlay.id = "inAppReportOverlay";
@@ -4900,7 +4900,7 @@ syncEnterCenterVisibility();
           <div class="in-app-report-title">${title}</div>
           <div class="in-app-report-actions">
             <button class="in-app-report-btn back" id="reportBackBtn" type="button">← Tornar</button>
-            <button class="in-app-report-btn" id="reportPrintBtn" type="button">Imprimir / Guardar PDF</button>
+            ${options && options.hidePrint ? "" : `<button class="in-app-report-btn" id="reportPrintBtn" type="button">Imprimir / Guardar PDF</button>`}
           </div>
         </div>
         <div class="in-app-report-scroll">${contentHtml}</div>
@@ -4915,7 +4915,10 @@ syncEnterCenterVisibility();
       overlay.__reportStyle = reportStyle || "";
 
       document.getElementById("reportBackBtn").addEventListener("click", closeInAppReport);
-      document.getElementById("reportPrintBtn").addEventListener("click", printCurrentInAppReport);
+      const reportPrintBtn = document.getElementById("reportPrintBtn");
+      if(reportPrintBtn){
+        reportPrintBtn.addEventListener("click", printCurrentInAppReport);
+      }
     }
 
     function printCurrentInAppReport(){
@@ -5006,12 +5009,17 @@ syncEnterCenterVisibility();
       const rows = [];
       for(const className of allowedClasses){
         const snap = await getDocs(query(studentsCol(className), orderBy("studentNameLower")));
+        let classPosition = 0;
         for(const d of snap.docs){
+          classPosition += 1;
           const rec = d.data();
           const evaluations = rec.evaluations || {};
+          const storedListNumber = Number(rec.listNumber || rec.numeroLista || rec.numLista || 0) || 0;
+          const listNumber = storedListNumber || classPosition;
           rows.push({
             className,
-            studentName: `Nº ${Number(rec.listNumber || rec.numeroLista || rec.numLista || 0) || rows.filter(r => r.className === className).length + 1}`,
+            listNumber,
+            studentName: `Nº ${listNumber}`,
             course: rec.course || "",
             subjects: visibleSubjects.map(subject => ({
               name: subject.name,
@@ -5074,7 +5082,12 @@ syncEnterCenterVisibility();
       rows.sort((a,b) => {
         const classCmp = (a.className || '').localeCompare((b.className || ''), 'ca');
         if(classCmp !== 0) return classCmp;
-        return surnameSortKey(a.studentName).localeCompare(surnameSortKey(b.studentName), 'ca');
+        const an = Number(a.listNumber || 0);
+        const bn = Number(b.listNumber || 0);
+        if(an && bn && an !== bn) return an - bn;
+        if(an && !bn) return -1;
+        if(!an && bn) return 1;
+        return 0;
       });
 
       const zoomStyle = `
@@ -5128,7 +5141,7 @@ syncEnterCenterVisibility();
                 </tr>
               </thead>
               <tbody>
-                ${bodyRows || `<tr><td colspan="${2 + (visibleSubjects.length * 4)}" class="muted">No hi ha alumnes disponibles.</td></tr>`}
+                ${bodyRows || `<tr><td colspan="${2 + (visibleSubjects.length * 3)}" class="muted">No hi ha alumnes disponibles.</td></tr>`}
               </tbody>
             </table>
           </div>
