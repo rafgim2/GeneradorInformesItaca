@@ -1970,6 +1970,40 @@ img,svg,canvas,video{
   }
 }
 </style>
+
+
+<style id="initial-access-screen-fix-2026">
+/* ==========================================================
+   FIX DE PANTALLA INICIAL
+   ----------------------------------------------------------
+   La capa responsive anterior ponía .app en display:grid !important
+   en móvil para ajustar el layout. Eso podía pisar la clase original
+   .hidden-before-login y mostrar Classes / Alumnes / Àrees antes
+   de entrar en un centro.
+
+   Esta regla restaura la lógica original: hasta que el JS quite
+   hidden-before-login, la app principal NO se muestra.
+   No modifica Firebase, licencia, modo prueba ni funciones internas.
+   ========================================================== */
+.app.hidden-before-login,
+#appShell.hidden-before-login{
+  display:none !important;
+  visibility:hidden !important;
+  pointer-events:none !important;
+}
+
+/* Evita que la barra fija de identidad pueda verse en la pantalla inicial. */
+#appShell.hidden-before-login #identityStickyCard,
+body:not(.identity-card-visible) #identityStickyCard{
+  display:none !important;
+}
+
+/* En la pantalla de acceso solo debe verse acceso/licencia/centro. */
+body:not(.identity-card-visible) #authScreen:not(.hidden){
+  display:flex !important;
+}
+</style>
+
 </head>
 <body class="preaccess-loading">
 
