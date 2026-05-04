@@ -1033,6 +1033,66 @@ body::after{
     }
   }
 </style>
+
+
+<style id="real-fixed-identity-save-fix-v2">
+  /*
+    Fix real: el bloque no puede depender de position: sticky dentro de .hero,
+    porque su contenedor padre termina pronto y por eso "hace el amago" y desaparece.
+    Lo sacamos por JS al body y lo fijamos al viewport, alineado con la columna principal.
+  */
+  #identityStickyCard.identity-fixed-to-viewport{
+    position:fixed !important;
+    top:12px !important;
+    z-index:2147483000 !important;
+    margin:0 !important;
+    transform:none !important;
+    box-shadow:0 18px 42px rgba(37,99,235,.22) !important;
+  }
+  #identityStickyPlaceholder{
+    display:block;
+    width:100%;
+    flex:0 0 auto;
+  }
+  body.app-not-visible #identityStickyCard.identity-fixed-to-viewport{
+    display:none !important;
+  }
+  /* Solo queda el botón Guardar del bloque fijo */
+  aside .panel.soft.stack{
+    display:none !important;
+  }
+  #identityStickyCard .top-save-holder{
+    position:absolute !important;
+    right:22px !important;
+    top:50% !important;
+    transform:translateY(-50%) !important;
+    width:145px !important;
+    z-index:10 !important;
+  }
+  #identityStickyCard #saveSide{
+    display:block !important;
+    width:100% !important;
+    min-height:54px !important;
+    font-size:16px !important;
+  }
+  @media (max-width:900px){
+    #identityStickyCard.identity-fixed-to-viewport{
+      left:12px !important;
+      right:12px !important;
+      width:auto !important;
+      padding:18px 18px 88px 18px !important;
+    }
+    #identityStickyCard .top-save-holder{
+      left:18px !important;
+      right:18px !important;
+      top:auto !important;
+      bottom:18px !important;
+      width:auto !important;
+      transform:none !important;
+    }
+  }
+</style>
+
 </head>
 <body class="preaccess-loading">
 
@@ -4105,129 +4165,70 @@ ${zoomStyle}</style>
   </div>
 
 
-<style id="fixed-identity-real-viewport-patch">
-  /* Parche robusto: el bloque se saca del flujo visual y se fija al viewport real.
-     Así no depende de sticky ni de contenedores con transform/overflow. */
-  #identityStickyCard.identity-fixed-real{
-    position:fixed !important;
-    top:10px !important;
-    z-index:2147483000 !important;
-    margin:0 !important;
-    box-shadow:0 18px 44px rgba(37,99,235,.24) !important;
-    transform:none !important;
-  }
-  #identityStickyPlaceholder{
-    display:block !important;
-    width:100% !important;
-    flex:0 0 auto !important;
-  }
-  #identityStickyCard.identity-fixed-real .top-save-holder{
-    position:absolute !important;
-    right:22px !important;
-    top:50% !important;
-    transform:translateY(-50%) !important;
-    width:145px !important;
-    z-index:10 !important;
-  }
-  #identityStickyCard.identity-fixed-real #saveSide{
-    display:block !important;
-    width:100% !important;
-    min-height:54px !important;
-    font-size:16px !important;
-  }
-  /* Solo existe un botón: ocultamos cualquier guardado antiguo si reaparece por ediciones previas. */
-  #saveTop{display:none !important;}
-  aside .panel.soft.stack{display:none !important;}
-  @media (max-width:900px){
-    #identityStickyCard.identity-fixed-real{
-      left:12px !important;
-      right:12px !important;
-      width:auto !important;
-      padding-right:22px !important;
-      padding-bottom:88px !important;
-    }
-    #identityStickyCard.identity-fixed-real .top-save-holder{
-      left:22px !important;
-      right:22px !important;
-      top:auto !important;
-      bottom:18px !important;
-      width:auto !important;
-      transform:none !important;
-    }
-  }
-</style>
-<script id="fixed-identity-real-viewport-script">
+<script id="real-fixed-identity-save-script-v2">
 (function(){
-  function ready(fn){
-    if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fn, {once:true});
-    else fn();
-  }
-
-  ready(function(){
+  function initFixedIdentityCard(){
     const card = document.getElementById('identityStickyCard');
-    const app = document.getElementById('appShell');
     const main = document.querySelector('main.main');
-    if(!card || !app || !main) return;
+    const app = document.getElementById('appShell');
+    if(!card || !main || !app) return;
 
     let placeholder = document.getElementById('identityStickyPlaceholder');
     if(!placeholder){
       placeholder = document.createElement('div');
       placeholder.id = 'identityStickyPlaceholder';
-      card.parentNode.insertBefore(placeholder, card.nextSibling);
+      card.parentNode.insertBefore(placeholder, card);
     }
 
-    function isAppVisible(){
-      return app && !app.classList.contains('hidden-before-login') && getComputedStyle(app).display !== 'none';
+    if(card.parentNode !== document.body){
+      document.body.appendChild(card);
+    }
+    card.classList.add('identity-fixed-to-viewport');
+
+    function appVisible(){
+      return !app.classList.contains('hidden-before-login') && getComputedStyle(app).display !== 'none';
     }
 
-    function placeCard(){
-      if(!isAppVisible()) return;
-
-      if(card.parentNode !== document.body){
-        document.body.appendChild(card);
+    function positionCard(){
+      const visible = appVisible();
+      document.body.classList.toggle('app-not-visible', !visible);
+      if(!visible){
+        placeholder.style.height = '0px';
+        return;
       }
-      card.classList.add('identity-fixed-real');
 
-      const mainRect = main.getBoundingClientRect();
-      const viewportWidth = window.innerWidth || document.documentElement.clientWidth;
-      const mobile = viewportWidth <= 900;
-
-      if(!mobile){
-        const left = Math.max(12, mainRect.left);
-        const width = Math.max(320, Math.min(mainRect.width, viewportWidth - left - 12));
-        card.style.left = left + 'px';
-        card.style.width = width + 'px';
-        card.style.right = 'auto';
+      const rect = main.getBoundingClientRect();
+      if(window.matchMedia('(max-width: 900px)').matches){
+        card.style.left = '';
+        card.style.width = '';
       }else{
-        card.style.left = '12px';
-        card.style.right = '12px';
-        card.style.width = 'auto';
+        card.style.left = rect.left + 'px';
+        card.style.width = rect.width + 'px';
       }
 
-      const h = Math.ceil(card.getBoundingClientRect().height + 18);
-      placeholder.style.height = h + 'px';
+      // Deja hueco en el flujo para que el contenido no quede tapado.
+      requestAnimationFrame(() => {
+        placeholder.style.height = (card.offsetHeight + 14) + 'px';
+      });
     }
 
-    let raf = 0;
-    function schedulePlace(){
-      cancelAnimationFrame(raf);
-      raf = requestAnimationFrame(placeCard);
-    }
+    positionCard();
+    window.addEventListener('resize', positionCard, {passive:true});
+    window.addEventListener('scroll', positionCard, {passive:true});
 
-    schedulePlace();
-    window.addEventListener('resize', schedulePlace, {passive:true});
-    window.addEventListener('orientationchange', schedulePlace, {passive:true});
-    window.addEventListener('scroll', schedulePlace, {passive:true});
+    new MutationObserver(positionCard).observe(app, {attributes:true, attributeFilter:['class','style']});
 
-    if('ResizeObserver' in window){
-      new ResizeObserver(schedulePlace).observe(main);
-      new ResizeObserver(schedulePlace).observe(card);
-    }
-    new MutationObserver(schedulePlace).observe(app, {attributes:true, attributeFilter:['class','style']});
+    // Varias llamadas diferidas para coger bien el ancho tras login, animaciones y fuentes.
+    setTimeout(positionCard, 50);
+    setTimeout(positionCard, 250);
+    setTimeout(positionCard, 800);
+  }
 
-    // Recalcula varias veces al iniciar sesión/cargar datos, porque la app rellena textos después.
-    [50, 150, 400, 900, 1500].forEach(t => setTimeout(schedulePlace, t));
-  });
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', initFixedIdentityCard);
+  }else{
+    initFixedIdentityCard();
+  }
 })();
 </script>
 
@@ -4318,135 +4319,7 @@ ${zoomStyle}</style>
     }
   }
 </style>
-</head><body><div class="card"><div class="toolbar"><button class="print" onclick="window.print()">Imprimir / Guardar PDF</button></div><h1>${title}</h1><p>Centre: ${state.center?.displayName || "—"} · Classe: ${state.currentClass || "—"} · Mestre/a: ${state.teacher?.displayName || "—"}</p><table><thead><tr><th>Àrea</th><th>1a Avaluació</th><th>2a Avaluació</th><th>3a Avaluació</th></tr></thead><tbody>${rows || `<tr><td colspan="4">No hi ha qualificacions disponibles.</td></tr>`}</tbody></table></div>
-
-<style id="fixed-identity-real-viewport-patch">
-  /* Parche robusto: el bloque se saca del flujo visual y se fija al viewport real.
-     Así no depende de sticky ni de contenedores con transform/overflow. */
-  #identityStickyCard.identity-fixed-real{
-    position:fixed !important;
-    top:10px !important;
-    z-index:2147483000 !important;
-    margin:0 !important;
-    box-shadow:0 18px 44px rgba(37,99,235,.24) !important;
-    transform:none !important;
-  }
-  #identityStickyPlaceholder{
-    display:block !important;
-    width:100% !important;
-    flex:0 0 auto !important;
-  }
-  #identityStickyCard.identity-fixed-real .top-save-holder{
-    position:absolute !important;
-    right:22px !important;
-    top:50% !important;
-    transform:translateY(-50%) !important;
-    width:145px !important;
-    z-index:10 !important;
-  }
-  #identityStickyCard.identity-fixed-real #saveSide{
-    display:block !important;
-    width:100% !important;
-    min-height:54px !important;
-    font-size:16px !important;
-  }
-  /* Solo existe un botón: ocultamos cualquier guardado antiguo si reaparece por ediciones previas. */
-  #saveTop{display:none !important;}
-  aside .panel.soft.stack{display:none !important;}
-  @media (max-width:900px){
-    #identityStickyCard.identity-fixed-real{
-      left:12px !important;
-      right:12px !important;
-      width:auto !important;
-      padding-right:22px !important;
-      padding-bottom:88px !important;
-    }
-    #identityStickyCard.identity-fixed-real .top-save-holder{
-      left:22px !important;
-      right:22px !important;
-      top:auto !important;
-      bottom:18px !important;
-      width:auto !important;
-      transform:none !important;
-    }
-  }
-</style>
-<script id="fixed-identity-real-viewport-script">
-(function(){
-  function ready(fn){
-    if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fn, {once:true});
-    else fn();
-  }
-
-  ready(function(){
-    const card = document.getElementById('identityStickyCard');
-    const app = document.getElementById('appShell');
-    const main = document.querySelector('main.main');
-    if(!card || !app || !main) return;
-
-    let placeholder = document.getElementById('identityStickyPlaceholder');
-    if(!placeholder){
-      placeholder = document.createElement('div');
-      placeholder.id = 'identityStickyPlaceholder';
-      card.parentNode.insertBefore(placeholder, card.nextSibling);
-    }
-
-    function isAppVisible(){
-      return app && !app.classList.contains('hidden-before-login') && getComputedStyle(app).display !== 'none';
-    }
-
-    function placeCard(){
-      if(!isAppVisible()) return;
-
-      if(card.parentNode !== document.body){
-        document.body.appendChild(card);
-      }
-      card.classList.add('identity-fixed-real');
-
-      const mainRect = main.getBoundingClientRect();
-      const viewportWidth = window.innerWidth || document.documentElement.clientWidth;
-      const mobile = viewportWidth <= 900;
-
-      if(!mobile){
-        const left = Math.max(12, mainRect.left);
-        const width = Math.max(320, Math.min(mainRect.width, viewportWidth - left - 12));
-        card.style.left = left + 'px';
-        card.style.width = width + 'px';
-        card.style.right = 'auto';
-      }else{
-        card.style.left = '12px';
-        card.style.right = '12px';
-        card.style.width = 'auto';
-      }
-
-      const h = Math.ceil(card.getBoundingClientRect().height + 18);
-      placeholder.style.height = h + 'px';
-    }
-
-    let raf = 0;
-    function schedulePlace(){
-      cancelAnimationFrame(raf);
-      raf = requestAnimationFrame(placeCard);
-    }
-
-    schedulePlace();
-    window.addEventListener('resize', schedulePlace, {passive:true});
-    window.addEventListener('orientationchange', schedulePlace, {passive:true});
-    window.addEventListener('scroll', schedulePlace, {passive:true});
-
-    if('ResizeObserver' in window){
-      new ResizeObserver(schedulePlace).observe(main);
-      new ResizeObserver(schedulePlace).observe(card);
-    }
-    new MutationObserver(schedulePlace).observe(app, {attributes:true, attributeFilter:['class','style']});
-
-    // Recalcula varias veces al iniciar sesión/cargar datos, porque la app rellena textos después.
-    [50, 150, 400, 900, 1500].forEach(t => setTimeout(schedulePlace, t));
-  });
-})();
-</script>
-
-</body></html>`);
+</head><body><div class="card"><div class="toolbar"><button class="print" onclick="window.print()">Imprimir / Guardar PDF</button></div><h1>${title}</h1><p>Centre: ${state.center?.displayName || "—"} · Classe: ${state.currentClass || "—"} · Mestre/a: ${state.teacher?.displayName || "—"}</p><table><thead><tr><th>Àrea</th><th>1a Avaluació</th><th>2a Avaluació</th><th>3a Avaluació</th></tr></thead><tbody>${rows || `<tr><td colspan="4">No hi ha qualificacions disponibles.</td></tr>`}</tbody></table></div></body></html>`);
       newWin.document.close();
     }
 
@@ -5075,133 +4948,5 @@ if(evalBig && evalSmall){
   }catch(e){}
 })();
 </script>
-
-
-<style id="fixed-identity-real-viewport-patch">
-  /* Parche robusto: el bloque se saca del flujo visual y se fija al viewport real.
-     Así no depende de sticky ni de contenedores con transform/overflow. */
-  #identityStickyCard.identity-fixed-real{
-    position:fixed !important;
-    top:10px !important;
-    z-index:2147483000 !important;
-    margin:0 !important;
-    box-shadow:0 18px 44px rgba(37,99,235,.24) !important;
-    transform:none !important;
-  }
-  #identityStickyPlaceholder{
-    display:block !important;
-    width:100% !important;
-    flex:0 0 auto !important;
-  }
-  #identityStickyCard.identity-fixed-real .top-save-holder{
-    position:absolute !important;
-    right:22px !important;
-    top:50% !important;
-    transform:translateY(-50%) !important;
-    width:145px !important;
-    z-index:10 !important;
-  }
-  #identityStickyCard.identity-fixed-real #saveSide{
-    display:block !important;
-    width:100% !important;
-    min-height:54px !important;
-    font-size:16px !important;
-  }
-  /* Solo existe un botón: ocultamos cualquier guardado antiguo si reaparece por ediciones previas. */
-  #saveTop{display:none !important;}
-  aside .panel.soft.stack{display:none !important;}
-  @media (max-width:900px){
-    #identityStickyCard.identity-fixed-real{
-      left:12px !important;
-      right:12px !important;
-      width:auto !important;
-      padding-right:22px !important;
-      padding-bottom:88px !important;
-    }
-    #identityStickyCard.identity-fixed-real .top-save-holder{
-      left:22px !important;
-      right:22px !important;
-      top:auto !important;
-      bottom:18px !important;
-      width:auto !important;
-      transform:none !important;
-    }
-  }
-</style>
-<script id="fixed-identity-real-viewport-script">
-(function(){
-  function ready(fn){
-    if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fn, {once:true});
-    else fn();
-  }
-
-  ready(function(){
-    const card = document.getElementById('identityStickyCard');
-    const app = document.getElementById('appShell');
-    const main = document.querySelector('main.main');
-    if(!card || !app || !main) return;
-
-    let placeholder = document.getElementById('identityStickyPlaceholder');
-    if(!placeholder){
-      placeholder = document.createElement('div');
-      placeholder.id = 'identityStickyPlaceholder';
-      card.parentNode.insertBefore(placeholder, card.nextSibling);
-    }
-
-    function isAppVisible(){
-      return app && !app.classList.contains('hidden-before-login') && getComputedStyle(app).display !== 'none';
-    }
-
-    function placeCard(){
-      if(!isAppVisible()) return;
-
-      if(card.parentNode !== document.body){
-        document.body.appendChild(card);
-      }
-      card.classList.add('identity-fixed-real');
-
-      const mainRect = main.getBoundingClientRect();
-      const viewportWidth = window.innerWidth || document.documentElement.clientWidth;
-      const mobile = viewportWidth <= 900;
-
-      if(!mobile){
-        const left = Math.max(12, mainRect.left);
-        const width = Math.max(320, Math.min(mainRect.width, viewportWidth - left - 12));
-        card.style.left = left + 'px';
-        card.style.width = width + 'px';
-        card.style.right = 'auto';
-      }else{
-        card.style.left = '12px';
-        card.style.right = '12px';
-        card.style.width = 'auto';
-      }
-
-      const h = Math.ceil(card.getBoundingClientRect().height + 18);
-      placeholder.style.height = h + 'px';
-    }
-
-    let raf = 0;
-    function schedulePlace(){
-      cancelAnimationFrame(raf);
-      raf = requestAnimationFrame(placeCard);
-    }
-
-    schedulePlace();
-    window.addEventListener('resize', schedulePlace, {passive:true});
-    window.addEventListener('orientationchange', schedulePlace, {passive:true});
-    window.addEventListener('scroll', schedulePlace, {passive:true});
-
-    if('ResizeObserver' in window){
-      new ResizeObserver(schedulePlace).observe(main);
-      new ResizeObserver(schedulePlace).observe(card);
-    }
-    new MutationObserver(schedulePlace).observe(app, {attributes:true, attributeFilter:['class','style']});
-
-    // Recalcula varias veces al iniciar sesión/cargar datos, porque la app rellena textos después.
-    [50, 150, 400, 900, 1500].forEach(t => setTimeout(schedulePlace, t));
-  });
-})();
-</script>
-
 </body>
 </html>
