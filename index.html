@@ -925,71 +925,148 @@ body::after{
     margin-top:4px;
   }
 
-  /* Enfoque definitivo:
-     solo queda fijo arriba el bloque Classe / Mestre/a / Alumne/a,
-     con el botón Guardar integrado dentro de ese mismo bloque. */
-  #identityStickyCard{
-    position:sticky !important;
-    top:0 !important;
-    z-index:10000 !important;
-    padding-right:190px !important;
-    box-shadow:0 14px 34px rgba(37,99,235,.18) !important;
+  /* Barra fija real: está fuera del contenedor .app, por eso no desaparece con el scroll. */
+  #fixedIdentitySaveBar{
+    display:none;
+    position:fixed;
+    top:12px;
+    left:394px;
+    right:18px;
+    z-index:1000001;
+    padding:14px 18px;
+    border-radius:24px;
+    background:linear-gradient(180deg, rgba(238,244,255,.97), rgba(246,250,255,.94));
+    border:1px solid rgba(147,197,253,.85);
+    box-shadow:0 18px 44px rgba(37,99,235,.22);
+    backdrop-filter:blur(14px) saturate(125%);
   }
-  #identityStickyCard::after{
-    content:"";
-    position:absolute;
-    left:0;
-    right:0;
-    bottom:-16px;
-    height:16px;
-    pointer-events:none;
-    background:linear-gradient(180deg, rgba(237,244,255,.92), rgba(237,244,255,0));
+  body.app-is-open #fixedIdentitySaveBar{
+    display:block;
   }
-  .top-save-holder{
-    position:absolute;
-    right:22px;
-    top:50%;
-    transform:translateY(-50%);
-    width:145px;
-    z-index:3;
+  #fixedIdentitySaveBar .fixed-identity-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr 1fr 150px;
+    gap:0;
+    align-items:stretch;
+    text-align:center;
   }
-  #saveTop{
+  #fixedIdentitySaveBar .fixed-cell{
+    padding:8px 16px;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    min-width:0;
+  }
+  #fixedIdentitySaveBar .fixed-cell + .fixed-cell{
+    border-left:1px solid rgba(185,205,191,.95);
+  }
+  #fixedIdentitySaveBar .fixed-label{
+    font-weight:900;
+    letter-spacing:.02em;
+    font-size:14px;
+    color:#475569;
+  }
+  #fixedIdentitySaveBar .fixed-value{
+    font-size:26px;
+    font-weight:900;
+    color:#153775;
+    line-height:1.15;
+    margin-top:4px;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  #fixedIdentitySaveBar .fixed-save-cell{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding-left:16px;
+    border-left:1px solid rgba(185,205,191,.95);
+  }
+  #saveSide{
     width:100%;
-    min-height:54px;
+    min-height:52px;
     font-size:16px;
     box-shadow:0 14px 30px rgba(22,163,74,.20) !important;
   }
 
-  /* Nada más queda bloqueado: ni columna izquierda, ni listado, ni panel principal. */
+  /* El bloque original queda como espacio visual inicial, pero sin botón duplicado ni comportamiento sticky. */
+  #identityStickyCard{
+    position:static !important;
+    padding-right:26px !important;
+  }
+  #identityStickyCard::after,
+  .top-save-holder{
+    display:none !important;
+  }
   .main,
   .sidebar,
   #studentList,
-  #studentList .student-item.active,
-  .sidebar .panel:has(#saveSide),
-  #saveSide{
+  #studentList .student-item.active{
     position:static !important;
     top:auto !important;
     bottom:auto !important;
   }
+  body.app-is-open .main{
+    padding-top:122px !important;
+  }
 
-  @media (max-width:900px){
-    #identityStickyCard{
-      padding-right:22px !important;
-      padding-bottom:88px !important;
+  @media (max-width:1100px){
+    #fixedIdentitySaveBar{
+      left:18px;
     }
-    .top-save-holder{
-      left:22px;
-      right:22px;
-      top:auto;
-      bottom:18px;
-      width:auto;
-      transform:none;
+    body.app-is-open .main{
+      padding-top:132px !important;
+    }
+  }
+  @media (max-width:780px){
+    #fixedIdentitySaveBar{
+      left:10px;
+      right:10px;
+      top:8px;
+      padding:10px;
+      border-radius:18px;
+    }
+    #fixedIdentitySaveBar .fixed-identity-grid{
+      grid-template-columns:1fr;
+      gap:8px;
+    }
+    #fixedIdentitySaveBar .fixed-cell,
+    #fixedIdentitySaveBar .fixed-save-cell{
+      border-left:0 !important;
+      padding:4px 8px;
+    }
+    #fixedIdentitySaveBar .fixed-value{
+      font-size:20px;
+    }
+    body.app-is-open .main{
+      padding-top:250px !important;
     }
   }
 </style>
 
 </head>
 <body class="preaccess-loading">
+
+<div id="fixedIdentitySaveBar" aria-live="polite">
+  <div class="fixed-identity-grid">
+    <div class="fixed-cell">
+      <div class="fixed-label">Classe:</div>
+      <div class="fixed-value" id="fixedCurrentClass">—</div>
+    </div>
+    <div class="fixed-cell">
+      <div class="fixed-label">Mestre/a:</div>
+      <div class="fixed-value" id="fixedBigTeacher">—</div>
+    </div>
+    <div class="fixed-cell">
+      <div class="fixed-label">Alumne/a:</div>
+      <div class="fixed-value" id="fixedCurrentStudent">—</div>
+    </div>
+    <div class="fixed-save-cell">
+      <button class="success full" id="saveSide" type="button">Guardar</button>
+    </div>
+  </div>
+</div>
 
 <div class="floating-access-status" id="floatingAccessStatus">
   <span class="teacher-badge" id="floatingAccessBadge">Comprovant accés…</span>
@@ -1217,9 +1294,6 @@ body::after{
 <input id="studentSearch" placeholder="Buscar per número de llista..." type="text"/>
 <div class="student-list" id="studentList"></div>
 </div>
-<div class="panel soft stack">
-<button class="success full" id="saveSide">Guardar</button>
-</div>
 </aside>
 <main class="main">
 
@@ -1253,9 +1327,6 @@ body::after{
         <div class="small" style="font-weight:900;letter-spacing:.02em;font-size:15px;color:#475569;">Alumne/a:</div>
         <div id="currentStudent" style="font-size:30px;font-weight:900;color:#2563eb;line-height:1.15;margin-top:5px;">—</div>
       </div>
-    </div>
-    <div class="top-save-holder">
-      <button class="success full" id="saveTop" type="button" onclick="document.getElementById('saveSide') && document.getElementById('saveSide').click();">Guardar</button>
     </div>
   </div>
 
@@ -4016,6 +4087,38 @@ ${zoomStyle}</style>
       </table>
     </div>
   </div>
+
+<script id="fixed-identity-save-sync">
+(function(){
+  function text(id){
+    var el=document.getElementById(id);
+    return el ? el.textContent : "—";
+  }
+  function set(id,value){
+    var el=document.getElementById(id);
+    if(el) el.textContent = value || "—";
+  }
+  function syncFixedIdentity(){
+    set("fixedCurrentClass", text("currentClass"));
+    set("fixedBigTeacher", text("bigTeacher"));
+    set("fixedCurrentStudent", text("currentStudent"));
+    var app=document.getElementById("appShell");
+    document.body.classList.toggle("app-is-open", !!app && !app.classList.contains("hidden-before-login"));
+  }
+  var obs=new MutationObserver(syncFixedIdentity);
+  function watch(id){
+    var el=document.getElementById(id);
+    if(el) obs.observe(el,{childList:true,characterData:true,subtree:true});
+  }
+  document.addEventListener("DOMContentLoaded", function(){
+    ["currentClass","bigTeacher","currentStudent"].forEach(watch);
+    var app=document.getElementById("appShell");
+    if(app) obs.observe(app,{attributes:true,attributeFilter:["class"]});
+    syncFixedIdentity();
+    setInterval(syncFixedIdentity, 500);
+  });
+})();
+</script>
 </body>
 </html>`);
       newWin.document.close();
