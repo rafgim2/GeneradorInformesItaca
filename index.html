@@ -925,37 +925,25 @@ body::after{
     margin-top:4px;
   }
 
-  /* Corrección definitiva: el bloque superior queda fijo respecto a la ventana.
-     Se elimina el transform global de .app porque impedía que position:fixed
-     se comportara como fijo real durante el scroll de la página. */
-  .app{
-    transform:none !important;
-    transform-origin:initial !important;
-    width:auto !important;
-  }
-  .main{
-    overflow:visible !important;
-    padding-top:170px !important;
-  }
+  /* Enfoque definitivo:
+     solo queda fijo arriba el bloque Classe / Mestre/a / Alumne/a,
+     con el botón Guardar integrado dentro de ese mismo bloque. */
   #identityStickyCard{
-    position:fixed !important;
-    top:14px !important;
-    left:396px !important;
-    right:18px !important;
-    width:auto !important;
-    z-index:999999 !important;
+    position:sticky !important;
+    top:0 !important;
+    z-index:10000 !important;
     padding-right:190px !important;
-    box-shadow:0 16px 38px rgba(37,99,235,.24) !important;
+    box-shadow:0 14px 34px rgba(37,99,235,.18) !important;
   }
   #identityStickyCard::after{
     content:"";
     position:absolute;
     left:0;
     right:0;
-    bottom:-18px;
-    height:18px;
+    bottom:-16px;
+    height:16px;
     pointer-events:none;
-    background:linear-gradient(180deg, rgba(237,244,255,.96), rgba(237,244,255,0));
+    background:linear-gradient(180deg, rgba(237,244,255,.92), rgba(237,244,255,0));
   }
   .top-save-holder{
     position:absolute;
@@ -972,21 +960,22 @@ body::after{
     box-shadow:0 14px 30px rgba(22,163,74,.20) !important;
   }
 
-  /* Solo debe verse un botón Guardar: el del bloque fijo superior. */
-  #saveSide,
-  .sidebar .panel:has(#saveSide){
-    display:none !important;
+  /* Nada más queda bloqueado: ni columna izquierda, ni listado, ni panel principal. */
+  .main,
+  .sidebar,
+  #studentList,
+  #studentList .student-item.active,
+  .sidebar .panel:has(#saveSide),
+  #saveSide{
+    position:static !important;
+    top:auto !important;
+    bottom:auto !important;
   }
 
-  @media (max-width:1100px){
-    .main{
-      padding-top:220px !important;
-    }
+  @media (max-width:900px){
     #identityStickyCard{
-      left:18px !important;
-      right:18px !important;
       padding-right:22px !important;
-      padding-bottom:86px !important;
+      padding-bottom:88px !important;
     }
     .top-save-holder{
       left:22px;
@@ -999,6 +988,51 @@ body::after{
   }
 </style>
 
+
+<style id="final-sticky-identity-save-fix">
+  /* Corrección final: el scroll es de la página, así que el sticky debe depender del viewport, no de .main. */
+  .main{
+    overflow:visible !important;
+  }
+  #identityStickyCard{
+    position:-webkit-sticky !important;
+    position:sticky !important;
+    top:12px !important;
+    z-index:999999 !important;
+    isolation:isolate;
+  }
+  #identityStickyCard .top-save-holder{
+    position:absolute !important;
+    right:22px !important;
+    top:50% !important;
+    transform:translateY(-50%) !important;
+    width:145px !important;
+    z-index:10 !important;
+  }
+  #identityStickyCard #saveSide{
+    width:100% !important;
+    min-height:54px !important;
+    font-size:16px !important;
+    display:block !important;
+  }
+  aside .panel.soft.stack:empty{
+    display:none !important;
+  }
+  @media (max-width:900px){
+    #identityStickyCard{
+      padding-right:22px !important;
+      padding-bottom:88px !important;
+    }
+    #identityStickyCard .top-save-holder{
+      left:22px !important;
+      right:22px !important;
+      top:auto !important;
+      bottom:18px !important;
+      width:auto !important;
+      transform:none !important;
+    }
+  }
+</style>
 </head>
 <body class="preaccess-loading">
 
@@ -1228,9 +1262,6 @@ body::after{
 <input id="studentSearch" placeholder="Buscar per número de llista..." type="text"/>
 <div class="student-list" id="studentList"></div>
 </div>
-<div class="panel soft stack">
-<button class="success full" id="saveSide">Guardar</button>
-</div>
 </aside>
 <main class="main">
 
@@ -1266,7 +1297,7 @@ body::after{
       </div>
     </div>
     <div class="top-save-holder">
-      <button class="success full" id="saveTop" type="button">Guardar</button>
+      <button class="success full" id="saveSide" type="button">Guardar</button>
     </div>
   </div>
 
@@ -4002,6 +4033,51 @@ ${zoomStyle}</style>
 </style>
 
 
+
+<style id="final-sticky-identity-save-fix">
+  /* Corrección final: el scroll es de la página, así que el sticky debe depender del viewport, no de .main. */
+  .main{
+    overflow:visible !important;
+  }
+  #identityStickyCard{
+    position:-webkit-sticky !important;
+    position:sticky !important;
+    top:12px !important;
+    z-index:999999 !important;
+    isolation:isolate;
+  }
+  #identityStickyCard .top-save-holder{
+    position:absolute !important;
+    right:22px !important;
+    top:50% !important;
+    transform:translateY(-50%) !important;
+    width:145px !important;
+    z-index:10 !important;
+  }
+  #identityStickyCard #saveSide{
+    width:100% !important;
+    min-height:54px !important;
+    font-size:16px !important;
+    display:block !important;
+  }
+  aside .panel.soft.stack:empty{
+    display:none !important;
+  }
+  @media (max-width:900px){
+    #identityStickyCard{
+      padding-right:22px !important;
+      padding-bottom:88px !important;
+    }
+    #identityStickyCard .top-save-holder{
+      left:22px !important;
+      right:22px !important;
+      top:auto !important;
+      bottom:18px !important;
+      width:auto !important;
+      transform:none !important;
+    }
+  }
+</style>
 </head>
 <body>
 
@@ -4069,6 +4145,51 @@ ${zoomStyle}</style>
       if(!newWin){ alert("El navegador ha bloquejat la finestra emergent. Permet les finestres emergents per a aquesta pàgina."); return; }
       const style = `body{font-family:Inter,Arial,sans-serif;background:#f7faff;color:#1f2937;padding:24px}h1{margin:0 0 8px 0;font-size:28px}p{margin:0 0 16px 0;color:#667085}.card{background:#fff;border:1px solid #d9e4f2;border-radius:18px;padding:18px;box-shadow:0 8px 24px rgba(26,42,79,.08);overflow:auto}table{width:100%;border-collapse:collapse;font-size:14px}th,td{border:1px solid #d9e4f2;padding:9px 11px;text-align:left;vertical-align:top}th{background:#eef4ff}.eval-cell{text-align:center;font-weight:800}.toolbar{margin-bottom:14px}.print{border:0;border-radius:12px;padding:10px 14px;font-weight:800;cursor:pointer;background:#2563eb;color:#fff}`;
       newWin.document.write(`<!DOCTYPE html><html lang="ca"><head><meta charset="utf-8"><title>${title}</title><style>${style}</style>
+
+<style id="final-sticky-identity-save-fix">
+  /* Corrección final: el scroll es de la página, así que el sticky debe depender del viewport, no de .main. */
+  .main{
+    overflow:visible !important;
+  }
+  #identityStickyCard{
+    position:-webkit-sticky !important;
+    position:sticky !important;
+    top:12px !important;
+    z-index:999999 !important;
+    isolation:isolate;
+  }
+  #identityStickyCard .top-save-holder{
+    position:absolute !important;
+    right:22px !important;
+    top:50% !important;
+    transform:translateY(-50%) !important;
+    width:145px !important;
+    z-index:10 !important;
+  }
+  #identityStickyCard #saveSide{
+    width:100% !important;
+    min-height:54px !important;
+    font-size:16px !important;
+    display:block !important;
+  }
+  aside .panel.soft.stack:empty{
+    display:none !important;
+  }
+  @media (max-width:900px){
+    #identityStickyCard{
+      padding-right:22px !important;
+      padding-bottom:88px !important;
+    }
+    #identityStickyCard .top-save-holder{
+      left:22px !important;
+      right:22px !important;
+      top:auto !important;
+      bottom:18px !important;
+      width:auto !important;
+      transform:none !important;
+    }
+  }
+</style>
 </head><body><div class="card"><div class="toolbar"><button class="print" onclick="window.print()">Imprimir / Guardar PDF</button></div><h1>${title}</h1><p>Centre: ${state.center?.displayName || "—"} · Classe: ${state.currentClass || "—"} · Mestre/a: ${state.teacher?.displayName || "—"}</p><table><thead><tr><th>Àrea</th><th>1a Avaluació</th><th>2a Avaluació</th><th>3a Avaluació</th></tr></thead><tbody>${rows || `<tr><td colspan="4">No hi ha qualificacions disponibles.</td></tr>`}</tbody></table></div></body></html>`);
       newWin.document.close();
     }
@@ -4080,12 +4201,10 @@ ${zoomStyle}</style>
       $("classSelect").addEventListener("change", e => switchClass(e.target.value));
       $("studentSearch").addEventListener("input", renderStudents);
 
-      async function handleSaveClick(){
-        await saveStudent();
-        alert("Els canvis s'han guardat correctament.");
-      }
-      if($("saveSide")) $("saveSide").addEventListener("click", handleSaveClick);
-      if($("saveTop")) $("saveTop").addEventListener("click", handleSaveClick);
+      $("saveSide").addEventListener("click", async () => {
+  await saveStudent();
+  alert("Els canvis s'han guardat correctament.");
+});
       $("deleteStudentBtn").addEventListener("click", async () => {
       if(!state.currentClass || !state.currentStudentId){
         alert("Selecciona primer un alumne/a.");
