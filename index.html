@@ -925,34 +925,64 @@ body::after{
     margin-top:4px;
   }
 
-  /* Solo se fija el alumno seleccionado dentro del listado de la izquierda */
-  #studentList{
-    position:relative;
+  /* La columna izquierda queda visible mientras se hace scroll en la página */
+  #appShell{
+    align-items:start !important;
   }
-  #studentList .student-item.active{
+  #appShell .sidebar{
     position:sticky !important;
-    top:8px !important;
-    z-index:20 !important;
-    box-shadow:0 14px 28px rgba(37,99,235,.18), inset 0 1px 0 rgba(255,255,255,.65) !important;
+    top:18px !important;
+    align-self:start !important;
+    max-height:calc(100vh - 36px) !important;
+    overflow:hidden !important;
+    z-index:50 !important;
   }
 
-  /* Solo se fija el botón Guardar en la columna izquierda, sin cambiar el scroll de la página */
-  .sidebar .panel:has(#saveSide){
+  /* Guardar siempre visible arriba desde el principio */
+  .save-top-panel{
+    order:-10 !important;
     position:sticky !important;
-    bottom:18px !important;
-    z-index:30 !important;
-    margin-top:auto;
+    top:0 !important;
+    z-index:80 !important;
+    margin-bottom:0 !important;
     box-shadow:0 18px 42px rgba(22,163,74,.18), var(--shadow) !important;
   }
   #saveSide{
-    min-height:52px;
-    font-size:16px;
+    min-height:54px;
+    font-size:17px;
   }
-  @supports not selector(:has(*)){
-    #saveSide{
+
+  /* El listado de alumnos puede desplazarse dentro de la columna izquierda */
+  #studentList{
+    position:relative !important;
+    overflow-y:auto !important;
+    max-height:calc(100vh - 430px) !important;
+    min-height:120px !important;
+    padding-right:4px !important;
+  }
+
+  /* El alumno seleccionado se coloca arriba del listado y se queda visible */
+  #studentList .student-item.active{
+    position:sticky !important;
+    top:0 !important;
+    z-index:70 !important;
+    order:-1 !important;
+    box-shadow:0 14px 28px rgba(37,99,235,.18), inset 0 1px 0 rgba(255,255,255,.65) !important;
+  }
+
+  @media (max-width:1100px){
+    #appShell .sidebar{
+      position:relative !important;
+      top:auto !important;
+      max-height:none !important;
+      overflow:visible !important;
+    }
+    .save-top-panel{
       position:sticky !important;
-      bottom:18px !important;
-      z-index:30 !important;
+      top:8px !important;
+    }
+    #studentList{
+      max-height:45vh !important;
     }
   }
 </style>
@@ -1166,6 +1196,9 @@ body::after{
 <input id="teacherName" type="hidden" value=""/>
 <input id="teacherId" type="hidden" value=""/>
 <select hidden="" id="teacherRole"><option selected="" value="Tutor/a">Tutor/a</option></select>
+<div class="panel soft stack save-top-panel">
+<button class="success full" id="saveSide">Guardar</button>
+</div>
 <div class="panel stack">
 <div class="section-title">Classes</div>
 <div class="toolbar">
@@ -1185,9 +1218,6 @@ body::after{
 </div>
 <input id="studentSearch" placeholder="Buscar per número de llista..." type="text"/>
 <div class="student-list" id="studentList"></div>
-</div>
-<div class="panel soft stack">
-<button class="success full" id="saveSide">Guardar</button>
 </div>
 </aside>
 <main class="main">
