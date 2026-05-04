@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 
 <html lang="ca">
 <head>
@@ -902,6 +902,56 @@ body::after{
     .app-title-banner{max-height:150px;border-radius:16px;}
   }
 </style>
+
+<style id="privacy-sticky-fixes">
+  /* Privacidad: no mostrar nombres de alumnos en la interfaz */
+  #alumne{
+    -webkit-text-security: disc;
+  }
+  #generalDataPanel .row > .c4:first-child{
+    display:none !important;
+  }
+  #studentSearch{
+    display:none !important;
+  }
+  .student-list-number{
+    font-weight:900;
+    font-size:18px;
+    color:#1d4ed8;
+  }
+  .student-private-meta{
+    font-size:12px;
+    color:var(--muted);
+    margin-top:4px;
+  }
+  .main > .hero{
+    position:sticky;
+    top:0;
+    z-index:80;
+    padding-bottom:12px;
+    background:linear-gradient(180deg, rgba(236,244,255,.96), rgba(236,244,255,.82));
+    backdrop-filter:blur(10px);
+    border-radius:0 0 22px 22px;
+  }
+  .sidebar .panel:has(#saveSide){
+    order:-1;
+    position:sticky;
+    top:12px;
+    z-index:90;
+    box-shadow:0 18px 42px rgba(22,163,74,.18), var(--shadow);
+  }
+  #saveSide{
+    min-height:52px;
+    font-size:16px;
+  }
+  @supports not selector(:has(*)){
+    #saveSide{
+      position:sticky;
+      top:12px;
+      z-index:90;
+    }
+  }
+</style>
 </head>
 <body class="preaccess-loading">
 
@@ -1128,7 +1178,7 @@ body::after{
 <button class="danger" id="deleteStudentBtn">- Alumne</button>
 </div>
 </div>
-<input id="studentSearch" placeholder="Buscar alumne..." type="text"/>
+<input id="studentSearch" placeholder="Buscar per número de llista..." type="text"/>
 <div class="student-list" id="studentList"></div>
 </div>
 <div class="panel soft stack">
@@ -1248,8 +1298,8 @@ body::after{
 <div class="section-title">Dades generals</div>
 <div class="row">
 <div class="c4">
-<label for="alumne">Nom de l'alumne/a</label>
-<input id="alumne" placeholder="Ex.: Maria Pérez" type="text"/>
+<label for="alumne">Identificador intern de l'alumne/a</label>
+<input id="alumne" placeholder="Dada privada oculta" type="text" autocomplete="off"/>
 </div>
 <div class="c2">
 <label for="genere">Forma</label>
@@ -2759,33 +2809,11 @@ syncEnterCenterVisibility();
       return `${items.slice(0, -1).join(', ')}${conj}${items[items.length - 1]}`;
     }
 
-    function isFullyUppercaseWord(part=""){
-      const word = String(part || "").trim();
-      if(!word) return false;
-      // Solo consideramos palabras con letras. Números o signos no deben decidir el corte.
-      if(!/[A-Za-zÀ-ÖØ-öø-ÿ]/.test(word)) return false;
-      return word === word.toLocaleUpperCase('ca') && word !== word.toLocaleLowerCase('ca');
-    }
-
     function surnameSortKey(name=""){
       const parts = String(name).trim().replace(/\s+/g,' ').split(' ').filter(Boolean);
       if(!parts.length) return '';
-      if(parts.length === 1) return parts[0].toLocaleLowerCase('ca');
-
-      // Si el listado viene de Firebase/ITACA como "COGNOM COGNOM Nom compost",
-      // los apellidos suelen venir completos en mayúsculas. Para no confundir un
-      // nombre compuesto con el apellido, buscamos el primer fragmento que NO esté
-      // completamente en mayúsculas: desde ahí empieza el nombre; lo anterior son apellidos.
-      const firstGivenNameIndex = parts.findIndex(part => !isFullyUppercaseWord(part));
-      const looksLikeSurnameFirst = isFullyUppercaseWord(parts[0]) && firstGivenNameIndex > 0;
-      if(looksLikeSurnameFirst){
-        const lastNames = parts.slice(0, firstGivenNameIndex).join(' ');
-        const firstNames = parts.slice(firstGivenNameIndex).join(' ');
-        return `${lastNames} ${firstNames}`.toLocaleLowerCase('ca').trim();
-      }
-
-      // Formato manual habitual: "Nom Cognom Cognom".
-      return `${parts.slice(1).join(' ')} ${parts[0]}`.toLocaleLowerCase('ca').trim();
+      if(parts.length === 1) return parts[0].toLowerCase();
+      return `${parts.slice(1).join(' ').toLowerCase()} ${parts[0].toLowerCase()}`;
     }
 
 
@@ -2804,12 +2832,34 @@ syncEnterCenterVisibility();
     }
 
     function getStudentSortKey(student={}){
-      const nameSortKey = surnameSortKey(student.studentName || "");
-      const storedSortKey = student.studentSurnameLower || buildStudentSortKey(student.firstName, student.lastName);
-      // Si el nombre guardado empieza con bloque de apellidos en MAYÚSCULAS, recalculamos
-      // al mostrar el listado para corregir registros antiguos que se guardaron con otra clave.
-      const firstPart = String(student.studentName || "").trim().split(/\s+/).filter(Boolean)[0] || "";
-      return isFullyUppercaseWord(firstPart) ? nameSortKey : (storedSortKey || nameSortKey);
+      return student.studentSurnameLower || buildStudentSortKey(student.firstName, student.lastName) || surnameSortKey(student.studentName || "");
+    }
+
+    function getSortedStudentsForList(){
+      return [...state.students].sort((a,b) => {
+        const an = Number(a.listNumber || a.numeroLista || a.numLista || 0);
+        const bn = Number(b.listNumber || b.numeroLista || b.numLista || 0);
+        if(an && bn && an !== bn) return an - bn;
+        if(an && !bn) return -1;
+        if(!an && bn) return 1;
+        return getStudentSortKey(a).localeCompare(getStudentSortKey(b), 'ca');
+      });
+    }
+
+    function getStudentListNumber(studentOrId){
+      const student = typeof studentOrId === 'string'
+        ? state.students.find(s => s.id === studentOrId)
+        : studentOrId;
+      const storedNumber = Number(student?.listNumber || student?.numeroLista || student?.numLista || 0);
+      if(storedNumber) return storedNumber;
+      const id = typeof studentOrId === 'string' ? studentOrId : studentOrId?.id;
+      const index = getSortedStudentsForList().findIndex(s => s.id === id);
+      return index >= 0 ? index + 1 : '';
+    }
+
+    function getStudentPublicLabel(studentOrId){
+      const n = getStudentListNumber(studentOrId);
+      return n ? `Nº ${n}` : 'Nº —';
     }
 
     function askStudentNameParts(){
@@ -2819,15 +2869,11 @@ syncEnterCenterVisibility();
         overlay.innerHTML = `
           <div class="modal-card">
             <h3>Afegir alumne/a</h3>
-            <p>Escriu el nom i els cognoms per separat. Així el llistat s'ordenarà automàticament pels cognoms.</p>
+            <p>Per privacitat, introdueix només el número de llista. El nom no es mostrarà en cap pantalla de treball.</p>
             <div class="stack">
               <div>
-                <label for="newStudentFirstNameModal">Nom</label>
-                <input id="newStudentFirstNameModal" type="text" placeholder="Ex.: Maria" autocomplete="off"/>
-              </div>
-              <div>
-                <label for="newStudentLastNameModal">Cognoms</label>
-                <input id="newStudentLastNameModal" type="text" placeholder="Ex.: Pérez García" autocomplete="off"/>
+                <label for="newStudentListNumberModal">Número de llista</label>
+                <input id="newStudentListNumberModal" type="text" placeholder="Ex.: 7" inputmode="numeric" autocomplete="off"/>
               </div>
             </div>
             <div class="modal-actions">
@@ -2836,23 +2882,22 @@ syncEnterCenterVisibility();
             </div>
           </div>`;
         document.body.appendChild(overlay);
-        const firstInput = overlay.querySelector('#newStudentFirstNameModal');
-        const lastInput = overlay.querySelector('#newStudentLastNameModal');
+        const numberInput = overlay.querySelector('#newStudentListNumberModal');
         const close = (value=null) => { overlay.remove(); resolve(value); };
         overlay.querySelector('#cancelNewStudentModal').addEventListener('click', () => close(null));
         overlay.addEventListener('click', e => { if(e.target === overlay) close(null); });
         overlay.querySelector('#saveNewStudentModal').addEventListener('click', () => {
-          const firstName = normalizePersonPart(firstInput.value);
-          const lastName = normalizePersonPart(lastInput.value);
-          if(!firstName){ alert('Has d’escriure el nom.'); firstInput.focus(); return; }
-          if(!lastName){ alert('Has d’escriure els cognoms.'); lastInput.focus(); return; }
-          close({ firstName, lastName, studentName: buildStudentFullName(firstName, lastName) });
+          const rawNumber = String(numberInput.value || '').trim();
+          const listNumber = parseInt(rawNumber, 10);
+          if(!Number.isFinite(listNumber) || listNumber <= 0){ alert('Has d’escriure un número de llista vàlid.'); numberInput.focus(); return; }
+          const studentName = `Alumne/a ${listNumber}`;
+          close({ firstName: studentName, lastName: '', studentName, listNumber });
         });
         overlay.addEventListener('keydown', e => {
           if(e.key === 'Escape') close(null);
           if(e.key === 'Enter') overlay.querySelector('#saveNewStudentModal').click();
         });
-        setTimeout(() => firstInput.focus(), 0);
+        setTimeout(() => numberInput.focus(), 0);
       });
     }
 
@@ -3000,22 +3045,24 @@ syncEnterCenterVisibility();
 
     function renderStudents(){
       const term = $("studentSearch").value.trim().toLowerCase();
-      const list = [...state.students]
-        .sort((a,b) => getStudentSortKey(a).localeCompare(getStudentSortKey(b), 'ca'))
-        .filter(s => (s.studentName || "").toLowerCase().includes(term));
+      const sorted = getSortedStudentsForList();
+      const list = sorted
+        .map((s, index) => ({ ...s, publicNumber:index + 1 }))
+        .filter(s => !term || String(s.publicNumber).includes(term));
       if(!list.length){
         $("studentList").innerHTML = `<div class="empty">No hi ha alumnes en aquesta classe encara. Crea'ls des de zero.</div>`;
         return;
       }
       $("studentList").innerHTML = list.map(s => `
         <div class="student-item ${s.id===state.currentStudentId ? "active" : ""}" data-id="${s.id}">
-          <div class="student-name">${escapeHtml(s.studentName || "Sense nom")}</div>
-          <div class="student-meta">${escapeHtml(s.course || "")}${s.lastEditor ? " · Últim: " + escapeHtml(s.lastEditor) : ""}</div>
+          <div class="student-list-number">Nº ${s.publicNumber}</div>
+          <div class="student-private-meta">${escapeHtml(s.course || "")}${s.lastEditor ? " · Última edició registrada" : ""}</div>
         </div>
       `).join("");
       [...$("studentList").querySelectorAll("[data-id]")].forEach(item => {
         item.addEventListener("click", () => loadStudent(item.dataset.id));
       });
+      updateLabels();
     }
 
     async function saveClasses(){
@@ -3216,7 +3263,7 @@ syncEnterCenterVisibility();
 
     function updateLabels(){
       $("currentClass").textContent = state.currentClass || "—";
-      $("currentStudent").textContent = valueOf("alumne") || "—";
+      $("currentStudent").textContent = state.currentStudentId ? getStudentPublicLabel(state.currentStudentId) : "—";
       if($("currentEvaluationLabel")) $("currentEvaluationLabel").textContent = getCurrentEvaluationLabel();
     }
 
@@ -3271,7 +3318,7 @@ syncEnterCenterVisibility();
 
     function generateReport(){
       const data = collectData();
-      const alumne = (data.general.alumne || "").trim();
+      const alumne = ""; // Privacidad: no insertar nombres de alumnos en informes ni vistas previas.
       const genderWord = data.general.genere === "alumna" ? "L'alumna" : "L'alumne";
       const curs = data.general.curs || "";
       const lines = [];
@@ -3527,15 +3574,16 @@ syncEnterCenterVisibility();
       }
       const parts = await askStudentNameParts();
       if(!parts) return;
-      const { firstName, lastName, studentName } = parts;
+      const { firstName, lastName, studentName, listNumber } = parts;
 
       const teacher = valueOf("teacherName").trim();
       const role = valueOf("teacherRole");
-      const id = `${slugify(studentName)}-${Date.now()}`;
+      const id = `${listNumber ? `num-${listNumber}` : slugify(studentName)}-${Date.now()}`;
       const payload = {
         className: state.currentClass,
         firstName,
         lastName,
+        listNumber: listNumber || null,
         studentName,
         studentNameLower: studentName.toLowerCase(),
         studentSurnameLower: buildStudentSortKey(firstName, lastName),
@@ -3623,6 +3671,7 @@ syncEnterCenterVisibility();
       const evaluations = structuredClone(baseRecord.evaluations || createEmptyEvaluationMap());
       evaluations[getCurrentEvaluationKey()] = structuredClone(finalData);
 
+      const existingListNumber = Number(baseRecord.listNumber || baseRecord.numeroLista || baseRecord.numLista || 0) || getStudentListNumber(state.currentStudentId);
       const existingFirstName = normalizePersonPart(baseRecord.firstName || "");
       const existingLastName = normalizePersonPart(baseRecord.lastName || "");
       const nameParts = studentName.split(/\s+/).filter(Boolean);
@@ -3634,6 +3683,7 @@ syncEnterCenterVisibility();
         className: state.currentClass,
         firstName: firstNameForSave,
         lastName: lastNameForSave,
+        listNumber: existingListNumber || null,
         studentName,
         studentNameLower: studentName.toLowerCase(),
         studentSurnameLower: sortKeyForSave,
@@ -3653,6 +3703,7 @@ syncEnterCenterVisibility();
         className: state.currentClass,
         firstName: firstNameForSave,
         lastName: lastNameForSave,
+        listNumber: existingListNumber || null,
         studentName,
         studentNameLower: studentName.toLowerCase(),
         studentSurnameLower: sortKeyForSave,
@@ -3671,8 +3722,8 @@ syncEnterCenterVisibility();
         alert("No hi ha cap alumne seleccionat.");
         return;
       }
-      const name = valueOf("alumne") || "aquest alumne";
-      if(!confirm(`Vols eliminar ${name} de la classe ${state.currentClass}?`)) return;
+      const publicLabel = state.currentStudentId ? getStudentPublicLabel(state.currentStudentId) : "aquest alumne";
+      if(!confirm(`Vols eliminar ${publicLabel} de la classe ${state.currentClass}?`)) return;
       await deleteDoc(studentDoc(state.currentClass, state.currentStudentId));
       state.currentStudentId = null;
       clearForm();
@@ -3717,7 +3768,7 @@ syncEnterCenterVisibility();
           const evaluations = rec.evaluations || {};
           rows.push({
             className,
-            studentName: rec.studentName || "",
+            studentName: `Nº ${Number(rec.listNumber || rec.numeroLista || rec.numLista || 0) || rows.filter(r => r.className === className).length + 1}`,
             course: rec.course || "",
             subjects: visibleSubjects.map(subject => ({
               name: subject.name,
@@ -3786,7 +3837,7 @@ syncEnterCenterVisibility();
       const bodyRows = rows.map(row => `
         <tr>
           <td class="sticky" style="min-width:92px">${row.className}</td>
-          <td class="sticky student-col" style="min-width:240px">${row.studentName}</td>
+          <td class="sticky student-col" style="min-width:120px">${row.studentName}</td>
           ${row.subjects.map((s, idx) => {
             const palette = summaryPalette[idx % summaryPalette.length];
             return `
@@ -3912,7 +3963,7 @@ ${zoomStyle}</style>
         <thead>
           <tr>
             <th class="sticky-head" rowspan="2" style="min-width:92px">Classe</th>
-            <th class="sticky-head student-col" rowspan="2" style="min-width:240px">Alumne/a</th>
+            <th class="sticky-head student-col" rowspan="2" style="min-width:120px">Nº llista</th>
             ${headers}
           </tr>
           <tr>
@@ -3955,7 +4006,7 @@ ${zoomStyle}</style>
         { head:"#fee2e2", cell:"#fef2f2" }, { head:"#cffafe", cell:"#ecfeff" },
         { head:"#d1fae5", cell:"#ecfdf5" }, { head:"#fce7f3", cell:"#fdf2f8" }
       ];
-      const title = `Qualificacions de ${rec.studentName || "alumne/a"} - Totes les avaluacions`;
+      const title = `Qualificacions de ${getStudentPublicLabel(state.currentStudentId)} - Totes les avaluacions`;
       const rows = visibleSubjects.map((subject, idx) => {
         const palette = summaryPalette[idx % summaryPalette.length];
         const e1 = ((((evaluations.eval1 || {}).subjects || {})[subject.key]) || {}).nivell || "—";
@@ -3986,7 +4037,7 @@ ${zoomStyle}</style>
         alert("Selecciona primer un alumne/a.");
         return;
       }
-      const nom = valueOf("alumne").trim() || "aquest alumne/a";
+      const nom = state.currentStudentId ? getStudentPublicLabel(state.currentStudentId) : "aquest alumne/a";
       const ok = confirm(`Segur que vols eliminar ${nom}? Aquesta acció no es pot desfer.`);
       if(!ok) return;
       await deleteCurrentStudent();
