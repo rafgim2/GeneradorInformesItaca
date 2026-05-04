@@ -952,6 +952,92 @@ body::after{
     }
   }
 </style>
+
+<style id="fixed-scroll-layout-final">
+  /* Bloqueo real de la interfaz: el scroll queda dentro del panel principal */
+  body:has(#appShell:not(.hidden-before-login)){
+    overflow:hidden !important;
+  }
+
+  #appShell:not(.hidden-before-login){
+    height:108.7vh !important;
+    min-height:108.7vh !important;
+    overflow:hidden !important;
+    align-items:stretch !important;
+  }
+
+  #appShell:not(.hidden-before-login) .sidebar,
+  #appShell:not(.hidden-before-login) .main{
+    height:calc(108.7vh - 36px) !important;
+    max-height:calc(108.7vh - 36px) !important;
+  }
+
+  #appShell:not(.hidden-before-login) .sidebar{
+    overflow:hidden !important;
+  }
+
+  #appShell:not(.hidden-before-login) .main{
+    overflow-y:auto !important;
+    overflow-x:hidden !important;
+    scroll-padding-top:235px;
+  }
+
+  /* Alumno seleccionado siempre visible mientras se corrige */
+  #appShell:not(.hidden-before-login) .main > .hero{
+    position:sticky !important;
+    top:0 !important;
+    z-index:999 !important;
+    margin-top:0 !important;
+    padding-top:0 !important;
+    padding-bottom:12px !important;
+    background:linear-gradient(180deg, rgba(236,244,255,.98), rgba(236,244,255,.90)) !important;
+    backdrop-filter:blur(12px) !important;
+    box-shadow:0 14px 28px rgba(31,74,150,.10) !important;
+    border-radius:0 0 22px 22px !important;
+  }
+
+  /* Botón Guardar siempre visible desde el principio */
+  #appShell:not(.hidden-before-login) .sidebar .panel:has(#saveSide){
+    order:-999 !important;
+    flex:0 0 auto !important;
+    position:sticky !important;
+    top:0 !important;
+    z-index:1000 !important;
+    margin-bottom:4px !important;
+  }
+
+  #saveSide{
+    position:relative !important;
+    z-index:1001 !important;
+    min-height:56px !important;
+    font-size:17px !important;
+    box-shadow:0 14px 30px rgba(22,163,74,.22) !important;
+  }
+
+  @media (max-width:1100px){
+    body:has(#appShell:not(.hidden-before-login)){
+      overflow:auto !important;
+    }
+    #appShell:not(.hidden-before-login){
+      height:auto !important;
+      min-height:100vh !important;
+      overflow:visible !important;
+    }
+    #appShell:not(.hidden-before-login) .sidebar,
+    #appShell:not(.hidden-before-login) .main{
+      height:auto !important;
+      max-height:none !important;
+    }
+    #appShell:not(.hidden-before-login) .main > .hero{
+      position:sticky !important;
+      top:0 !important;
+    }
+    #appShell:not(.hidden-before-login) .sidebar .panel:has(#saveSide){
+      position:sticky !important;
+      top:0 !important;
+    }
+  }
+</style>
 </head>
 <body class="preaccess-loading">
 
@@ -3951,6 +4037,92 @@ ${zoomStyle}</style>
   }
 </style>
 
+
+<style id="fixed-scroll-layout-final">
+  /* Bloqueo real de la interfaz: el scroll queda dentro del panel principal */
+  body:has(#appShell:not(.hidden-before-login)){
+    overflow:hidden !important;
+  }
+
+  #appShell:not(.hidden-before-login){
+    height:108.7vh !important;
+    min-height:108.7vh !important;
+    overflow:hidden !important;
+    align-items:stretch !important;
+  }
+
+  #appShell:not(.hidden-before-login) .sidebar,
+  #appShell:not(.hidden-before-login) .main{
+    height:calc(108.7vh - 36px) !important;
+    max-height:calc(108.7vh - 36px) !important;
+  }
+
+  #appShell:not(.hidden-before-login) .sidebar{
+    overflow:hidden !important;
+  }
+
+  #appShell:not(.hidden-before-login) .main{
+    overflow-y:auto !important;
+    overflow-x:hidden !important;
+    scroll-padding-top:235px;
+  }
+
+  /* Alumno seleccionado siempre visible mientras se corrige */
+  #appShell:not(.hidden-before-login) .main > .hero{
+    position:sticky !important;
+    top:0 !important;
+    z-index:999 !important;
+    margin-top:0 !important;
+    padding-top:0 !important;
+    padding-bottom:12px !important;
+    background:linear-gradient(180deg, rgba(236,244,255,.98), rgba(236,244,255,.90)) !important;
+    backdrop-filter:blur(12px) !important;
+    box-shadow:0 14px 28px rgba(31,74,150,.10) !important;
+    border-radius:0 0 22px 22px !important;
+  }
+
+  /* Botón Guardar siempre visible desde el principio */
+  #appShell:not(.hidden-before-login) .sidebar .panel:has(#saveSide){
+    order:-999 !important;
+    flex:0 0 auto !important;
+    position:sticky !important;
+    top:0 !important;
+    z-index:1000 !important;
+    margin-bottom:4px !important;
+  }
+
+  #saveSide{
+    position:relative !important;
+    z-index:1001 !important;
+    min-height:56px !important;
+    font-size:17px !important;
+    box-shadow:0 14px 30px rgba(22,163,74,.22) !important;
+  }
+
+  @media (max-width:1100px){
+    body:has(#appShell:not(.hidden-before-login)){
+      overflow:auto !important;
+    }
+    #appShell:not(.hidden-before-login){
+      height:auto !important;
+      min-height:100vh !important;
+      overflow:visible !important;
+    }
+    #appShell:not(.hidden-before-login) .sidebar,
+    #appShell:not(.hidden-before-login) .main{
+      height:auto !important;
+      max-height:none !important;
+    }
+    #appShell:not(.hidden-before-login) .main > .hero{
+      position:sticky !important;
+      top:0 !important;
+    }
+    #appShell:not(.hidden-before-login) .sidebar .panel:has(#saveSide){
+      position:sticky !important;
+      top:0 !important;
+    }
+  }
+</style>
 </head>
 <body>
 
@@ -4017,7 +4189,93 @@ ${zoomStyle}</style>
       const newWin = window.open("", "_blank");
       if(!newWin){ alert("El navegador ha bloquejat la finestra emergent. Permet les finestres emergents per a aquesta pàgina."); return; }
       const style = `body{font-family:Inter,Arial,sans-serif;background:#f7faff;color:#1f2937;padding:24px}h1{margin:0 0 8px 0;font-size:28px}p{margin:0 0 16px 0;color:#667085}.card{background:#fff;border:1px solid #d9e4f2;border-radius:18px;padding:18px;box-shadow:0 8px 24px rgba(26,42,79,.08);overflow:auto}table{width:100%;border-collapse:collapse;font-size:14px}th,td{border:1px solid #d9e4f2;padding:9px 11px;text-align:left;vertical-align:top}th{background:#eef4ff}.eval-cell{text-align:center;font-weight:800}.toolbar{margin-bottom:14px}.print{border:0;border-radius:12px;padding:10px 14px;font-weight:800;cursor:pointer;background:#2563eb;color:#fff}`;
-      newWin.document.write(`<!DOCTYPE html><html lang="ca"><head><meta charset="utf-8"><title>${title}</title><style>${style}</style></head><body><div class="card"><div class="toolbar"><button class="print" onclick="window.print()">Imprimir / Guardar PDF</button></div><h1>${title}</h1><p>Centre: ${state.center?.displayName || "—"} · Classe: ${state.currentClass || "—"} · Mestre/a: ${state.teacher?.displayName || "—"}</p><table><thead><tr><th>Àrea</th><th>1a Avaluació</th><th>2a Avaluació</th><th>3a Avaluació</th></tr></thead><tbody>${rows || `<tr><td colspan="4">No hi ha qualificacions disponibles.</td></tr>`}</tbody></table></div></body></html>`);
+      newWin.document.write(`<!DOCTYPE html><html lang="ca"><head><meta charset="utf-8"><title>${title}</title><style>${style}</style>
+<style id="fixed-scroll-layout-final">
+  /* Bloqueo real de la interfaz: el scroll queda dentro del panel principal */
+  body:has(#appShell:not(.hidden-before-login)){
+    overflow:hidden !important;
+  }
+
+  #appShell:not(.hidden-before-login){
+    height:108.7vh !important;
+    min-height:108.7vh !important;
+    overflow:hidden !important;
+    align-items:stretch !important;
+  }
+
+  #appShell:not(.hidden-before-login) .sidebar,
+  #appShell:not(.hidden-before-login) .main{
+    height:calc(108.7vh - 36px) !important;
+    max-height:calc(108.7vh - 36px) !important;
+  }
+
+  #appShell:not(.hidden-before-login) .sidebar{
+    overflow:hidden !important;
+  }
+
+  #appShell:not(.hidden-before-login) .main{
+    overflow-y:auto !important;
+    overflow-x:hidden !important;
+    scroll-padding-top:235px;
+  }
+
+  /* Alumno seleccionado siempre visible mientras se corrige */
+  #appShell:not(.hidden-before-login) .main > .hero{
+    position:sticky !important;
+    top:0 !important;
+    z-index:999 !important;
+    margin-top:0 !important;
+    padding-top:0 !important;
+    padding-bottom:12px !important;
+    background:linear-gradient(180deg, rgba(236,244,255,.98), rgba(236,244,255,.90)) !important;
+    backdrop-filter:blur(12px) !important;
+    box-shadow:0 14px 28px rgba(31,74,150,.10) !important;
+    border-radius:0 0 22px 22px !important;
+  }
+
+  /* Botón Guardar siempre visible desde el principio */
+  #appShell:not(.hidden-before-login) .sidebar .panel:has(#saveSide){
+    order:-999 !important;
+    flex:0 0 auto !important;
+    position:sticky !important;
+    top:0 !important;
+    z-index:1000 !important;
+    margin-bottom:4px !important;
+  }
+
+  #saveSide{
+    position:relative !important;
+    z-index:1001 !important;
+    min-height:56px !important;
+    font-size:17px !important;
+    box-shadow:0 14px 30px rgba(22,163,74,.22) !important;
+  }
+
+  @media (max-width:1100px){
+    body:has(#appShell:not(.hidden-before-login)){
+      overflow:auto !important;
+    }
+    #appShell:not(.hidden-before-login){
+      height:auto !important;
+      min-height:100vh !important;
+      overflow:visible !important;
+    }
+    #appShell:not(.hidden-before-login) .sidebar,
+    #appShell:not(.hidden-before-login) .main{
+      height:auto !important;
+      max-height:none !important;
+    }
+    #appShell:not(.hidden-before-login) .main > .hero{
+      position:sticky !important;
+      top:0 !important;
+    }
+    #appShell:not(.hidden-before-login) .sidebar .panel:has(#saveSide){
+      position:sticky !important;
+      top:0 !important;
+    }
+  }
+</style>
+</head><body><div class="card"><div class="toolbar"><button class="print" onclick="window.print()">Imprimir / Guardar PDF</button></div><h1>${title}</h1><p>Centre: ${state.center?.displayName || "—"} · Classe: ${state.currentClass || "—"} · Mestre/a: ${state.teacher?.displayName || "—"}</p><table><thead><tr><th>Àrea</th><th>1a Avaluació</th><th>2a Avaluació</th><th>3a Avaluació</th></tr></thead><tbody>${rows || `<tr><td colspan="4">No hi ha qualificacions disponibles.</td></tr>`}</tbody></table></div></body></html>`);
       newWin.document.close();
     }
 
