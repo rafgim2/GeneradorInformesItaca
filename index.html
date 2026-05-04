@@ -3666,123 +3666,6 @@ syncEnterCenterVisibility();
       }
     }
 
-
-
-    function escapeReportTitle(title){
-      return String(title || "")
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;");
-    }
-
-    function closeNativeReportPage(options = {}){
-      const page = document.getElementById("nativeReportPage");
-      if(page) page.remove();
-      const appShell = document.getElementById("appShell");
-      if(appShell) appShell.classList.remove("hidden-before-login");
-      document.body.classList.remove("native-report-open");
-      document.title = window.__nativeReportPreviousTitle || document.title;
-      if(options.replace && history.state && history.state.nativeReport){
-        history.replaceState({ nativeReportClosed: true }, "", location.href);
-      }
-      setTimeout(() => window.scrollTo({ top: 0, left: 0, behavior: "instant" }), 0);
-    }
-
-    window.nativeReportBack = function(){
-      if(history.state && history.state.nativeReport){
-        history.back();
-      }else{
-        closeNativeReportPage();
-      }
-    };
-
-    window.nativeReportHome = function(){
-      closeNativeReportPage({ replace: true });
-    };
-
-    window.addEventListener("popstate", () => {
-      const page = document.getElementById("nativeReportPage");
-      if(page && !(history.state && history.state.nativeReport)){
-        closeNativeReportPage();
-      }
-    });
-
-    function openNativeReportPage(title, styles, bodyHtml){
-      const previous = document.getElementById("nativeReportPage");
-      if(previous) previous.remove();
-
-      window.__nativeReportPreviousTitle = document.title;
-      document.title = title || document.title;
-
-      const appShell = document.getElementById("appShell");
-      if(appShell) appShell.classList.add("hidden-before-login");
-      document.body.classList.add("native-report-open");
-
-      const page = document.createElement("div");
-      page.id = "nativeReportPage";
-      page.innerHTML = `
-        <style>
-          #nativeReportPage{
-            min-height:100vh;
-            background:#f3f6fb;
-            color:#1f2937;
-            font-family:Inter,Arial,sans-serif;
-          }
-          #nativeReportPage .native-report-toolbar{
-            position:sticky;
-            top:0;
-            z-index:99999;
-            display:flex;
-            justify-content:flex-end;
-            align-items:center;
-            gap:10px;
-            padding:12px 16px;
-            background:#eaf1ff;
-            border-bottom:1px solid #cfe0ff;
-            box-shadow:0 8px 20px rgba(26,42,79,.08);
-          }
-          #nativeReportPage .native-report-title{
-            margin-right:auto;
-            font-weight:900;
-            color:#1e40af;
-            font-size:14px;
-            overflow:hidden;
-            text-overflow:ellipsis;
-            white-space:nowrap;
-          }
-          #nativeReportPage .native-report-btn{
-            border:0;
-            border-radius:12px;
-            padding:10px 14px;
-            font-size:14px;
-            font-weight:800;
-            cursor:pointer;
-            background:#eef3f8;
-            color:#334155;
-          }
-          #nativeReportPage .native-report-btn.primary{
-            background:#2563eb;
-            color:#fff;
-          }
-          @media print{
-            #nativeReportPage .native-report-toolbar{display:none !important;}
-          }
-          ${styles || ""}
-        </style>
-        <div class="native-report-toolbar">
-          <div class="native-report-title">${escapeReportTitle(title)}</div>
-          <button class="native-report-btn" type="button" onclick="window.nativeReportBack()">⬅️ Tornar</button>
-          <button class="native-report-btn" type="button" onclick="window.nativeReportHome()">🏠 Inici</button>
-          <button class="native-report-btn primary" type="button" onclick="window.print()">Imprimir / Guardar PDF</button>
-        </div>
-        ${bodyHtml || ""}
-      `;
-      document.body.appendChild(page);
-      history.pushState({ nativeReport: true }, "", location.href);
-      window.scrollTo(0,0);
-    }
-
     async function openSummaryPage(){
       if(!state.teacher){
         alert("Primer has d'entrar com a mestre/a.");
@@ -3888,8 +3771,40 @@ syncEnterCenterVisibility();
         </tr>
       `).join("");
 
+      const newWin = window.location.href = "", "_blank");
+      if(!newWin){
+        alert("El navegador ha bloquejat la finestra emergent. Permet les finestres emergents per a aquesta pàgina.");
+        return;
+      }
+
       const zoomStyle = `
-        #nativeReportPage .zoom-wrap{
+        body{
+          margin:0;
+          background:#f3f6fb;
+          font-family:Arial,Helvetica,sans-serif;
+        }
+        .print-toolbar{
+          position:sticky;
+          top:0;
+          z-index:9999;
+          display:flex;
+          justify-content:flex-end;
+          gap:10px;
+          padding:12px 16px;
+          background:#eaf1ff;
+          border-bottom:1px solid #cfe0ff;
+        }
+        .print-btn{
+          border:0;
+          border-radius:10px;
+          padding:10px 14px;
+          font-size:14px;
+          font-weight:700;
+          cursor:pointer;
+          background:#2563eb;
+          color:#fff;
+        }
+        .zoom-wrap{
           transform:scale(0.5);
           transform-origin:top left;
           width:200.00%;
@@ -3897,43 +3812,110 @@ syncEnterCenterVisibility();
           box-sizing:border-box;
         }
         @media print{
-          #nativeReportPage{background:#fff;}
-          #nativeReportPage .zoom-wrap{
+          .print-toolbar{display:none !important;}
+          body{background:#fff;}
+          .zoom-wrap{
             transform:none;
             width:100%;
             padding:0;
           }
-          #nativeReportPage .card{
+          .card{
             box-shadow:none !important;
             border:0 !important;
           }
         }
       `;
 
-      openNativeReportPage(title, `${style}
-${zoomStyle}`, `
-        <div class="zoom-wrap">
-          <div class="card">
-            <h1>${title}</h1>
-            <p>Centre: ${state.center?.displayName || "—"} · Mestre/a: ${state.teacher?.displayName || "—"} · Classes: ${allowedClasses.join(", ") || "—"}</p>
-            <table>
-              <thead>
-                <tr>
-                  <th class="sticky-head" rowspan="2" style="min-width:92px">Classe</th>
-                  <th class="sticky-head student-col" rowspan="2" style="min-width:240px">Alumne/a</th>
-                  ${headers}
-                </tr>
-                <tr>
-                  ${subHeaders}
-                </tr>
-              </thead>
-              <tbody>
-                ${bodyRows || `<tr><td colspan="${2 + (visibleSubjects.length * 4)}" class="muted">No hi ha alumnes disponibles.</td></tr>`}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      `);
+      newWin.document.write(`<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="utf-8">
+<title>${title}</title>
+<style>${style}
+${zoomStyle}</style>
+
+<style id="change-password-modal-styles">
+  .modal-overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(15,23,42,.42);
+    backdrop-filter:blur(4px);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+    z-index:1000000;
+  }
+  .modal-card{
+    width:min(460px,100%);
+    background:linear-gradient(180deg, rgba(255,255,255,.96), rgba(244,249,255,.94));
+    border:1px solid rgba(84,126,207,.24);
+    border-radius:24px;
+    box-shadow:0 24px 54px rgba(20,46,92,.25);
+    padding:24px;
+  }
+  .modal-card h3{
+    margin:0 0 8px;
+    font-size:24px;
+    color:#153775;
+  }
+  .modal-card p{
+    margin:0 0 16px;
+    color:#5d7097;
+    line-height:1.5;
+  }
+  .modal-actions{
+    display:flex;
+    justify-content:flex-end;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-top:14px;
+  }
+</style>
+
+</head>
+<body>
+
+
+  <div class="zoom-wrap">
+    <div class="card">
+      <h1>${title}</h1>
+      <p>Centre: ${state.center?.displayName || "—"} · Mestre/a: ${state.teacher?.displayName || "—"} · Classes: ${allowedClasses.join(", ") || "—"}</p>
+      <table>
+        <thead>
+          <tr>
+            <th class="sticky-head" rowspan="2" style="min-width:92px">Classe</th>
+            <th class="sticky-head student-col" rowspan="2" style="min-width:240px">Alumne/a</th>
+            ${headers}
+          </tr>
+          <tr>
+            ${subHeaders}
+          </tr>
+        </thead>
+        <tbody>
+          ${bodyRows || `<tr><td colspan="${2 + (visibleSubjects.length * 4)}" class="muted">No hi ha alumnes disponibles.</td></tr>`}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+<div style="text-align:center; margin-top:20px;">
+  <button class="ghost" onclick="volverApp()">⬅️ Tornar</button>
+</div>
+
+<script>
+function volverApp() {
+  if (window.history.length > 1) {
+    history.back();
+  } else {
+    window.location.href = "/";
+  }
+}
+</script>
+
+</body>
+</html>`);
+      newWin.document.close();
     }
 
 
@@ -3969,8 +3951,26 @@ ${zoomStyle}`, `
         const e3 = ((((evaluations.eval3 || {}).subjects || {})[subject.key]) || {}).nivell || "—";
         return `<tr><td style="background:${palette.head};font-weight:800">${subject.name}</td><td class="eval-cell" style="background:${palette.cell}">${e1}</td><td class="eval-cell" style="background:${palette.cell}">${e2}</td><td class="eval-cell" style="background:${palette.cell}">${e3}</td></tr>`;
       }).join("");
-      const style = `#nativeReportPage .single-student-report{font-family:Inter,Arial,sans-serif;background:#f7faff;color:#1f2937;padding:24px;min-height:calc(100vh - 64px)}#nativeReportPage h1{margin:0 0 8px 0;font-size:28px}#nativeReportPage p{margin:0 0 16px 0;color:#667085}#nativeReportPage .card{background:#fff;border:1px solid #d9e4f2;border-radius:18px;padding:18px;box-shadow:0 8px 24px rgba(26,42,79,.08);overflow:auto}#nativeReportPage table{width:100%;border-collapse:collapse;font-size:14px}#nativeReportPage th,#nativeReportPage td{border:1px solid #d9e4f2;padding:9px 11px;text-align:left;vertical-align:top}#nativeReportPage th{background:#eef4ff}#nativeReportPage .eval-cell{text-align:center;font-weight:800}@media print{#nativeReportPage .single-student-report{background:#fff;padding:0}#nativeReportPage .card{box-shadow:none !important;border:0 !important}}`;
-      openNativeReportPage(title, style, `<div class="single-student-report"><div class="card"><h1>${title}</h1><p>Centre: ${state.center?.displayName || "—"} · Classe: ${state.currentClass || "—"} · Mestre/a: ${state.teacher?.displayName || "—"}</p><table><thead><tr><th>Àrea</th><th>1a Avaluació</th><th>2a Avaluació</th><th>3a Avaluació</th></tr></thead><tbody>${rows || `<tr><td colspan="4">No hi ha qualificacions disponibles.</td></tr>`}</tbody></table></div></div>`);
+      const newWin = window.location.href = "", "_blank");
+      if(!newWin){ alert("El navegador ha bloquejat la finestra emergent. Permet les finestres emergents per a aquesta pàgina."); return; }
+      const style = `body{font-family:Inter,Arial,sans-serif;background:#f7faff;color:#1f2937;padding:24px}h1{margin:0 0 8px 0;font-size:28px}p{margin:0 0 16px 0;color:#667085}.card{background:#fff;border:1px solid #d9e4f2;border-radius:18px;padding:18px;box-shadow:0 8px 24px rgba(26,42,79,.08);overflow:auto}table{width:100%;border-collapse:collapse;font-size:14px}th,td{border:1px solid #d9e4f2;padding:9px 11px;text-align:left;vertical-align:top}th{background:#eef4ff}.eval-cell{text-align:center;font-weight:800}.toolbar{margin-bottom:14px}.print{border:0;border-radius:12px;padding:10px 14px;font-weight:800;cursor:pointer;background:#2563eb;color:#fff}`;
+      newWin.document.write(`<!DOCTYPE html><html lang="ca"><head><meta charset="utf-8"><title>${title}</title><style>${style}</style></head><body><div class="card"><div class="toolbar"><button class="print" onclick="window.print()">Imprimir / Guardar PDF</button></div><h1>${title}</h1><p>Centre: ${state.center?.displayName || "—"} · Classe: ${state.currentClass || "—"} · Mestre/a: ${state.teacher?.displayName || "—"}</p><table><thead><tr><th>Àrea</th><th>1a Avaluació</th><th>2a Avaluació</th><th>3a Avaluació</th></tr></thead><tbody>${rows || `<tr><td colspan="4">No hi ha qualificacions disponibles.</td></tr>`}</tbody></table></div>
+<div style="text-align:center; margin-top:20px;">
+  <button class="ghost" onclick="volverApp()">⬅️ Tornar</button>
+</div>
+
+<script>
+function volverApp() {
+  if (window.history.length > 1) {
+    history.back();
+  } else {
+    window.location.href = "/";
+  }
+}
+</script>
+
+</body></html>`);
+      newWin.document.close();
     }
 
 
@@ -4427,7 +4427,7 @@ function showEasterEgg() {
       opacity:0;
       transition:opacity 0.8s ease;
     ">
-      <a id="easterLink" href="https://www.youtube.com/@rafgim" target="_blank" style="
+      <a id="easterLink" href="https://www.youtube.com/@rafgim"  style="
         color:white;
         text-decoration:none;
         font-size:22px;
@@ -4598,5 +4598,20 @@ if(evalBig && evalSmall){
   }catch(e){}
 })();
 </script>
+
+<div style="text-align:center; margin-top:20px;">
+  <button class="ghost" onclick="volverApp()">⬅️ Tornar</button>
+</div>
+
+<script>
+function volverApp() {
+  if (window.history.length > 1) {
+    history.back();
+  } else {
+    window.location.href = "/";
+  }
+}
+</script>
+
 </body>
 </html>
