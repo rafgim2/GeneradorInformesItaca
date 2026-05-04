@@ -1082,34 +1082,45 @@ body::after{
     display:none !important;
   }
 
-  /* La barra se coloca por debajo de las etiquetas flotantes Beta / In progress
-     para que el botón Guardar no se solape con ellas. */
+  /* La barra principal queda pegada arriba del todo, sin hueco superior. */
   body.identity-card-fixed #identityStickyCard{
-    top:76px !important;
+    top:0 !important;
+  }
+
+  /* Las etiquetas Beta version / In progress bajan por debajo de la barra fija
+     para no solaparse con el botón Guardar. */
+  body.identity-card-visible .floating-access-status{
+    top:calc(var(--identity-fixed-visual-height, 96px) + 10px) !important;
+    right:12px !important;
+    z-index:999989 !important;
   }
 
   body.identity-card-fixed .top-save-holder{
-    width:116px !important;
-    right:18px !important;
+    width:108px !important;
+    right:16px !important;
   }
 
   body.identity-card-fixed #saveTop,
   #saveTop{
-    min-height:40px !important;
-    padding:8px 10px !important;
-    font-size:14px !important;
+    min-height:38px !important;
+    padding:7px 9px !important;
+    font-size:13px !important;
     border-radius:12px !important;
   }
 
   @media (max-width:900px){
     body.identity-card-fixed #identityStickyCard{
-      top:82px !important;
-      padding-bottom:72px !important;
+      top:0 !important;
+      padding-bottom:68px !important;
+    }
+    body.identity-card-visible .floating-access-status{
+      top:calc(var(--identity-fixed-visual-height, 150px) + 10px) !important;
+      right:12px !important;
     }
     body.identity-card-fixed .top-save-holder{
       left:22px !important;
       right:22px !important;
-      bottom:16px !important;
+      bottom:14px !important;
       width:auto !important;
     }
   }
@@ -4879,11 +4890,10 @@ if(evalBig && evalSmall){
       document.documentElement.style.setProperty("--identity-fixed-scale", appScale);
 
       // Reservamos hueco en el lugar original para que el contenido no quede tapado.
-      // Al bajar la barra para no chocar con las etiquetas Beta / In progress,
-      // también sumamos su desplazamiento superior real.
+      // La barra está pegada arriba; las etiquetas flotantes se bajan aparte.
       const h = Math.ceil(card.getBoundingClientRect().height);
-      const fixedTop = parseFloat(getComputedStyle(card).top) || 0;
-      placeholder.style.height = (h + fixedTop + 14) + "px";
+      document.documentElement.style.setProperty("--identity-fixed-visual-height", h + "px");
+      placeholder.style.height = (h + 14) + "px";
     }
 
     let raf = 0;
