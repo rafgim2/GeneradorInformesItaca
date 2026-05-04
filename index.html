@@ -1364,457 +1364,612 @@ body::after{
 
 
 
-<style id="responsive-final-2026-05-04">
-  /* =========================================================
-     RESPONSIVE FINAL: móvil vertical, móvil horizontal y PC
-     ---------------------------------------------------------
-     Esta capa va al final para anular reglas anteriores sin tocar
-     la lógica de la aplicación.
-  ========================================================= */
+<style id="responsive-final-polish-2026">
+/* ==========================================================
+   AJUSTE RESPONSIVE FINAL - MÓVIL VERTICAL / HORIZONTAL / PC
+   ----------------------------------------------------------
+   Capa visual final. No cambia IDs, eventos, Firebase ni lógica.
+   Objetivo: botones legibles, sin desbordes horizontales y paneles
+   ajustados en móvil vertical, móvil horizontal, tablet y PC.
+   ========================================================== */
 
-  html{
-    width:100%;
-    min-width:0;
-    -webkit-text-size-adjust:100%;
-    text-size-adjust:100%;
-    overflow-x:hidden;
-  }
-  body{
-    width:100%;
-    min-width:0;
-    overflow-x:hidden !important;
-  }
+:root{
+  --tap-min:44px;
+  --mobile-pad:12px;
+  --content-max:1560px;
+}
 
-  /* El scale global anterior hacía que en móvil se desajustaran anchuras,
-     botones y barras fijas. La app ahora usa tamaños reales del viewport. */
+html{
+  -webkit-text-size-adjust:100%;
+  text-size-adjust:100%;
+  scroll-behavior:smooth;
+}
+
+body{
+  overflow-x:hidden !important;
+  min-width:0 !important;
+}
+
+button,
+input,
+select,
+textarea{
+  max-width:100%;
+  font:inherit;
+}
+
+button,
+.lang-btn,
+.google-btn{
+  min-height:var(--tap-min);
+  line-height:1.15;
+  white-space:normal;
+  word-break:normal;
+  overflow-wrap:anywhere;
+  touch-action:manipulation;
+  -webkit-tap-highlight-color:rgba(37,99,235,.18);
+}
+
+input[type="text"],
+input[type="password"],
+input[type="number"],
+select,
+textarea{
+  min-height:44px;
+  font-size:16px; /* evita zoom automático en iPhone */
+}
+
+img,svg,canvas,video{
+  max-width:100%;
+}
+
+.app,
+.auth-screen{
+  max-width:var(--content-max);
+}
+
+.app{
+  margin:0 auto;
+}
+
+.sidebar,
+.main,
+.auth-card,
+.panel,
+.hero-card,
+.subject-card{
+  min-width:0;
+}
+
+.toolbar,
+.sticky-tools,
+.auth-actions,
+.modal-actions,
+.lang-switch{
+  min-width:0;
+}
+
+/* PC y pantallas grandes: se mantiene la distribución original, pero sin cortes. */
+@media (min-width:1101px){
+  .app{
+    grid-template-columns:minmax(310px,360px) minmax(0,1fr) !important;
+  }
+  .main{
+    min-width:0;
+  }
+  #generalPanel .sticky-tools{
+    flex-wrap:wrap !important;
+    overflow-x:visible !important;
+  }
+  #generalPanel .sticky-tools > *{
+    flex:0 1 auto;
+  }
+}
+
+/* Tablet y portátil estrecho. */
+@media (max-width:1100px){
+  .app{
+    grid-template-columns:1fr !important;
+    gap:14px !important;
+    padding:14px !important;
+  }
+  .sidebar,
+  .main{
+    width:100% !important;
+  }
+  .main{
+    padding:22px !important;
+  }
+  .sidebar{
+    padding:16px !important;
+  }
+  .auth-screen{
+    padding:18px !important;
+  }
+}
+
+/* Móvil y tablet: quitamos el scale global para que no descuadre ni genere scroll lateral. */
+@media (max-width:900px), (pointer:coarse) and (max-width:1180px){
   .auth-screen,
   .app{
     transform:none !important;
     transform-origin:initial !important;
     width:100% !important;
-    max-width:100% !important;
+    max-width:none !important;
+  }
+
+  body{
+    width:100% !important;
+  }
+
+  .auth-screen{
+    min-height:100svh !important;
+    padding:12px !important;
+    align-items:flex-start !important;
+  }
+
+  .auth-wrap{
+    grid-template-columns:1fr !important;
+    gap:12px !important;
+    width:100% !important;
+  }
+
+  .auth-card{
+    padding:16px !important;
+    border-radius:20px !important;
+  }
+
+  .auth-title,
+  .google-access-card h2{
+    font-size:clamp(24px,7vw,32px) !important;
   }
 
   .app{
-    grid-template-columns:minmax(285px,360px) minmax(0,1fr) !important;
-    gap:16px !important;
-    padding:16px !important;
-  }
-  .sidebar,
-  .main,
-  .auth-card{
-    min-width:0 !important;
-  }
-  .main{
-    padding:clamp(14px,2.2vw,28px) !important;
-  }
-  .panel,
-  .subject-card,
-  .hero-card,
-  .auth-card{
-    max-width:100% !important;
+    display:grid !important;
+    grid-template-columns:1fr !important;
+    min-height:100svh !important;
+    gap:12px !important;
+    padding:10px !important;
   }
 
-  /* Lectura cómoda en táctil: botones e inputs con altura mínima real. */
-  button,
-  .lang-btn,
-  .google-btn{
-    min-height:44px;
-    line-height:1.15;
-    white-space:normal;
-    text-align:center;
-    touch-action:manipulation;
+  .sidebar,
+  .main{
+    border-radius:20px !important;
   }
-  input[type="text"],
-  input[type="password"],
-  select,
-  textarea{
-    min-height:44px;
-    font-size:16px !important; /* evita zoom automático en iPhone */
+
+  .sidebar{
+    padding:12px !important;
+    gap:12px !important;
+    overflow:visible !important;
   }
-  textarea{
-    min-height:104px;
+
+  .main{
+    padding:14px !important;
+    overflow:visible !important;
+  }
+
+  .panel,
+  .hero-card,
+  .subject-card{
+    border-radius:16px !important;
+    padding:12px !important;
+  }
+
+  .row{
+    grid-template-columns:1fr !important;
+    gap:10px !important;
+  }
+
+  .row > [class^="c"],
+  .row > [class*=" c"]{
+    grid-column:1 / -1 !important;
   }
 
   .toolbar,
-  .auth-actions,
   .sticky-tools,
-  .modal-actions{
-    gap:10px !important;
+  .auth-actions,
+  .modal-actions,
+  .lang-switch{
+    display:flex !important;
+    flex-wrap:wrap !important;
+    align-items:stretch !important;
+    gap:8px !important;
+    overflow-x:visible !important;
   }
+
   .toolbar > *,
-  .auth-actions > *,
   .sticky-tools > *,
-  .modal-actions > *{
+  .auth-actions > *,
+  .modal-actions > *,
+  .lang-switch > *{
     min-width:0;
   }
+
+  .toolbar button,
+  .sticky-tools button,
+  .auth-actions button,
+  .modal-actions button,
+  .lang-switch button,
+  #newStudentBtn,
+  #deleteStudentBtn,
+  #summaryBtn,
+  #singleStudentSummaryBtn,
+  #changePasswordBtn,
+  #logoutBtn,
+  #copyBottom{
+    flex:1 1 160px !important;
+    min-height:46px !important;
+    font-size:15px !important;
+    padding:11px 12px !important;
+    text-align:center !important;
+  }
+
+  #generalPanel .sticky-tools{
+    justify-content:stretch !important;
+  }
+
+  #generalPanel .teacher-badge,
+  #generalPanel .tag,
+  .chip,
+  .teacher-badge,
+  .tag,
+  .status{
+    width:auto;
+    max-width:100%;
+    white-space:normal !important;
+    overflow-wrap:anywhere;
+    line-height:1.25;
+  }
+
+  #loggedTeacherBadge,
+  #lastSavedTag{
+    flex:1 1 100% !important;
+    justify-content:center !important;
+    text-align:center !important;
+  }
+
   .class-item,
   .student-item,
   .check{
-    overflow-wrap:anywhere;
+    padding:12px !important;
+    font-size:14px !important;
   }
 
-  .checkbox-grid{
-    grid-template-columns:repeat(auto-fit,minmax(230px,1fr)) !important;
-  }
+  .checkbox-grid,
   .specialist-classes{
-    grid-template-columns:repeat(auto-fit,minmax(170px,1fr)) !important;
+    grid-template-columns:1fr !important;
   }
 
-  /* Pantallas medianas / tablet: una sola columna, pero sin aspecto encogido. */
-  @media (max-width:1100px){
-    .app{
-      grid-template-columns:1fr !important;
-      padding:14px !important;
-    }
-    .sidebar{
-      display:grid !important;
-      grid-template-columns:repeat(2,minmax(0,1fr));
-      gap:14px !important;
-      padding:14px !important;
-    }
-    .sidebar > *{
-      min-width:0 !important;
-    }
+  .subject-head{
+    align-items:stretch !important;
   }
 
-  /* MÓVIL VERTICAL */
-  @media (max-width:700px) and (orientation:portrait){
-    body{
-      font-size:15px;
-    }
-    .auth-screen{
-      min-height:100svh !important;
-      padding:10px !important;
-      align-items:flex-start !important;
-    }
-    .auth-wrap{
-      grid-template-columns:1fr !important;
-      gap:12px !important;
-      width:100% !important;
-    }
-    .auth-card{
-      border-radius:20px !important;
-      padding:14px !important;
-    }
-    .auth-title,
-    .google-access-card h2{
-      font-size:clamp(22px,7vw,30px) !important;
-    }
-    .app-title-banner{
-      max-height:112px !important;
-      border-radius:14px !important;
-    }
+  .subject-head > *{
+    min-width:0;
+  }
 
-    .app{
-      display:flex !important;
-      flex-direction:column !important;
-      gap:12px !important;
-      padding:10px !important;
-      min-height:100svh !important;
-    }
-    .sidebar{
-      display:flex !important;
-      flex-direction:column !important;
-      gap:12px !important;
-      padding:10px !important;
-      border-radius:20px !important;
-      overflow:visible !important;
-    }
-    .main{
-      padding:10px !important;
-      border-radius:20px !important;
-      overflow:visible !important;
-    }
-    .panel{
-      padding:12px !important;
-      border-radius:16px !important;
-    }
+  .subject-head select,
+  .subject-card select{
+    width:100% !important;
+  }
 
-    .row{
-      grid-template-columns:1fr !important;
-      gap:10px !important;
-    }
-    .row > [class^="c"],
-    .row > [class*=" c"]{
-      grid-column:1 / -1 !important;
-    }
-    .auth-grid,
-    .checkbox-grid,
-    .specialist-classes{
-      grid-template-columns:1fr !important;
-    }
-    .toolbar,
-    .auth-actions,
-    .sticky-tools{
-      align-items:stretch !important;
-    }
-    .toolbar button,
-    .auth-actions button,
-    .sticky-tools button,
-    .modal-actions button,
-    #newStudentBtn,
-    #deleteStudentBtn,
-    #newClassBtn,
-    #enterCenterBtn,
-    #createCenterBtn,
-    #loginTeacherBtn,
-    #createTeacherBtn,
-    #changeCenterBtn{
-      width:100% !important;
-      flex:1 1 100% !important;
-      font-size:15px !important;
-      padding:12px 14px !important;
-    }
-    .toolbar select,
-    .auth-actions select,
-    #classSelect{
-      width:100% !important;
-      flex:1 1 100% !important;
-      min-width:0 !important;
-    }
+  .preview{
+    min-height:220px !important;
+    font-size:15px !important;
+    line-height:1.45 !important;
+  }
 
-    .section-title{
-      font-size:16px !important;
-      line-height:1.2;
-    }
-    h1{font-size:24px !important;}
-    h2{font-size:21px !important;}
-    h3{font-size:18px !important;}
+  .modal-overlay{
+    padding:12px !important;
+    align-items:flex-start !important;
+    overflow:auto !important;
+  }
 
-    /* Barra fija superior compacta, legible y sin tapar media pantalla. */
-    body.identity-card-fixed #identityStickyCard{
-      top:0 !important;
-      left:0 !important;
-      width:100vw !important;
-      transform:none !important;
-      border-radius:0 0 14px 14px !important;
-      padding:6px 82px 6px 6px !important;
-      min-height:48px !important;
-      max-height:none !important;
-    }
-    body.identity-card-fixed #identityStickyCard .hero-main-grid{
-      display:grid !important;
-      grid-template-columns:1fr 1fr 1fr !important;
-      align-items:center !important;
-      text-align:center !important;
-      gap:0 !important;
-    }
-    body.identity-card-fixed #identityStickyCard .hero-main-grid > div{
-      padding:2px 4px !important;
-      min-width:0 !important;
-    }
-    body.identity-card-fixed #identityStickyCard .small{
-      font-size:9px !important;
-      line-height:1 !important;
-      white-space:nowrap !important;
-    }
-    body.identity-card-fixed #currentClass,
-    body.identity-card-fixed #bigTeacher,
-    body.identity-card-fixed #currentStudent{
-      font-size:clamp(11px,3.4vw,14px) !important;
-      line-height:1.05 !important;
-      margin-top:2px !important;
-      white-space:nowrap !important;
-      overflow:hidden !important;
-      text-overflow:ellipsis !important;
-    }
-    body.identity-card-fixed .top-save-holder{
-      right:6px !important;
-      left:auto !important;
-      top:50% !important;
-      bottom:auto !important;
-      width:70px !important;
-      transform:translateY(-50%) !important;
-    }
-    body.identity-card-fixed #saveTop,
-    #saveTop{
-      width:100% !important;
-      min-height:34px !important;
-      padding:5px 6px !important;
-      font-size:11px !important;
-      border-radius:10px !important;
-    }
+  .modal-card{
+    margin-top:12px !important;
+    padding:18px !important;
+    border-radius:20px !important;
+  }
 
-    /* Deja aire debajo de la barra fija para que no tape el primer contenido. */
-    body.identity-card-visible .main{
-      padding-top:62px !important;
-    }
+  .google-access-overlay{
+    padding:12px !important;
+  }
 
+  .google-access-card{
+    padding:20px 16px !important;
+    border-radius:22px !important;
+  }
+
+  .google-access-actions .google-btn,
+  .google-access-actions .ghost{
+    width:100% !important;
+  }
+}
+
+/* Móvil vertical: compacto, pero con botones legibles. */
+@media (max-width:700px) and (orientation:portrait){
+  :root{ --tap-min:46px; }
+
+  .app{
+    padding:8px !important;
+    gap:10px !important;
+  }
+
+  .main,
+  .sidebar{
+    padding:10px !important;
+    border-radius:18px !important;
+  }
+
+  h1{font-size:clamp(22px,7vw,28px) !important;}
+  h2{font-size:clamp(20px,6vw,25px) !important;}
+  h3,.section-title{font-size:16px !important;}
+
+  .app-title-banner{
+    max-height:118px !important;
+    border-radius:14px !important;
+  }
+
+  body.identity-card-fixed #identityStickyCard{
+    top:0 !important;
+    left:0 !important;
+    width:100vw !important;
+    transform:none !important;
+    border-radius:0 0 14px 14px !important;
+    padding:7px 86px 7px 8px !important;
+    min-height:44px !important;
+  }
+
+  body.identity-card-fixed #identityStickyCard .hero-main-grid{
+    display:grid !important;
+    grid-template-columns:1fr 1fr 1fr !important;
+    gap:0 !important;
+    align-items:center !important;
+    text-align:center !important;
+  }
+
+  body.identity-card-fixed #identityStickyCard .hero-main-grid > div{
+    padding:3px 5px !important;
+    min-width:0 !important;
+  }
+
+  body.identity-card-fixed #identityStickyCard .small{
+    font-size:9.5px !important;
+    line-height:1 !important;
+    white-space:nowrap !important;
+  }
+
+  body.identity-card-fixed #currentClass,
+  body.identity-card-fixed #bigTeacher,
+  body.identity-card-fixed #currentStudent{
+    font-size:12.5px !important;
+    line-height:1.08 !important;
+    margin-top:2px !important;
+    white-space:nowrap !important;
+    overflow:hidden !important;
+    text-overflow:ellipsis !important;
+  }
+
+  body.identity-card-fixed .top-save-holder{
+    right:7px !important;
+    left:auto !important;
+    top:50% !important;
+    bottom:auto !important;
+    width:74px !important;
+    transform:translateY(-50%) !important;
+  }
+
+  body.identity-card-fixed #saveTop,
+  #saveTop{
+    min-height:34px !important;
+    padding:6px 6px !important;
+    font-size:11px !important;
+    border-radius:10px !important;
+    white-space:nowrap !important;
+  }
+
+  #identityStickyPlaceholder{
+    min-height:54px !important;
+  }
+
+  .toolbar button,
+  .sticky-tools button,
+  .auth-actions button,
+  .modal-actions button,
+  .lang-switch button,
+  #newStudentBtn,
+  #deleteStudentBtn,
+  #summaryBtn,
+  #singleStudentSummaryBtn,
+  #changePasswordBtn,
+  #logoutBtn,
+  #copyBottom{
+    flex:1 1 100% !important;
+    width:100% !important;
+    min-height:48px !important;
+    font-size:15px !important;
+  }
+
+  #newStudentBtn,
+  #deleteStudentBtn{
+    flex-basis:calc(50% - 4px) !important;
+    width:auto !important;
+  }
+
+  .lang-btn{
+    justify-content:center !important;
+  }
+}
+
+/* Móviles muy estrechos: mantiene lectura sin romper el ancho. */
+@media (max-width:380px) and (orientation:portrait){
+  body.identity-card-fixed #identityStickyCard{
+    padding-right:78px !important;
+  }
+  body.identity-card-fixed #identityStickyCard .small{
+    font-size:8.5px !important;
+  }
+  body.identity-card-fixed #currentClass,
+  body.identity-card-fixed #bigTeacher,
+  body.identity-card-fixed #currentStudent{
+    font-size:11.2px !important;
+  }
+  body.identity-card-fixed .top-save-holder{
+    width:68px !important;
+    right:5px !important;
+  }
+  body.identity-card-fixed #saveTop,
+  #saveTop{
+    font-size:10.5px !important;
+    padding:5px 4px !important;
+  }
+}
+
+/* Móvil horizontal: barra baja, controles en filas y más contenido visible. */
+@media (max-width:950px) and (orientation:landscape),
+       (max-width:950px) and (max-height:520px){
+  :root{ --tap-min:42px; }
+
+  .auth-screen,
+  .app{
+    transform:none !important;
+    width:100% !important;
+    max-width:none !important;
+  }
+
+  .auth-screen{
+    min-height:100svh !important;
+    padding:8px !important;
+  }
+
+  .auth-card{
+    padding:12px !important;
+  }
+
+  .app{
+    padding:8px !important;
+    gap:8px !important;
+  }
+
+  .sidebar{
+    padding:10px !important;
+    gap:8px !important;
+  }
+
+  .main{
+    padding:10px !important;
+  }
+
+  .panel,
+  .hero-card,
+  .subject-card{
+    padding:10px !important;
+  }
+
+  body.identity-card-fixed #identityStickyCard{
+    top:0 !important;
+    left:0 !important;
+    width:100vw !important;
+    transform:none !important;
+    border-radius:0 0 14px 14px !important;
+    padding:6px 98px 6px 8px !important;
+    min-height:42px !important;
+  }
+
+  body.identity-card-fixed #identityStickyCard .hero-main-grid{
+    display:grid !important;
+    grid-template-columns:1fr 1fr 1fr !important;
+    gap:0 !important;
+    align-items:center !important;
+    text-align:center !important;
+  }
+
+  body.identity-card-fixed #identityStickyCard .hero-main-grid > div{
+    padding:3px 6px !important;
+    min-width:0 !important;
+  }
+
+  body.identity-card-fixed #identityStickyCard .small{
+    font-size:9.5px !important;
+    line-height:1 !important;
+  }
+
+  body.identity-card-fixed #currentClass,
+  body.identity-card-fixed #bigTeacher,
+  body.identity-card-fixed #currentStudent{
+    font-size:13px !important;
+    line-height:1.05 !important;
+    white-space:nowrap !important;
+    overflow:hidden !important;
+    text-overflow:ellipsis !important;
+  }
+
+  body.identity-card-fixed .top-save-holder{
+    right:8px !important;
+    left:auto !important;
+    top:50% !important;
+    bottom:auto !important;
+    width:84px !important;
+    transform:translateY(-50%) !important;
+  }
+
+  body.identity-card-fixed #saveTop,
+  #saveTop{
+    min-height:32px !important;
+    padding:5px 6px !important;
+    font-size:11px !important;
+    border-radius:10px !important;
+    white-space:nowrap !important;
+  }
+
+  #identityStickyPlaceholder{
+    min-height:52px !important;
+  }
+
+  .toolbar button,
+  .sticky-tools button,
+  .auth-actions button,
+  .modal-actions button,
+  .lang-switch button{
+    flex:1 1 145px !important;
+    min-height:42px !important;
+    font-size:14px !important;
+    padding:9px 10px !important;
+  }
+
+  #generalPanel .sticky-tools{
+    display:grid !important;
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+    align-items:stretch !important;
+  }
+
+  #generalPanel .sticky-tools > *{
+    width:100% !important;
+  }
+
+  #loggedTeacherBadge,
+  #lastSavedTag{
+    grid-column:1 / -1 !important;
+  }
+}
+
+/* Mejoras de impresión/ventanas pequeñas y navegadores con safe-area. */
+@supports (padding:max(0px)){
+  @media (max-width:900px){
+    .app,
+    .auth-screen,
     .google-access-overlay,
     .modal-overlay{
-      padding:10px !important;
-      align-items:flex-start !important;
-      overflow:auto !important;
-    }
-    .google-access-card,
-    .modal-card{
-      border-radius:20px !important;
-      padding:18px !important;
-      margin-top:8px !important;
-    }
-  }
-
-  /* MÓVIL HORIZONTAL: aprovechar anchura y reducir alturas. */
-  @media (max-width:950px) and (orientation:landscape),
-         (max-height:520px) and (max-width:950px){
-    .auth-screen{
-      align-items:flex-start !important;
-      padding:8px !important;
-      min-height:100svh !important;
-    }
-    .auth-wrap{
-      grid-template-columns:1fr 1fr !important;
-      gap:10px !important;
-      width:100% !important;
-    }
-    .auth-card{
-      padding:12px !important;
-      border-radius:18px !important;
-    }
-    .app-title-banner{
-      max-height:86px !important;
-    }
-    .info-list{
-      gap:7px !important;
-      margin-top:8px !important;
-    }
-    .info-item{
-      padding:8px 10px !important;
-      font-size:12px !important;
-      line-height:1.25 !important;
-    }
-
-    .app{
-      display:grid !important;
-      grid-template-columns:minmax(230px,32vw) minmax(0,1fr) !important;
-      gap:10px !important;
-      padding:8px !important;
-      min-height:100svh !important;
-    }
-    .sidebar{
-      display:flex !important;
-      flex-direction:column !important;
-      gap:8px !important;
-      padding:8px !important;
-      border-radius:18px !important;
-      max-height:calc(100svh - 16px) !important;
-      overflow:auto !important;
-    }
-    .main{
-      padding:8px !important;
-      border-radius:18px !important;
-      max-height:calc(100svh - 16px) !important;
-      overflow:auto !important;
-    }
-    body.identity-card-visible .main{
-      padding-top:54px !important;
-    }
-    .panel,
-    .subject-card{
-      padding:10px !important;
-      border-radius:14px !important;
-    }
-    .section-title{font-size:15px !important;}
-    label{font-size:12px !important;}
-    input[type="text"],
-    input[type="password"],
-    select,
-    textarea{
-      min-height:38px !important;
-      font-size:14px !important;
-      padding:8px 10px !important;
-    }
-    button,
-    .lang-btn,
-    .google-btn{
-      min-height:38px !important;
-      padding:8px 10px !important;
-      font-size:13px !important;
-    }
-    textarea{min-height:74px !important;}
-
-    body.identity-card-fixed #identityStickyCard{
-      top:0 !important;
-      left:0 !important;
-      width:100vw !important;
-      transform:none !important;
-      border-radius:0 0 13px 13px !important;
-      padding:5px 92px 5px 8px !important;
-      min-height:44px !important;
-    }
-    body.identity-card-fixed #identityStickyCard .hero-main-grid{
-      display:grid !important;
-      grid-template-columns:1fr 1fr 1fr !important;
-      gap:0 !important;
-    }
-    body.identity-card-fixed #identityStickyCard .hero-main-grid > div{
-      padding:2px 6px !important;
-      min-width:0 !important;
-    }
-    body.identity-card-fixed #identityStickyCard .small{
-      font-size:9px !important;
-      line-height:1 !important;
-    }
-    body.identity-card-fixed #currentClass,
-    body.identity-card-fixed #bigTeacher,
-    body.identity-card-fixed #currentStudent{
-      font-size:13px !important;
-      line-height:1.05 !important;
-      white-space:nowrap !important;
-      overflow:hidden !important;
-      text-overflow:ellipsis !important;
-    }
-    body.identity-card-fixed .top-save-holder{
-      right:8px !important;
-      top:50% !important;
-      width:78px !important;
-      transform:translateY(-50%) !important;
-    }
-    body.identity-card-fixed #saveTop,
-    #saveTop{
-      min-height:30px !important;
-      font-size:11px !important;
-      padding:4px 6px !important;
-    }
-  }
-
-  /* PC ancho: mantiene aspecto de escritorio y evita líneas demasiado largas. */
-  @media (min-width:1300px){
-    .app{
-      max-width:1480px !important;
-      margin:0 auto !important;
+      padding-left:max(8px, env(safe-area-inset-left)) !important;
+      padding-right:max(8px, env(safe-area-inset-right)) !important;
     }
     body.identity-card-fixed #identityStickyCard{
-      left:calc((100vw - min(1480px, 100vw)) / 2 + 392px) !important;
-      width:calc(min(1480px, 100vw) - 408px) !important;
-      transform:none !important;
+      padding-left:max(8px, env(safe-area-inset-left)) !important;
+      padding-right:max(98px, calc(env(safe-area-inset-right) + 98px)) !important;
     }
   }
-
-  /* Móviles muy estrechos: que nunca se corten los botones principales. */
-  @media (max-width:380px){
-    button,
-    .lang-btn,
-    .google-btn{
-      font-size:13px !important;
-      padding-left:8px !important;
-      padding-right:8px !important;
-    }
-    body.identity-card-fixed #identityStickyCard{
-      padding-right:72px !important;
-    }
-    body.identity-card-fixed .top-save-holder{
-      width:62px !important;
-    }
-    body.identity-card-fixed #currentClass,
-    body.identity-card-fixed #bigTeacher,
-    body.identity-card-fixed #currentStudent{
-      font-size:11px !important;
-    }
-  }
+}
 </style>
-
 </head>
 <body class="preaccess-loading">
 
@@ -5650,5 +5805,25 @@ if(evalBig && evalSmall){
 })();
 </script>
 
+
+
+<script id="responsive-final-polish-2026-script">
+/* Pequeño apoyo a la capa responsive: recalcula alto útil real en móviles.
+   No toca la lógica de la app ni reemplaza manejadores existentes. */
+(function(){
+  "use strict";
+  function setViewportVars(){
+    var vh = (window.visualViewport && window.visualViewport.height) ? window.visualViewport.height : window.innerHeight;
+    document.documentElement.style.setProperty("--real-vh", vh + "px");
+    document.documentElement.classList.toggle("is-mobile-landscape", window.innerWidth > window.innerHeight && window.innerHeight <= 520);
+  }
+  setViewportVars();
+  window.addEventListener("resize", setViewportVars, {passive:true});
+  window.addEventListener("orientationchange", function(){ setTimeout(setViewportVars, 80); }, {passive:true});
+  if(window.visualViewport){
+    window.visualViewport.addEventListener("resize", setViewportVars, {passive:true});
+  }
+})();
+</script>
 </body>
 </html>
