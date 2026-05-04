@@ -4907,8 +4907,84 @@ syncEnterCenterVisibility();
       `;
       document.body.appendChild(overlay);
       document.body.classList.add("report-open");
+
+      // Guardamos el contenido exacto del informe para imprimirlo en un documento aislado.
+      // Así el PDF no arrastra la pantalla de notas generales ni estilos externos de la app.
+      overlay.__reportTitle = title || document.title || "Informe";
+      overlay.__reportContentHtml = contentHtml || "";
+      overlay.__reportStyle = reportStyle || "";
+
       document.getElementById("reportBackBtn").addEventListener("click", closeInAppReport);
-      document.getElementById("reportPrintBtn").addEventListener("click", () => window.print());
+      document.getElementById("reportPrintBtn").addEventListener("click", printCurrentInAppReport);
+    }
+
+    function printCurrentInAppReport(){
+      const overlay = document.getElementById("inAppReportOverlay");
+      if(!overlay){
+        window.print();
+        return;
+      }
+
+      const title = overlay.__reportTitle || "Informe";
+      const contentHtml = overlay.__reportContentHtml || overlay.querySelector(".in-app-report-scroll")?.innerHTML || "";
+      const reportStyle = overlay.__reportStyle || "";
+
+      const iframe = document.createElement("iframe");
+      iframe.setAttribute("aria-hidden", "true");
+      iframe.style.position = "fixed";
+      iframe.style.right = "0";
+      iframe.style.bottom = "0";
+      iframe.style.width = "0";
+      iframe.style.height = "0";
+      iframe.style.border = "0";
+      iframe.style.opacity = "0";
+      document.body.appendChild(iframe);
+
+      const doc = iframe.contentWindow.document;
+      doc.open();
+      doc.write(`<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>${escapeHtml(title)}</title>
+<style>
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:#fff;color:#1f2937;}
+  body{font-family:Inter,Arial,Helvetica,sans-serif;padding:18px;}
+  table{page-break-inside:auto;}
+  tr{page-break-inside:avoid;page-break-after:auto;}
+  thead{display:table-header-group;}
+  tfoot{display:table-footer-group;}
+  @page{size:auto;margin:10mm;}
+  @media print{
+    html,body{background:#fff !important;}
+    body{padding:0 !important;}
+    .card{box-shadow:none !important;}
+    .sticky,.sticky-head{position:static !important;left:auto !important;}
+    .zoom-wrap{min-width:0 !important;width:100% !important;}
+  }
+  ${reportStyle}
+</style>
+</head>
+<body>${contentHtml}</body>
+</html>`);
+      doc.close();
+
+      const doPrint = () => {
+        try{
+          iframe.contentWindow.focus();
+          iframe.contentWindow.print();
+        }finally{
+          setTimeout(() => iframe.remove(), 1200);
+        }
+      };
+
+      if(iframe.contentWindow.document.readyState === "complete"){
+        setTimeout(doPrint, 80);
+      }else{
+        iframe.onload = () => setTimeout(doPrint, 80);
+      }
     }
 
     async function openSummaryPage(){
