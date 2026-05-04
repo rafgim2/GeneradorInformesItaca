@@ -619,8 +619,6 @@ button:hover{transform:translateY(-2px);}
 .subject-card.locked-specialist,.field-disabled{opacity:.6;}
 @media (prefers-reduced-motion: reduce){body::after,button::before{animation:none !important;transition:none !important;}}
 </style>
-
-
 <style id="tech-enhance-v2">
 html,body{background:linear-gradient(180deg,#d7e8ff 0%,#e8f1ff 48%,#f3f8ff 100%) !important;}
 body::before{
@@ -715,8 +713,6 @@ body::after{
   }
 }
 </style>
-
-
 <style id="google-access-gate">
   body.preaccess-locked .auth-screen,
   body.preaccess-locked .app{
@@ -834,8 +830,6 @@ body::after{
   .floating-access-status{position:fixed; top:12px; right:12px; z-index:999998; display:flex; flex-direction:column; gap:6px; align-items:flex-end;}
   .floating-access-status .teacher-badge,.floating-access-status .tag{box-shadow:0 10px 24px rgba(0,0,0,.08);}
 </style>
-
-
 <style id="change-password-modal-styles">
   .modal-overlay{
     position:fixed;
@@ -874,13 +868,10 @@ body::after{
     margin-top:14px;
   }
 </style>
-
-
-<link rel="icon" type="image/jpeg" href="https://raw.githubusercontent.com/rafgim2/GeneradorInformesItaca/main/iconapp5.png"/>
-<link rel="shortcut icon" type="image/jpeg" href="https://raw.githubusercontent.com/rafgim2/GeneradorInformesItaca/main/iconapp5.png"/>
-<link rel="apple-touch-icon" href="https://raw.githubusercontent.com/rafgim2/GeneradorInformesItaca/main/iconapp5.png"/>
-<meta name="theme-color" content="#2563eb"/>
-
+<link href="https://raw.githubusercontent.com/rafgim2/GeneradorInformesItaca/main/iconapp5.png" rel="icon" type="image/jpeg"/>
+<link href="https://raw.githubusercontent.com/rafgim2/GeneradorInformesItaca/main/iconapp5.png" rel="shortcut icon" type="image/jpeg"/>
+<link href="https://raw.githubusercontent.com/rafgim2/GeneradorInformesItaca/main/iconapp5.png" rel="apple-touch-icon"/>
+<meta content="#2563eb" name="theme-color"/>
 <style id="app-banner-styles">
   .app-title-banner-wrap{
     width:100%;
@@ -902,7 +893,6 @@ body::after{
     .app-title-banner{max-height:150px;border-radius:16px;}
   }
 </style>
-
 <style id="privacy-sticky-fixes">
   /* Privacidad: el nombre se mantiene solo como dato interno, no visible en pantalla */
   #alumne{
@@ -987,9 +977,6 @@ body::after{
     }
   }
 </style>
-
-
-
 <style id="identity-sticky-safe-fix">
   /* Corrección segura: el bloque Classe / Mestre/a / Alumne/a queda pegado arriba
      durante el scroll de la página, sin sacarlo del flujo ni romper botones/listas. */
@@ -1029,209 +1016,247 @@ body::after{
     }
   }
 </style>
-
-</head>
+<style id="identity-sticky-final-fix">
+/* FIX DEFINITIVO: el bloque Classe / Mestre/a / Alumne/a ya no está dentro de .hero.
+   Así sticky no se corta al terminar ese contenedor. */
+.main{
+  overflow:visible !important;
+  position:relative !important;
+}
+.hero{
+  overflow:visible !important;
+}
+#identityStickyCard{
+  position:-webkit-sticky !important;
+  position:sticky !important;
+  top:12px !important;
+  z-index:999999 !important;
+  margin:0 0 14px 0 !important;
+  width:100% !important;
+  padding-right:190px !important;
+  background:linear-gradient(180deg, rgba(238,244,255,.98), rgba(248,251,255,.96)) !important;
+  border:1px solid rgba(147,197,253,.9) !important;
+  box-shadow:0 18px 42px rgba(37,99,235,.22) !important;
+  backdrop-filter:blur(14px) saturate(130%);
+}
+#identityStickyCard::after{
+  content:"";
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:-18px;
+  height:18px;
+  pointer-events:none;
+  background:linear-gradient(180deg, rgba(237,244,255,.92), rgba(237,244,255,0));
+}
+.top-save-holder{
+  position:absolute !important;
+  right:22px !important;
+  top:50% !important;
+  transform:translateY(-50%) !important;
+  width:145px !important;
+  z-index:3 !important;
+}
+@media (max-width:900px){
+  #identityStickyCard{
+    top:8px !important;
+    padding-right:22px !important;
+    padding-bottom:88px !important;
+  }
+  .top-save-holder{
+    left:22px !important;
+    right:22px !important;
+    top:auto !important;
+    bottom:18px !important;
+    width:auto !important;
+    transform:none !important;
+  }
+}
+</style></head>
 <body class="preaccess-loading">
-
 <div class="floating-access-status" id="floatingAccessStatus">
-  <span class="teacher-badge" id="floatingAccessBadge">Comprovant accés…</span>
-  <span class="tag" id="floatingAccessDetail">Comprovant l’estat de la prova…</span>
+<span class="teacher-badge" id="floatingAccessBadge">Comprovant accés…</span>
+<span class="tag" id="floatingAccessDetail">Comprovant l’estat de la prova…</span>
 </div>
-
 <div class="google-access-overlay" id="googleAccessOverlay">
-  <div class="google-access-card">
-    <div class="google-access-badge">Accés amb Google</div>
-    <h2>Centre d'avaluació compartida</h2>
-    <p></p>
-    <div class="google-access-status" id="googleAccessStatus">Comprovant accés…</div>
-    <div class="google-access-actions">
-      <button class="google-btn" id="googleLoginBtn" type="button">
-        <svg aria-hidden="true" viewBox="0 0 24 24">
-          <path fill="#EA4335" d="M12 10.2v3.9h5.42c-.24 1.25-.95 2.31-2 3.01l3.24 2.51c1.89-1.74 2.98-4.31 2.98-7.36 0-.7-.06-1.38-.18-2.05H12z"/>
-          <path fill="#34A853" d="M12 22c2.7 0 4.96-.9 6.61-2.44l-3.24-2.51c-.9.6-2.05.95-3.37.95-2.59 0-4.79-1.75-5.57-4.1H3.08v2.57A9.99 9.99 0 0 0 12 22z"/>
-          <path fill="#4A90E2" d="M6.43 13.9A5.99 5.99 0 0 1 6.12 12c0-.66.11-1.3.31-1.9V7.53H3.08A9.99 9.99 0 0 0 2 12c0 1.61.39 3.13 1.08 4.47l3.35-2.57z"/>
-          <path fill="#FBBC05" d="M12 5.98c1.47 0 2.8.51 3.84 1.5l2.88-2.88C16.95 2.97 14.7 2 12 2A9.99 9.99 0 0 0 3.08 7.53L6.43 10.1c.78-2.35 2.98-4.12 5.57-4.12z"/>
-        </svg>
-        <span class="google-btn-text">Continuar amb Google</span>
-      </button>
-      <button class="ghost google-access-hidden" id="googleLogoutBtn" type="button">Canviar de compte</button>
-    </div>
-    <div class="google-access-small"></div>
-  </div>
+<div class="google-access-card">
+<div class="google-access-badge">Accés amb Google</div>
+<h2>Centre d'avaluació compartida</h2>
+<p></p>
+<div class="google-access-status" id="googleAccessStatus">Comprovant accés…</div>
+<div class="google-access-actions">
+<button class="google-btn" id="googleLoginBtn" type="button">
+<svg aria-hidden="true" viewbox="0 0 24 24">
+<path d="M12 10.2v3.9h5.42c-.24 1.25-.95 2.31-2 3.01l3.24 2.51c1.89-1.74 2.98-4.31 2.98-7.36 0-.7-.06-1.38-.18-2.05H12z" fill="#EA4335"></path>
+<path d="M12 22c2.7 0 4.96-.9 6.61-2.44l-3.24-2.51c-.9.6-2.05.95-3.37.95-2.59 0-4.79-1.75-5.57-4.1H3.08v2.57A9.99 9.99 0 0 0 12 22z" fill="#34A853"></path>
+<path d="M6.43 13.9A5.99 5.99 0 0 1 6.12 12c0-.66.11-1.3.31-1.9V7.53H3.08A9.99 9.99 0 0 0 2 12c0 1.61.39 3.13 1.08 4.47l3.35-2.57z" fill="#4A90E2"></path>
+<path d="M12 5.98c1.47 0 2.8.51 3.84 1.5l2.88-2.88C16.95 2.97 14.7 2 12 2A9.99 9.99 0 0 0 3.08 7.53L6.43 10.1c.78-2.35 2.98-4.12 5.57-4.12z" fill="#FBBC05"></path>
+</svg>
+<span class="google-btn-text">Continuar amb Google</span>
+</button>
+<button class="ghost google-access-hidden" id="googleLogoutBtn" type="button">Canviar de compte</button>
 </div>
-
-
+<div class="google-access-small"></div>
+</div>
+</div>
 <div class="auth-screen" id="authScreen">
-  <div class="auth-wrap">
-    <section class="auth-card auth-hero stack">
-      <div class="brand app-title-banner-wrap">
-        <img class="app-title-banner" src="https://raw.githubusercontent.com/rafgim2/GeneradorInformesItaca/main/Bannerapp.jpg" alt="Centre d'avaluació compartida"/>
-        <p class="muted" style="margin:0;max-width:700px;">
+<div class="auth-wrap">
+<section class="auth-card auth-hero stack">
+<div class="brand app-title-banner-wrap">
+<img alt="Centre d'avaluació compartida" class="app-title-banner" src="https://raw.githubusercontent.com/rafgim2/GeneradorInformesItaca/main/Bannerapp.jpg"/>
+<p class="muted" style="margin:0;max-width:700px;">
           El primer pas és entrar en un centre educatiu existent o crear-ne un de nou. Una vegada dins del centre, podràs afegir mestres, classes i alumnat des de zero.
         </p>
-      </div>
-      <div class="info-list">
-        <div class="info-item"><strong>1. Seleccionar o crear un centre</strong><br/>Cada centre té la seua pròpia contrasenya i el seu propi espai independent.</div>
-        <div class="info-item"><strong>2. Entrar en el centre</strong><br/>Una vegada dins, podràs crear els mestres del centre, tutors o especialistes.</div>
-        <div class="info-item"><strong>3. Començar des de zero</strong><br/>Aquesta app no porta alumnat ni classes precreades. Tot es crea dins de cada centre.</div>
-      </div>
+</div>
+<div class="info-list">
+<div class="info-item"><strong>1. Seleccionar o crear un centre</strong><br/>Cada centre té la seua pròpia contrasenya i el seu propi espai independent.</div>
+<div class="info-item"><strong>2. Entrar en el centre</strong><br/>Una vegada dins, podràs crear els mestres del centre, tutors o especialistes.</div>
+<div class="info-item"><strong>3. Començar des de zero</strong><br/>Aquesta app no porta alumnat ni classes precreades. Tot es crea dins de cada centre.</div>
+</div>
 <div class="auth-credit" style="margin-top:60px;"></div>
 </section>
-
-    <section class="auth-card stack">
-      <div id="centerSetupSection">
-      <div id="enterCenterSection">
-      <div class="section-title">Entrar en un centre educatiu</div>
-      <div class="row">
-        <div class="c12">
-          <label for="centerSearchInput">Nom del centre educatiu</label>
-          <input id="centerSearchInput" type="text" placeholder="Escriu exactament el nom del centre" autocomplete="off"/>
-        </div>
-        <div class="c12">
-          <label for="centerPassword">Contrasenya del centre</label>
-          <input id="centerPassword" type="password" placeholder="Escriu la contrasenya del centre"/>
-        </div>
-      </div>
-      <div class="auth-actions">
-        <button class="primary" id="enterCenterBtn">Entrar en el centre</button>
-      </div>
-
-      <div class="divider"></div>
-      </div>
-
-      <div id="createCenterSection">
-      <div class="section-title">Crear un centre educatiu nou</div>
-      <div class="auth-grid">
-        <div>
-          <label for="createCenterName">Nom del centre</label>
-          <input id="createCenterName" type="text" placeholder="Ex.: CEIP La Font"/>
-        </div>
-        <div>
-          <label for="createCenterPassword">Contrasenya del centre</label>
-          <input id="createCenterPassword" type="password" placeholder="Crea una contrasenya per al centre"/>
-        </div>
-      </div>
-      <div style="margin-top:12px;">
-        <label for="createCenterInviteEmails">Correus de Gmail amb accés automàtic</label>
-        <textarea class="invite-email-list" id="createCenterInviteEmails" placeholder="Afig un correu per línia o separat per comes.\nEx.: mestre1@gmail.com, mestre2@gmail.com"></textarea>
-        <div class="create-center-note">En crear el centre, aquests correus rebran el mateix tipus d'accés que el compte de Google amb què has iniciat sessió: <strong>trial</strong> si el teu compte és trial o <strong>full</strong> si el teu compte és full.</div>
-      </div>
-      <div class="auth-actions">
-        <button class="secondary" id="createCenterBtn">Crear centre i entrar</button>
-      </div>
-
-      <div class="divider"></div>
-      </div>
-      </div>
-
-      <div class="stack hidden" id="teacherAccessSection">
-        <div class="toolbar" style="justify-content:space-between;align-items:center;">
-          <div class="section-title" style="margin-bottom:0;">Gestió del centre</div>
-          <button class="ghost" id="changeCenterBtn">Canviar de centre</button>
-        </div>
-        <div class="teacher-badge" id="selectedCenterBadge">Centre: —</div>
-
-        <div class="divider"></div>
-
-        <div class="section-title">Entrar com a mestre/a</div>
-        <div class="row">
-          <div class="c12">
-            <label for="loginTeacherSelect">Mestre/a</label>
-            <select id="loginTeacherSelect">
-              <option value="">-- Selecciona un mestre/a --</option>
-            </select>
-          </div>
-          <div class="c12">
-            <label for="loginPassword">Contrasenya</label>
-            <input id="loginPassword" type="password" placeholder="Escriu la contrasenya"/>
-          </div>
-        </div>
-        <div class="auth-actions">
-          <button class="primary" id="loginTeacherBtn">Entrar com a mestre/a</button>
-        </div>
-
-        <div class="divider" id="createTeacherDivider"></div>
-
-        <div id="createTeacherSection">
-        <div class="section-title">Crear un mestre/a nou</div>
-        <div class="auth-grid">
-          <div>
-            <label for="registerTeacherName">Nom del mestre/a</label>
-            <input id="registerTeacherName" type="text" placeholder="Ex.: Marta Soler"/>
-          </div>
-          <div>
-            <label for="registerPassword">Contrasenya</label>
-            <input id="registerPassword" type="password" placeholder="Crea una contrasenya"/>
-          </div>
-        </div>
-        <div class="row" style="margin-top:2px;">
-          <div class="c6">
-            <label for="registerTeacherType">Tipus de mestre/a</label>
-            <select id="registerTeacherType">
-              <option value="tutor">Tutor/a</option>
-              <option value="specialist">Especialista</option>
-            </select>
-          </div>
-          <div class="c6 hidden" id="registerSpecialtyWrap">
-            <label for="registerSpecialty">Especialitat</label>
-            <select id="registerSpecialty"></select>
-          </div>
-        </div>
-        <div class="row" style="margin-top:2px;">
-          <div class="c6" id="registerClassModeWrap">
-            <label for="registerClassMode">Classe associada</label>
-            <select id="registerClassMode">
-              <option value="existing">Triar classe existent</option>
-              <option value="new">Crear classe nova</option>
-            </select>
-          </div>
-          <div class="c6" id="registerExistingClassWrap">
-            <label for="registerExistingClass">Classe existent</label>
-            <select id="registerExistingClass"></select>
-          </div>
-          <div class="c6 hidden" id="registerNewClassWrap">
-            <label for="registerNewClass">Nova classe</label>
-            <input id="registerNewClass" type="text" placeholder="Ex.: 2PRI-B"/>
-          </div>
-        </div>
-        <div class="specialist-box hidden" id="registerSpecialistClassesWrap">
-          <label>Classes on entra l'especialista</label>
-          <div class="small">Marca una o diverses classes del centre.</div>
-          <div class="specialist-classes" id="registerSpecialistClasses"></div>
-        </div>
-        <div class="auth-actions">
-          <button class="secondary" id="createTeacherBtn">Crear mestre/a i entrar</button>
-        </div>
-        </div>
+<section class="auth-card stack">
+<div id="centerSetupSection">
+<div id="enterCenterSection">
+<div class="section-title">Entrar en un centre educatiu</div>
+<div class="row">
+<div class="c12">
+<label for="centerSearchInput">Nom del centre educatiu</label>
+<input autocomplete="off" id="centerSearchInput" placeholder="Escriu exactament el nom del centre" type="text"/>
 </div>
-
-      <p class="small" id="authMessage">Selecciona un centre o crea'n un de nou.</p>
-    </section>
-  </div>
+<div class="c12">
+<label for="centerPassword">Contrasenya del centre</label>
+<input id="centerPassword" placeholder="Escriu la contrasenya del centre" type="password"/>
 </div>
-
-
+</div>
+<div class="auth-actions">
+<button class="primary" id="enterCenterBtn">Entrar en el centre</button>
+</div>
+<div class="divider"></div>
+</div>
+<div id="createCenterSection">
+<div class="section-title">Crear un centre educatiu nou</div>
+<div class="auth-grid">
+<div>
+<label for="createCenterName">Nom del centre</label>
+<input id="createCenterName" placeholder="Ex.: CEIP La Font" type="text"/>
+</div>
+<div>
+<label for="createCenterPassword">Contrasenya del centre</label>
+<input id="createCenterPassword" placeholder="Crea una contrasenya per al centre" type="password"/>
+</div>
+</div>
+<div style="margin-top:12px;">
+<label for="createCenterInviteEmails">Correus de Gmail amb accés automàtic</label>
+<textarea class="invite-email-list" id="createCenterInviteEmails" placeholder="Afig un correu per línia o separat per comes.\nEx.: mestre1@gmail.com, mestre2@gmail.com"></textarea>
+<div class="create-center-note">En crear el centre, aquests correus rebran el mateix tipus d'accés que el compte de Google amb què has iniciat sessió: <strong>trial</strong> si el teu compte és trial o <strong>full</strong> si el teu compte és full.</div>
+</div>
+<div class="auth-actions">
+<button class="secondary" id="createCenterBtn">Crear centre i entrar</button>
+</div>
+<div class="divider"></div>
+</div>
+</div>
+<div class="stack hidden" id="teacherAccessSection">
+<div class="toolbar" style="justify-content:space-between;align-items:center;">
+<div class="section-title" style="margin-bottom:0;">Gestió del centre</div>
+<button class="ghost" id="changeCenterBtn">Canviar de centre</button>
+</div>
+<div class="teacher-badge" id="selectedCenterBadge">Centre: —</div>
+<div class="divider"></div>
+<div class="section-title">Entrar com a mestre/a</div>
+<div class="row">
+<div class="c12">
+<label for="loginTeacherSelect">Mestre/a</label>
+<select id="loginTeacherSelect">
+<option value="">-- Selecciona un mestre/a --</option>
+</select>
+</div>
+<div class="c12">
+<label for="loginPassword">Contrasenya</label>
+<input id="loginPassword" placeholder="Escriu la contrasenya" type="password"/>
+</div>
+</div>
+<div class="auth-actions">
+<button class="primary" id="loginTeacherBtn">Entrar com a mestre/a</button>
+</div>
+<div class="divider" id="createTeacherDivider"></div>
+<div id="createTeacherSection">
+<div class="section-title">Crear un mestre/a nou</div>
+<div class="auth-grid">
+<div>
+<label for="registerTeacherName">Nom del mestre/a</label>
+<input id="registerTeacherName" placeholder="Ex.: Marta Soler" type="text"/>
+</div>
+<div>
+<label for="registerPassword">Contrasenya</label>
+<input id="registerPassword" placeholder="Crea una contrasenya" type="password"/>
+</div>
+</div>
+<div class="row" style="margin-top:2px;">
+<div class="c6">
+<label for="registerTeacherType">Tipus de mestre/a</label>
+<select id="registerTeacherType">
+<option value="tutor">Tutor/a</option>
+<option value="specialist">Especialista</option>
+</select>
+</div>
+<div class="c6 hidden" id="registerSpecialtyWrap">
+<label for="registerSpecialty">Especialitat</label>
+<select id="registerSpecialty"></select>
+</div>
+</div>
+<div class="row" style="margin-top:2px;">
+<div class="c6" id="registerClassModeWrap">
+<label for="registerClassMode">Classe associada</label>
+<select id="registerClassMode">
+<option value="existing">Triar classe existent</option>
+<option value="new">Crear classe nova</option>
+</select>
+</div>
+<div class="c6" id="registerExistingClassWrap">
+<label for="registerExistingClass">Classe existent</label>
+<select id="registerExistingClass"></select>
+</div>
+<div class="c6 hidden" id="registerNewClassWrap">
+<label for="registerNewClass">Nova classe</label>
+<input id="registerNewClass" placeholder="Ex.: 2PRI-B" type="text"/>
+</div>
+</div>
+<div class="specialist-box hidden" id="registerSpecialistClassesWrap">
+<label>Classes on entra l'especialista</label>
+<div class="small">Marca una o diverses classes del centre.</div>
+<div class="specialist-classes" id="registerSpecialistClasses"></div>
+</div>
+<div class="auth-actions">
+<button class="secondary" id="createTeacherBtn">Crear mestre/a i entrar</button>
+</div>
+</div>
+</div>
+<p class="small" id="authMessage">Selecciona un centre o crea'n un de nou.</p>
+</section>
+</div>
+</div>
 <div class="modal-overlay hidden" id="changePasswordModal">
-  <div class="modal-card">
-    <h3>Canviar contrasenya</h3>
-    <p>Escriu dues vegades la nova contrasenya del mestre/a actual.</p>
-    <div class="stack">
-      <div>
-        <label for="newTeacherPassword">Nova contrasenya</label>
-        <input id="newTeacherPassword" type="password" placeholder="Mínim 4 caràcters"/>
-      </div>
-      <div>
-        <label for="confirmTeacherPassword">Repetix la nova contrasenya</label>
-        <input id="confirmTeacherPassword" type="password" placeholder="Torna a escriure la contrasenya"/>
-      </div>
-    </div>
-    <div class="modal-actions">
-      <button class="ghost" id="cancelChangePasswordBtn" type="button">Cancel·lar</button>
-      <button class="primary" id="saveChangePasswordBtn" type="button">Guardar nova contrasenya</button>
-    </div>
-  </div>
+<div class="modal-card">
+<h3>Canviar contrasenya</h3>
+<p>Escriu dues vegades la nova contrasenya del mestre/a actual.</p>
+<div class="stack">
+<div>
+<label for="newTeacherPassword">Nova contrasenya</label>
+<input id="newTeacherPassword" placeholder="Mínim 4 caràcters" type="password"/>
 </div>
-
+<div>
+<label for="confirmTeacherPassword">Repetix la nova contrasenya</label>
+<input id="confirmTeacherPassword" placeholder="Torna a escriure la contrasenya" type="password"/>
+</div>
+</div>
+<div class="modal-actions">
+<button class="ghost" id="cancelChangePasswordBtn" type="button">Cancel·lar</button>
+<button class="primary" id="saveChangePasswordBtn" type="button">Guardar nova contrasenya</button>
+</div>
+</div>
+</div>
 <div class="app hidden-before-login" id="appShell">
 <aside class="sidebar">
 <input id="centerName" type="hidden" value=""/>
@@ -1242,7 +1267,7 @@ body::after{
 <div class="panel stack">
 <div class="section-title">Classes</div>
 <div class="toolbar">
-<select id="classSelect" style="flex:1;min-width:160px;" disabled></select>
+<select disabled="" id="classSelect" style="flex:1;min-width:160px;"></select>
 <button class="secondary hidden" id="newClassBtn">Nova classe</button>
 </div>
 <div class="small" id="teacherOnlyClassNote">Aquest mestre/a només pot accedir a la seua classe assignada.</div>
@@ -1264,9 +1289,7 @@ body::after{
 </div>
 </aside>
 <main class="main">
-
-<div class="hero" style="flex-direction:column;gap:12px;">
-  <div class="hero-card" id="identityStickyCard" style="
+<div class="hero-card" id="identityStickyCard" style="
   width:100%;
   padding:22px 26px;
   background:#eef4ff;
@@ -1274,42 +1297,38 @@ body::after{
   box-shadow:0 8px 22px rgba(37,99,235,.08);
   border-radius:24px;
 ">
-    <div class="hero-main-grid" style="
+<div class="hero-main-grid" style="
   display:grid;
   grid-template-columns:1fr 1fr 1fr;
   gap:0;
   align-items:stretch;
   text-align:center;
 ">
-      <div style="padding:12px 20px;display:flex;flex-direction:column;justify-content:center;">
-        <div class="small" style="font-weight:900;letter-spacing:.02em;font-size:15px;color:#475569;">Classe:</div>
-        <div id="currentClass" style="font-size:30px;font-weight:900;color:#2563eb;line-height:1.15;margin-top:5px;">—</div>
-      </div>
+<div style="padding:12px 20px;display:flex;flex-direction:column;justify-content:center;">
+<div class="small" style="font-weight:900;letter-spacing:.02em;font-size:15px;color:#475569;">Classe:</div>
+<div id="currentClass" style="font-size:30px;font-weight:900;color:#2563eb;line-height:1.15;margin-top:5px;">—</div>
+</div>
+<div style="padding:12px 20px;border-left:1px solid #b9cdbf;border-right:1px solid #b9cdbf;display:flex;flex-direction:column;justify-content:center;">
+<div class="small" style="font-weight:900;letter-spacing:.02em;font-size:15px;color:#475569;">Mestre/a:</div>
+<div id="bigTeacher" style="font-size:30px;font-weight:900;color:#2563eb;line-height:1.15;margin-top:5px;">—</div>
+</div>
+<div style="padding:12px 20px;display:flex;flex-direction:column;justify-content:center;">
+<div class="small" style="font-weight:900;letter-spacing:.02em;font-size:15px;color:#475569;">Alumne/a:</div>
+<div id="currentStudent" style="font-size:30px;font-weight:900;color:#2563eb;line-height:1.15;margin-top:5px;">—</div>
+</div>
+</div>
+<div class="top-save-holder">
+<button class="success full" id="saveTop" onclick="document.getElementById('saveSide') &amp;&amp; document.getElementById('saveSide').click();" type="button">Guardar</button>
+</div>
+</div><div class="hero" style="flex-direction:column;gap:12px;">
 
-      <div style="padding:12px 20px;border-left:1px solid #b9cdbf;border-right:1px solid #b9cdbf;display:flex;flex-direction:column;justify-content:center;">
-        <div class="small" style="font-weight:900;letter-spacing:.02em;font-size:15px;color:#475569;">Mestre/a:</div>
-        <div id="bigTeacher" style="font-size:30px;font-weight:900;color:#2563eb;line-height:1.15;margin-top:5px;">—</div>
-      </div>
-
-      <div style="padding:12px 20px;display:flex;flex-direction:column;justify-content:center;">
-        <div class="small" style="font-weight:900;letter-spacing:.02em;font-size:15px;color:#475569;">Alumne/a:</div>
-        <div id="currentStudent" style="font-size:30px;font-weight:900;color:#2563eb;line-height:1.15;margin-top:5px;">—</div>
-      </div>
-    </div>
-    <div class="top-save-holder">
-      <button class="success full" id="saveTop" type="button" onclick="document.getElementById('saveSide') && document.getElementById('saveSide').click();">Guardar</button>
-    </div>
-  </div>
-
-
-
-  <div class="hero-card" style="
+<div class="hero-card" style="
     padding:18px;
     background:#eef4ff;
     border:2px solid #93c5fd;
     text-align:center;
   ">
-    <div style="
+<div style="
       font-size:14px;
       font-weight:800;
       color:#1e40af;
@@ -1317,8 +1336,7 @@ body::after{
     ">
       AVALUACIÓ ACTUAL
     </div>
-
-    <div id="bigEvaluation" style="
+<div id="bigEvaluation" style="
       font-size:34px;
       font-weight:900;
       color:#1d4ed8;
@@ -1326,45 +1344,34 @@ body::after{
     ">
       3a Avaluació
     </div>
-    <div style="margin-top:10px;">
-      <label style="font-weight:700;color:#1e40af;margin-right:6px;"><select id="evaluationSelect" style="width:auto;padding:6px 10px;border-radius:10px;border:1px solid #93c5fd;font-size:15px;">
-        <option value="eval1">1a Avaluació</option>
-        <option value="eval2">2a Avaluació</option>
-        <option value="eval3" selected>3a Avaluació</option>
-      </select>
-    </div>
-
-
-    <div style="margin-top:12px;">
-      <label style="font-weight:700;color:#1e40af;margin-right:8px;">
-
-      </label>
-
-    </div>
-  </div>
-
-
-
-  <div class="hero-card" style="padding:16px 18px;">
-    <div style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:14px;align-items:center;">
-      <div class="status" id="statusBox">Preparat</div>
-      <div class="stack" style="gap:8px;">
-        <div class="chip">Centre: <span id="currentCenter">—</span></div>
-
-      </div>
-    </div>
-  </div>
-
-  <div class="specialist-note-banner" id="specialistEditBanner"></div>
-
-  <div class="panel" id="trialAccessPanel" style="margin-bottom:16px;">
-    <div class="sticky-tools" style="justify-content:space-between;gap:12px;flex-wrap:wrap;">
-      <span class="teacher-badge" id="trialAccessBadge">Comprovant accés…</span>
-      <span class="tag" id="trialAccessDetail">Comprovant l’estat de la prova…</span>
-    </div>
-  </div>
+<div style="margin-top:10px;">
+<label style="font-weight:700;color:#1e40af;margin-right:6px;"><select id="evaluationSelect" style="width:auto;padding:6px 10px;border-radius:10px;border:1px solid #93c5fd;font-size:15px;">
+<option value="eval1">1a Avaluació</option>
+<option value="eval2">2a Avaluació</option>
+<option selected="" value="eval3">3a Avaluació</option>
+</select>
+</label></div>
+<div style="margin-top:12px;">
+<label style="font-weight:700;color:#1e40af;margin-right:8px;">
+</label>
 </div>
-
+</div>
+<div class="hero-card" style="padding:16px 18px;">
+<div style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:14px;align-items:center;">
+<div class="status" id="statusBox">Preparat</div>
+<div class="stack" style="gap:8px;">
+<div class="chip">Centre: <span id="currentCenter">—</span></div>
+</div>
+</div>
+</div>
+<div class="specialist-note-banner" id="specialistEditBanner"></div>
+<div class="panel" id="trialAccessPanel" style="margin-bottom:16px;">
+<div class="sticky-tools" style="justify-content:space-between;gap:12px;flex-wrap:wrap;">
+<span class="teacher-badge" id="trialAccessBadge">Comprovant accés…</span>
+<span class="tag" id="trialAccessDetail">Comprovant l’estat de la prova…</span>
+</div>
+</div>
+</div>
 <div class="panel" id="generalPanel" style="margin-bottom:16px;">
 <div class="sticky-tools" style="display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:nowrap;overflow-x:auto;">
 <span class="teacher-badge" id="loggedTeacherBadge">Mestre/a: —</span>
@@ -1380,7 +1387,7 @@ body::after{
 <div class="row">
 <div class="c4">
 <label for="alumne">Identificador intern de l'alumne/a</label>
-<input id="alumne" placeholder="Dada privada oculta" type="text" autocomplete="off"/>
+<input autocomplete="off" id="alumne" placeholder="Dada privada oculta" type="text"/>
 </div>
 <div class="c2">
 <label for="genere">Forma</label>
@@ -1443,14 +1450,14 @@ body::after{
 </div>
 <div class="c4">
 <label for="destaca">Tasques en les quals destaca</label>
-<div id="destaca" class="checkbox-grid">
-<label class="check"><input type="checkbox" value="verbals"> <span>verbals</span></label>
-<label class="check"><input type="checkbox" value="gràfiques"> <span>gràfiques</span></label>
-<label class="check"><input type="checkbox" value="motrius"> <span>motrius</span></label>
-<label class="check"><input type="checkbox" value="manipulatives"> <span>manipulatives</span></label>
-<label class="check"><input type="checkbox" value="lògic-matemàtiques"> <span>lògic-matemàtiques</span></label>
-<label class="check"><input type="checkbox" value="musicals"> <span>musicals</span></label>
-<label class="check"><input type="checkbox" value="artístiques"> <span>artístiques</span></label>
+<div class="checkbox-grid" id="destaca">
+<label class="check"><input type="checkbox" value="verbals"/> <span>verbals</span></label>
+<label class="check"><input type="checkbox" value="gràfiques"/> <span>gràfiques</span></label>
+<label class="check"><input type="checkbox" value="motrius"/> <span>motrius</span></label>
+<label class="check"><input type="checkbox" value="manipulatives"/> <span>manipulatives</span></label>
+<label class="check"><input type="checkbox" value="lògic-matemàtiques"/> <span>lògic-matemàtiques</span></label>
+<label class="check"><input type="checkbox" value="musicals"/> <span>musicals</span></label>
+<label class="check"><input type="checkbox" value="artístiques"/> <span>artístiques</span></label>
 </div>
 <div class="multi-check-hint">Marca una o diverses opcions.</div>
 </div>
@@ -1507,57 +1514,57 @@ body::after{
 <div class="row">
 <div class="c4">
 <label for="suports">Suports personals</label>
-<div id="suports" class="checkbox-grid">
-<label class="check"><input type="checkbox" value="P.T."> <span>P.T.</span></label>
-<label class="check"><input type="checkbox" value="A.L."> <span>A.L.</span></label>
-<label class="check"><input type="checkbox" value="educador/a"> <span>educador/a</span></label>
-<label class="check"><input type="checkbox" value="sense suport personal específic"> <span>sense suport personal específic</span></label>
+<div class="checkbox-grid" id="suports">
+<label class="check"><input type="checkbox" value="P.T."/> <span>P.T.</span></label>
+<label class="check"><input type="checkbox" value="A.L."/> <span>A.L.</span></label>
+<label class="check"><input type="checkbox" value="educador/a"/> <span>educador/a</span></label>
+<label class="check"><input type="checkbox" value="sense suport personal específic"/> <span>sense suport personal específic</span></label>
 </div>
 <div class="multi-check-hint">Marca una o diverses opcions.</div>
 </div>
 <div class="c4">
 <label for="reforc">Aspectes que es reforcen</label>
-<div id="reforc" class="checkbox-grid">
-<label class="check"><input type="checkbox" value="autonomia personal"> <span>autonomia personal</span></label>
-<label class="check"><input type="checkbox" value="habilitats socials"> <span>habilitats socials</span></label>
-<label class="check"><input type="checkbox" value="comprensió lectora"> <span>comprensió lectora</span></label>
-<label class="check"><input type="checkbox" value="expressió escrita"> <span>expressió escrita</span></label>
-<label class="check"><input type="checkbox" value="raonament matemàtic"> <span>raonament matemàtic</span></label>
-<label class="check"><input type="checkbox" value="atenció i concentració"> <span>atenció i concentració</span></label>
+<div class="checkbox-grid" id="reforc">
+<label class="check"><input type="checkbox" value="autonomia personal"/> <span>autonomia personal</span></label>
+<label class="check"><input type="checkbox" value="habilitats socials"/> <span>habilitats socials</span></label>
+<label class="check"><input type="checkbox" value="comprensió lectora"/> <span>comprensió lectora</span></label>
+<label class="check"><input type="checkbox" value="expressió escrita"/> <span>expressió escrita</span></label>
+<label class="check"><input type="checkbox" value="raonament matemàtic"/> <span>raonament matemàtic</span></label>
+<label class="check"><input type="checkbox" value="atenció i concentració"/> <span>atenció i concentració</span></label>
 </div>
 <div class="multi-check-hint">Marca una o diverses opcions.</div>
 </div>
 <div class="c4">
 <label for="materials">Materials i recursos</label>
-<div id="materials" class="checkbox-grid">
-<label class="check"><input type="checkbox" value="pictogrames"> <span>pictogrames</span></label>
-<label class="check"><input type="checkbox" value="tauleta"> <span>tauleta</span></label>
-<label class="check"><input type="checkbox" value="materials visuals"> <span>materials visuals</span></label>
-<label class="check"><input type="checkbox" value="materials manipulatius"> <span>materials manipulatius</span></label>
-<label class="check"><input type="checkbox" value="quadern adaptat"> <span>quadern adaptat</span></label>
-<label class="check"><input type="checkbox" value="sense materials específics"> <span>sense materials específics</span></label>
+<div class="checkbox-grid" id="materials">
+<label class="check"><input type="checkbox" value="pictogrames"/> <span>pictogrames</span></label>
+<label class="check"><input type="checkbox" value="tauleta"/> <span>tauleta</span></label>
+<label class="check"><input type="checkbox" value="materials visuals"/> <span>materials visuals</span></label>
+<label class="check"><input type="checkbox" value="materials manipulatius"/> <span>materials manipulatius</span></label>
+<label class="check"><input type="checkbox" value="quadern adaptat"/> <span>quadern adaptat</span></label>
+<label class="check"><input type="checkbox" value="sense materials específics"/> <span>sense materials específics</span></label>
 </div>
 <div class="multi-check-hint">Marca una o diverses opcions.</div>
 </div>
 <div class="c6">
 <label for="metodologia">Mesures metodològiques</label>
-<div id="metodologia" class="checkbox-grid">
-<label class="check"><input type="checkbox" value="disposa de major temps en les tasques"> <span>disposa de major temps en les tasques</span></label>
-<label class="check"><input type="checkbox" value="rep explicacions individualitzades"> <span>rep explicacions individualitzades</span></label>
-<label class="check"><input type="checkbox" value="realitza activitats ajustades al seu nivell"> <span>realitza activitats ajustades al seu nivell</span></label>
-<label class="check"><input type="checkbox" value="treballa amb suport visual i seqüenciació"> <span>treballa amb suport visual i seqüenciació</span></label>
-<label class="check"><input type="checkbox" value="combina activitats manipulatives i guiades"> <span>combina activitats manipulatives i guiades</span></label>
+<div class="checkbox-grid" id="metodologia">
+<label class="check"><input type="checkbox" value="disposa de major temps en les tasques"/> <span>disposa de major temps en les tasques</span></label>
+<label class="check"><input type="checkbox" value="rep explicacions individualitzades"/> <span>rep explicacions individualitzades</span></label>
+<label class="check"><input type="checkbox" value="realitza activitats ajustades al seu nivell"/> <span>realitza activitats ajustades al seu nivell</span></label>
+<label class="check"><input type="checkbox" value="treballa amb suport visual i seqüenciació"/> <span>treballa amb suport visual i seqüenciació</span></label>
+<label class="check"><input type="checkbox" value="combina activitats manipulatives i guiades"/> <span>combina activitats manipulatives i guiades</span></label>
 </div>
 <div class="multi-check-hint">Marca una o diverses opcions.</div>
 </div>
 <div class="c6">
 <label for="avaluacio">Mesures en l'avaluació</label>
-<div id="avaluacio" class="checkbox-grid">
-<label class="check"><input type="checkbox" value="disposa de més temps en els exàmens"> <span>disposa de més temps en els exàmens</span></label>
-<label class="check"><input type="checkbox" value="rep explicació individualitzada de les tasques"> <span>rep explicació individualitzada de les tasques</span></label>
-<label class="check"><input type="checkbox" value="utilitza suports visuals"> <span>utilitza suports visuals</span></label>
-<label class="check"><input type="checkbox" value="realitza proves adaptades al seu nivell"> <span>realitza proves adaptades al seu nivell</span></label>
-<label class="check"><input type="checkbox" value="l'avaluació es basa principalment en l'observació directa"> <span>l'avaluació es basa principalment en l'observació directa</span></label>
+<div class="checkbox-grid" id="avaluacio">
+<label class="check"><input type="checkbox" value="disposa de més temps en els exàmens"/> <span>disposa de més temps en els exàmens</span></label>
+<label class="check"><input type="checkbox" value="rep explicació individualitzada de les tasques"/> <span>rep explicació individualitzada de les tasques</span></label>
+<label class="check"><input type="checkbox" value="utilitza suports visuals"/> <span>utilitza suports visuals</span></label>
+<label class="check"><input type="checkbox" value="realitza proves adaptades al seu nivell"/> <span>realitza proves adaptades al seu nivell</span></label>
+<label class="check"><input type="checkbox" value="l'avaluació es basa principalment en l'observació directa"/> <span>l'avaluació es basa principalment en l'observació directa</span></label>
 </div>
 <div class="multi-check-hint">Marca una o diverses opcions.</div>
 </div>
@@ -1572,10 +1579,10 @@ body::after{
 <div class="toolbar lang-switch" style="margin-bottom:12px;">
 <button class="primary" id="copyBottom">Copiar informe final</button>
 <button class="lang-btn active" id="langValenciaBtn" type="button">
-<span class="flag flag-val" aria-hidden="true"></span><span>Valencià</span>
+<span aria-hidden="true" class="flag flag-val"></span><span>Valencià</span>
 </button>
 <button class="lang-btn" id="langCastellanoBtn" type="button">
-<span class="flag flag-es" aria-hidden="true"></span><span>Castellano</span>
+<span aria-hidden="true" class="flag flag-es"></span><span>Castellano</span>
 </button>
 </div>
 <div class="small" style="margin-bottom:8px;">La vista prèvia s’actualitza automàticament</div>
@@ -4260,7 +4267,6 @@ if(evalBig && evalSmall){
 }
 
 </script>
-
 <style id="observation-counters-styles">
   .char-counter-note{margin-top:6px;font-size:12px;font-weight:700;color:#475569;display:flex;justify-content:flex-end;gap:6px;}
   .char-counter-note.warning{color:#b45309;}
@@ -4268,7 +4274,6 @@ if(evalBig && evalSmall){
   .char-counter-note.ok{color:#166534;}
   textarea.counter-danger,input.counter-danger{border-color:#ef4444 !important;box-shadow:0 0 0 4px rgba(239,68,68,.12) !important;}
 </style>
-
 <script id="observation-counters-script">
 (function(){
   const LIMITS={
@@ -4424,7 +4429,6 @@ if(evalBig && evalSmall){
   setInterval(updateAllCounters,1000);
 })();
 </script>
-
 <script>
 document.addEventListener("DOMContentLoaded", function () {
 
@@ -4648,8 +4652,6 @@ if(evalBig && evalSmall){
 }
 
 </script>
-
-
 <script>
 (function(){
   let buffer = "";
@@ -4703,8 +4705,6 @@ if(evalBig && evalSmall){
   }
 })();
 </script>
-
-
 <script id="dynamic-app-manifest">
 (function(){
   try{
