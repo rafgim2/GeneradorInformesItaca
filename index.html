@@ -4065,6 +4065,128 @@ ${zoomStyle}</style>
       </table>
     </div>
   </div>
+
+<style id="identity-fixed-real-css">
+/* Bloque Classe / Mestre/a / Alumne/a fijo de verdad respecto a la ventana.
+   Se saca visualmente del contenedor .app porque .app tiene transform:scale(),
+   y un fixed dentro de un elemento transformado deja de ser realmente fijo. */
+#identityStickySpacer{
+  display:block;
+  width:100%;
+  flex:0 0 auto;
+}
+#identityStickyCard.identity-fixed-real{
+  position:fixed !important;
+  top:12px !important;
+  left:var(--identity-left, 18px) !important;
+  width:var(--identity-width, calc(100vw - 36px)) !important;
+  max-width:none !important;
+  z-index:1000001 !important;
+  margin:0 !important;
+  box-sizing:border-box !important;
+  background:linear-gradient(180deg, rgba(238,244,255,.985), rgba(248,251,255,.965)) !important;
+  border:1px solid rgba(147,197,253,.95) !important;
+  box-shadow:0 18px 42px rgba(37,99,235,.24) !important;
+  backdrop-filter:blur(14px) saturate(130%);
+}
+#identityStickyCard.identity-fixed-real::after{
+  content:"";
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:-18px;
+  height:18px;
+  pointer-events:none;
+  background:linear-gradient(180deg, rgba(237,244,255,.92), rgba(237,244,255,0));
+}
+@media (max-width:900px){
+  #identityStickyCard.identity-fixed-real{
+    top:8px !important;
+    padding-right:22px !important;
+    padding-bottom:88px !important;
+  }
+}
+</style>
+<script id="identity-fixed-real-js">
+(function(){
+  function ready(fn){
+    if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fn);
+    else fn();
+  }
+
+  ready(function(){
+    const card = document.getElementById('identityStickyCard');
+    const main = document.querySelector('main.main');
+    const app = document.getElementById('appShell');
+    if(!card || !main || !app) return;
+
+    let spacer = document.getElementById('identityStickySpacer');
+    if(!spacer){
+      spacer = document.createElement('div');
+      spacer.id = 'identityStickySpacer';
+      card.parentNode.insertBefore(spacer, card);
+    }
+
+    if(card.parentNode !== document.body){
+      document.body.appendChild(card);
+    }
+    card.classList.add('identity-fixed-real');
+
+    let raf = null;
+    function isAppVisible(){
+      return !app.classList.contains('hidden-before-login') && getComputedStyle(app).display !== 'none';
+    }
+
+    function updateNow(){
+      raf = null;
+      if(!isAppVisible()){
+        card.style.display = 'none';
+        spacer.style.display = 'none';
+        return;
+      }
+
+      card.style.display = '';
+      spacer.style.display = 'block';
+
+      const rect = main.getBoundingClientRect();
+      const left = Math.max(8, rect.left);
+      const rightGap = Math.max(8, window.innerWidth - rect.right);
+      const width = Math.max(280, window.innerWidth - left - rightGap);
+
+      card.style.setProperty('--identity-left', left + 'px');
+      card.style.setProperty('--identity-width', width + 'px');
+
+      // Reserva espacio en la posición original para que no tape la evaluación ni los paneles.
+      const h = card.getBoundingClientRect().height;
+      spacer.style.height = (h + 14) + 'px';
+      spacer.style.marginBottom = '0px';
+    }
+
+    function update(){
+      if(raf) return;
+      raf = requestAnimationFrame(updateNow);
+    }
+
+    window.addEventListener('resize', update, {passive:true});
+    window.addEventListener('scroll', update, {passive:true});
+
+    if(window.ResizeObserver){
+      new ResizeObserver(update).observe(main);
+      new ResizeObserver(update).observe(card);
+    }
+    if(window.MutationObserver){
+      new MutationObserver(update).observe(app, {attributes:true, attributeFilter:['class','style']});
+      new MutationObserver(update).observe(document.body, {attributes:true, childList:true, subtree:false});
+    }
+
+    update();
+    setTimeout(update, 100);
+    setTimeout(update, 500);
+    setTimeout(update, 1200);
+  });
+})();
+</script>
+
 </body>
 </html>`);
       newWin.document.close();
@@ -4107,7 +4229,129 @@ ${zoomStyle}</style>
       if(!newWin){ alert("El navegador ha bloquejat la finestra emergent. Permet les finestres emergents per a aquesta pàgina."); return; }
       const style = `body{font-family:Inter,Arial,sans-serif;background:#f7faff;color:#1f2937;padding:24px}h1{margin:0 0 8px 0;font-size:28px}p{margin:0 0 16px 0;color:#667085}.card{background:#fff;border:1px solid #d9e4f2;border-radius:18px;padding:18px;box-shadow:0 8px 24px rgba(26,42,79,.08);overflow:auto}table{width:100%;border-collapse:collapse;font-size:14px}th,td{border:1px solid #d9e4f2;padding:9px 11px;text-align:left;vertical-align:top}th{background:#eef4ff}.eval-cell{text-align:center;font-weight:800}.toolbar{margin-bottom:14px}.print{border:0;border-radius:12px;padding:10px 14px;font-weight:800;cursor:pointer;background:#2563eb;color:#fff}`;
       newWin.document.write(`<!DOCTYPE html><html lang="ca"><head><meta charset="utf-8"><title>${title}</title><style>${style}</style>
-</head><body><div class="card"><div class="toolbar"><button class="print" onclick="window.print()">Imprimir / Guardar PDF</button></div><h1>${title}</h1><p>Centre: ${state.center?.displayName || "—"} · Classe: ${state.currentClass || "—"} · Mestre/a: ${state.teacher?.displayName || "—"}</p><table><thead><tr><th>Àrea</th><th>1a Avaluació</th><th>2a Avaluació</th><th>3a Avaluació</th></tr></thead><tbody>${rows || `<tr><td colspan="4">No hi ha qualificacions disponibles.</td></tr>`}</tbody></table></div></body></html>`);
+</head><body><div class="card"><div class="toolbar"><button class="print" onclick="window.print()">Imprimir / Guardar PDF</button></div><h1>${title}</h1><p>Centre: ${state.center?.displayName || "—"} · Classe: ${state.currentClass || "—"} · Mestre/a: ${state.teacher?.displayName || "—"}</p><table><thead><tr><th>Àrea</th><th>1a Avaluació</th><th>2a Avaluació</th><th>3a Avaluació</th></tr></thead><tbody>${rows || `<tr><td colspan="4">No hi ha qualificacions disponibles.</td></tr>`}</tbody></table></div>
+<style id="identity-fixed-real-css">
+/* Bloque Classe / Mestre/a / Alumne/a fijo de verdad respecto a la ventana.
+   Se saca visualmente del contenedor .app porque .app tiene transform:scale(),
+   y un fixed dentro de un elemento transformado deja de ser realmente fijo. */
+#identityStickySpacer{
+  display:block;
+  width:100%;
+  flex:0 0 auto;
+}
+#identityStickyCard.identity-fixed-real{
+  position:fixed !important;
+  top:12px !important;
+  left:var(--identity-left, 18px) !important;
+  width:var(--identity-width, calc(100vw - 36px)) !important;
+  max-width:none !important;
+  z-index:1000001 !important;
+  margin:0 !important;
+  box-sizing:border-box !important;
+  background:linear-gradient(180deg, rgba(238,244,255,.985), rgba(248,251,255,.965)) !important;
+  border:1px solid rgba(147,197,253,.95) !important;
+  box-shadow:0 18px 42px rgba(37,99,235,.24) !important;
+  backdrop-filter:blur(14px) saturate(130%);
+}
+#identityStickyCard.identity-fixed-real::after{
+  content:"";
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:-18px;
+  height:18px;
+  pointer-events:none;
+  background:linear-gradient(180deg, rgba(237,244,255,.92), rgba(237,244,255,0));
+}
+@media (max-width:900px){
+  #identityStickyCard.identity-fixed-real{
+    top:8px !important;
+    padding-right:22px !important;
+    padding-bottom:88px !important;
+  }
+}
+</style>
+<script id="identity-fixed-real-js">
+(function(){
+  function ready(fn){
+    if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fn);
+    else fn();
+  }
+
+  ready(function(){
+    const card = document.getElementById('identityStickyCard');
+    const main = document.querySelector('main.main');
+    const app = document.getElementById('appShell');
+    if(!card || !main || !app) return;
+
+    let spacer = document.getElementById('identityStickySpacer');
+    if(!spacer){
+      spacer = document.createElement('div');
+      spacer.id = 'identityStickySpacer';
+      card.parentNode.insertBefore(spacer, card);
+    }
+
+    if(card.parentNode !== document.body){
+      document.body.appendChild(card);
+    }
+    card.classList.add('identity-fixed-real');
+
+    let raf = null;
+    function isAppVisible(){
+      return !app.classList.contains('hidden-before-login') && getComputedStyle(app).display !== 'none';
+    }
+
+    function updateNow(){
+      raf = null;
+      if(!isAppVisible()){
+        card.style.display = 'none';
+        spacer.style.display = 'none';
+        return;
+      }
+
+      card.style.display = '';
+      spacer.style.display = 'block';
+
+      const rect = main.getBoundingClientRect();
+      const left = Math.max(8, rect.left);
+      const rightGap = Math.max(8, window.innerWidth - rect.right);
+      const width = Math.max(280, window.innerWidth - left - rightGap);
+
+      card.style.setProperty('--identity-left', left + 'px');
+      card.style.setProperty('--identity-width', width + 'px');
+
+      // Reserva espacio en la posición original para que no tape la evaluación ni los paneles.
+      const h = card.getBoundingClientRect().height;
+      spacer.style.height = (h + 14) + 'px';
+      spacer.style.marginBottom = '0px';
+    }
+
+    function update(){
+      if(raf) return;
+      raf = requestAnimationFrame(updateNow);
+    }
+
+    window.addEventListener('resize', update, {passive:true});
+    window.addEventListener('scroll', update, {passive:true});
+
+    if(window.ResizeObserver){
+      new ResizeObserver(update).observe(main);
+      new ResizeObserver(update).observe(card);
+    }
+    if(window.MutationObserver){
+      new MutationObserver(update).observe(app, {attributes:true, attributeFilter:['class','style']});
+      new MutationObserver(update).observe(document.body, {attributes:true, childList:true, subtree:false});
+    }
+
+    update();
+    setTimeout(update, 100);
+    setTimeout(update, 500);
+    setTimeout(update, 1200);
+  });
+})();
+</script>
+
+</body></html>`);
       newWin.document.close();
     }
 
@@ -4729,5 +4973,127 @@ if(evalBig && evalSmall){
   }catch(e){}
 })();
 </script>
+
+<style id="identity-fixed-real-css">
+/* Bloque Classe / Mestre/a / Alumne/a fijo de verdad respecto a la ventana.
+   Se saca visualmente del contenedor .app porque .app tiene transform:scale(),
+   y un fixed dentro de un elemento transformado deja de ser realmente fijo. */
+#identityStickySpacer{
+  display:block;
+  width:100%;
+  flex:0 0 auto;
+}
+#identityStickyCard.identity-fixed-real{
+  position:fixed !important;
+  top:12px !important;
+  left:var(--identity-left, 18px) !important;
+  width:var(--identity-width, calc(100vw - 36px)) !important;
+  max-width:none !important;
+  z-index:1000001 !important;
+  margin:0 !important;
+  box-sizing:border-box !important;
+  background:linear-gradient(180deg, rgba(238,244,255,.985), rgba(248,251,255,.965)) !important;
+  border:1px solid rgba(147,197,253,.95) !important;
+  box-shadow:0 18px 42px rgba(37,99,235,.24) !important;
+  backdrop-filter:blur(14px) saturate(130%);
+}
+#identityStickyCard.identity-fixed-real::after{
+  content:"";
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:-18px;
+  height:18px;
+  pointer-events:none;
+  background:linear-gradient(180deg, rgba(237,244,255,.92), rgba(237,244,255,0));
+}
+@media (max-width:900px){
+  #identityStickyCard.identity-fixed-real{
+    top:8px !important;
+    padding-right:22px !important;
+    padding-bottom:88px !important;
+  }
+}
+</style>
+<script id="identity-fixed-real-js">
+(function(){
+  function ready(fn){
+    if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fn);
+    else fn();
+  }
+
+  ready(function(){
+    const card = document.getElementById('identityStickyCard');
+    const main = document.querySelector('main.main');
+    const app = document.getElementById('appShell');
+    if(!card || !main || !app) return;
+
+    let spacer = document.getElementById('identityStickySpacer');
+    if(!spacer){
+      spacer = document.createElement('div');
+      spacer.id = 'identityStickySpacer';
+      card.parentNode.insertBefore(spacer, card);
+    }
+
+    if(card.parentNode !== document.body){
+      document.body.appendChild(card);
+    }
+    card.classList.add('identity-fixed-real');
+
+    let raf = null;
+    function isAppVisible(){
+      return !app.classList.contains('hidden-before-login') && getComputedStyle(app).display !== 'none';
+    }
+
+    function updateNow(){
+      raf = null;
+      if(!isAppVisible()){
+        card.style.display = 'none';
+        spacer.style.display = 'none';
+        return;
+      }
+
+      card.style.display = '';
+      spacer.style.display = 'block';
+
+      const rect = main.getBoundingClientRect();
+      const left = Math.max(8, rect.left);
+      const rightGap = Math.max(8, window.innerWidth - rect.right);
+      const width = Math.max(280, window.innerWidth - left - rightGap);
+
+      card.style.setProperty('--identity-left', left + 'px');
+      card.style.setProperty('--identity-width', width + 'px');
+
+      // Reserva espacio en la posición original para que no tape la evaluación ni los paneles.
+      const h = card.getBoundingClientRect().height;
+      spacer.style.height = (h + 14) + 'px';
+      spacer.style.marginBottom = '0px';
+    }
+
+    function update(){
+      if(raf) return;
+      raf = requestAnimationFrame(updateNow);
+    }
+
+    window.addEventListener('resize', update, {passive:true});
+    window.addEventListener('scroll', update, {passive:true});
+
+    if(window.ResizeObserver){
+      new ResizeObserver(update).observe(main);
+      new ResizeObserver(update).observe(card);
+    }
+    if(window.MutationObserver){
+      new MutationObserver(update).observe(app, {attributes:true, attributeFilter:['class','style']});
+      new MutationObserver(update).observe(document.body, {attributes:true, childList:true, subtree:false});
+    }
+
+    update();
+    setTimeout(update, 100);
+    setTimeout(update, 500);
+    setTimeout(update, 1200);
+  });
+})();
+</script>
+
 </body>
 </html>
