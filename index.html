@@ -4105,58 +4105,61 @@ ${zoomStyle}</style>
   </div>
 
 
-<style id="viewport-fixed-identity-save-v2">
-  /* Fijación real: el bloque se saca visualmente del flujo y se pega a la ventana.
-     Así no se libera al terminar el contenedor .hero. */
-  #identityStickyCard.identity-fixed-active{
+<style id="fixed-identity-real-viewport-patch">
+  /* Parche robusto: el bloque se saca del flujo visual y se fija al viewport real.
+     Así no depende de sticky ni de contenedores con transform/overflow. */
+  #identityStickyCard.identity-fixed-real{
     position:fixed !important;
-    top:12px !important;
+    top:10px !important;
     z-index:2147483000 !important;
     margin:0 !important;
+    box-shadow:0 18px 44px rgba(37,99,235,.24) !important;
     transform:none !important;
-    animation:none !important;
-    box-shadow:0 18px 42px rgba(37,99,235,.22) !important;
   }
   #identityStickyPlaceholder{
-    display:none;
-    width:100%;
+    display:block !important;
+    width:100% !important;
+    flex:0 0 auto !important;
   }
-  #identityStickyPlaceholder.active{
-    display:block;
-  }
-  #identityStickyCard.identity-fixed-active .top-save-holder{
+  #identityStickyCard.identity-fixed-real .top-save-holder{
     position:absolute !important;
     right:22px !important;
     top:50% !important;
     transform:translateY(-50%) !important;
     width:145px !important;
+    z-index:10 !important;
   }
-  #identityStickyCard.identity-fixed-active #saveSide{
+  #identityStickyCard.identity-fixed-real #saveSide{
     display:block !important;
     width:100% !important;
     min-height:54px !important;
+    font-size:16px !important;
   }
+  /* Solo existe un botón: ocultamos cualquier guardado antiguo si reaparece por ediciones previas. */
+  #saveTop{display:none !important;}
+  aside .panel.soft.stack{display:none !important;}
   @media (max-width:900px){
-    #identityStickyCard.identity-fixed-active .hero-main-grid{
-      grid-template-columns:1fr !important;
+    #identityStickyCard.identity-fixed-real{
+      left:12px !important;
+      right:12px !important;
+      width:auto !important;
+      padding-right:22px !important;
+      padding-bottom:88px !important;
     }
-    #identityStickyCard.identity-fixed-active{
-      padding:18px 18px 86px 18px !important;
-    }
-    #identityStickyCard.identity-fixed-active .top-save-holder{
-      left:18px !important;
-      right:18px !important;
+    #identityStickyCard.identity-fixed-real .top-save-holder{
+      left:22px !important;
+      right:22px !important;
       top:auto !important;
-      bottom:16px !important;
+      bottom:18px !important;
       width:auto !important;
       transform:none !important;
     }
   }
 </style>
-<script id="viewport-fixed-identity-save-v2-script">
+<script id="fixed-identity-real-viewport-script">
 (function(){
   function ready(fn){
-    if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fn);
+    if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fn, {once:true});
     else fn();
   }
 
@@ -4170,55 +4173,60 @@ ${zoomStyle}</style>
     if(!placeholder){
       placeholder = document.createElement('div');
       placeholder.id = 'identityStickyPlaceholder';
-      card.parentNode.insertBefore(placeholder, card);
+      card.parentNode.insertBefore(placeholder, card.nextSibling);
     }
 
     function isAppVisible(){
-      return !app.classList.contains('hidden-before-login');
+      return app && !app.classList.contains('hidden-before-login') && getComputedStyle(app).display !== 'none';
     }
 
-    function layoutFixedCard(){
-      if(!isAppVisible()){
-        card.classList.remove('identity-fixed-active');
-        placeholder.classList.remove('active');
-        card.style.display = '';
-        card.style.left = '';
-        card.style.width = '';
-        placeholder.style.height = '0px';
-        return;
-      }
+    function placeCard(){
+      if(!isAppVisible()) return;
 
       if(card.parentNode !== document.body){
         document.body.appendChild(card);
       }
+      card.classList.add('identity-fixed-real');
 
       const mainRect = main.getBoundingClientRect();
       const viewportWidth = window.innerWidth || document.documentElement.clientWidth;
-      const narrow = viewportWidth <= 900;
-      const left = narrow ? 12 : Math.max(12, mainRect.left);
-      const rightMargin = narrow ? 12 : Math.max(12, viewportWidth - mainRect.right);
-      const width = Math.max(260, viewportWidth - left - rightMargin);
+      const mobile = viewportWidth <= 900;
 
-      card.classList.add('identity-fixed-active');
-      card.style.display = 'block';
-      card.style.left = left + 'px';
-      card.style.width = width + 'px';
+      if(!mobile){
+        const left = Math.max(12, mainRect.left);
+        const width = Math.max(320, Math.min(mainRect.width, viewportWidth - left - 12));
+        card.style.left = left + 'px';
+        card.style.width = width + 'px';
+        card.style.right = 'auto';
+      }else{
+        card.style.left = '12px';
+        card.style.right = '12px';
+        card.style.width = 'auto';
+      }
 
-      requestAnimationFrame(function(){
-        const h = card.offsetHeight || 150;
-        placeholder.classList.add('active');
-        placeholder.style.height = (h + 18) + 'px';
-      });
+      const h = Math.ceil(card.getBoundingClientRect().height + 18);
+      placeholder.style.height = h + 'px';
     }
 
-    window.addEventListener('resize', layoutFixedCard, {passive:true});
-    window.addEventListener('scroll', layoutFixedCard, {passive:true});
+    let raf = 0;
+    function schedulePlace(){
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(placeCard);
+    }
 
-    const observer = new MutationObserver(layoutFixedCard);
-    observer.observe(app, {attributes:true, attributeFilter:['class']});
+    schedulePlace();
+    window.addEventListener('resize', schedulePlace, {passive:true});
+    window.addEventListener('orientationchange', schedulePlace, {passive:true});
+    window.addEventListener('scroll', schedulePlace, {passive:true});
 
-    setInterval(layoutFixedCard, 700);
-    layoutFixedCard();
+    if('ResizeObserver' in window){
+      new ResizeObserver(schedulePlace).observe(main);
+      new ResizeObserver(schedulePlace).observe(card);
+    }
+    new MutationObserver(schedulePlace).observe(app, {attributes:true, attributeFilter:['class','style']});
+
+    // Recalcula varias veces al iniciar sesión/cargar datos, porque la app rellena textos después.
+    [50, 150, 400, 900, 1500].forEach(t => setTimeout(schedulePlace, t));
   });
 })();
 </script>
@@ -4310,7 +4318,135 @@ ${zoomStyle}</style>
     }
   }
 </style>
-</head><body><div class="card"><div class="toolbar"><button class="print" onclick="window.print()">Imprimir / Guardar PDF</button></div><h1>${title}</h1><p>Centre: ${state.center?.displayName || "—"} · Classe: ${state.currentClass || "—"} · Mestre/a: ${state.teacher?.displayName || "—"}</p><table><thead><tr><th>Àrea</th><th>1a Avaluació</th><th>2a Avaluació</th><th>3a Avaluació</th></tr></thead><tbody>${rows || `<tr><td colspan="4">No hi ha qualificacions disponibles.</td></tr>`}</tbody></table></div></body></html>`);
+</head><body><div class="card"><div class="toolbar"><button class="print" onclick="window.print()">Imprimir / Guardar PDF</button></div><h1>${title}</h1><p>Centre: ${state.center?.displayName || "—"} · Classe: ${state.currentClass || "—"} · Mestre/a: ${state.teacher?.displayName || "—"}</p><table><thead><tr><th>Àrea</th><th>1a Avaluació</th><th>2a Avaluació</th><th>3a Avaluació</th></tr></thead><tbody>${rows || `<tr><td colspan="4">No hi ha qualificacions disponibles.</td></tr>`}</tbody></table></div>
+
+<style id="fixed-identity-real-viewport-patch">
+  /* Parche robusto: el bloque se saca del flujo visual y se fija al viewport real.
+     Así no depende de sticky ni de contenedores con transform/overflow. */
+  #identityStickyCard.identity-fixed-real{
+    position:fixed !important;
+    top:10px !important;
+    z-index:2147483000 !important;
+    margin:0 !important;
+    box-shadow:0 18px 44px rgba(37,99,235,.24) !important;
+    transform:none !important;
+  }
+  #identityStickyPlaceholder{
+    display:block !important;
+    width:100% !important;
+    flex:0 0 auto !important;
+  }
+  #identityStickyCard.identity-fixed-real .top-save-holder{
+    position:absolute !important;
+    right:22px !important;
+    top:50% !important;
+    transform:translateY(-50%) !important;
+    width:145px !important;
+    z-index:10 !important;
+  }
+  #identityStickyCard.identity-fixed-real #saveSide{
+    display:block !important;
+    width:100% !important;
+    min-height:54px !important;
+    font-size:16px !important;
+  }
+  /* Solo existe un botón: ocultamos cualquier guardado antiguo si reaparece por ediciones previas. */
+  #saveTop{display:none !important;}
+  aside .panel.soft.stack{display:none !important;}
+  @media (max-width:900px){
+    #identityStickyCard.identity-fixed-real{
+      left:12px !important;
+      right:12px !important;
+      width:auto !important;
+      padding-right:22px !important;
+      padding-bottom:88px !important;
+    }
+    #identityStickyCard.identity-fixed-real .top-save-holder{
+      left:22px !important;
+      right:22px !important;
+      top:auto !important;
+      bottom:18px !important;
+      width:auto !important;
+      transform:none !important;
+    }
+  }
+</style>
+<script id="fixed-identity-real-viewport-script">
+(function(){
+  function ready(fn){
+    if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fn, {once:true});
+    else fn();
+  }
+
+  ready(function(){
+    const card = document.getElementById('identityStickyCard');
+    const app = document.getElementById('appShell');
+    const main = document.querySelector('main.main');
+    if(!card || !app || !main) return;
+
+    let placeholder = document.getElementById('identityStickyPlaceholder');
+    if(!placeholder){
+      placeholder = document.createElement('div');
+      placeholder.id = 'identityStickyPlaceholder';
+      card.parentNode.insertBefore(placeholder, card.nextSibling);
+    }
+
+    function isAppVisible(){
+      return app && !app.classList.contains('hidden-before-login') && getComputedStyle(app).display !== 'none';
+    }
+
+    function placeCard(){
+      if(!isAppVisible()) return;
+
+      if(card.parentNode !== document.body){
+        document.body.appendChild(card);
+      }
+      card.classList.add('identity-fixed-real');
+
+      const mainRect = main.getBoundingClientRect();
+      const viewportWidth = window.innerWidth || document.documentElement.clientWidth;
+      const mobile = viewportWidth <= 900;
+
+      if(!mobile){
+        const left = Math.max(12, mainRect.left);
+        const width = Math.max(320, Math.min(mainRect.width, viewportWidth - left - 12));
+        card.style.left = left + 'px';
+        card.style.width = width + 'px';
+        card.style.right = 'auto';
+      }else{
+        card.style.left = '12px';
+        card.style.right = '12px';
+        card.style.width = 'auto';
+      }
+
+      const h = Math.ceil(card.getBoundingClientRect().height + 18);
+      placeholder.style.height = h + 'px';
+    }
+
+    let raf = 0;
+    function schedulePlace(){
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(placeCard);
+    }
+
+    schedulePlace();
+    window.addEventListener('resize', schedulePlace, {passive:true});
+    window.addEventListener('orientationchange', schedulePlace, {passive:true});
+    window.addEventListener('scroll', schedulePlace, {passive:true});
+
+    if('ResizeObserver' in window){
+      new ResizeObserver(schedulePlace).observe(main);
+      new ResizeObserver(schedulePlace).observe(card);
+    }
+    new MutationObserver(schedulePlace).observe(app, {attributes:true, attributeFilter:['class','style']});
+
+    // Recalcula varias veces al iniciar sesión/cargar datos, porque la app rellena textos después.
+    [50, 150, 400, 900, 1500].forEach(t => setTimeout(schedulePlace, t));
+  });
+})();
+</script>
+
+</body></html>`);
       newWin.document.close();
     }
 
@@ -4941,58 +5077,61 @@ if(evalBig && evalSmall){
 </script>
 
 
-<style id="viewport-fixed-identity-save-v2">
-  /* Fijación real: el bloque se saca visualmente del flujo y se pega a la ventana.
-     Así no se libera al terminar el contenedor .hero. */
-  #identityStickyCard.identity-fixed-active{
+<style id="fixed-identity-real-viewport-patch">
+  /* Parche robusto: el bloque se saca del flujo visual y se fija al viewport real.
+     Así no depende de sticky ni de contenedores con transform/overflow. */
+  #identityStickyCard.identity-fixed-real{
     position:fixed !important;
-    top:12px !important;
+    top:10px !important;
     z-index:2147483000 !important;
     margin:0 !important;
+    box-shadow:0 18px 44px rgba(37,99,235,.24) !important;
     transform:none !important;
-    animation:none !important;
-    box-shadow:0 18px 42px rgba(37,99,235,.22) !important;
   }
   #identityStickyPlaceholder{
-    display:none;
-    width:100%;
+    display:block !important;
+    width:100% !important;
+    flex:0 0 auto !important;
   }
-  #identityStickyPlaceholder.active{
-    display:block;
-  }
-  #identityStickyCard.identity-fixed-active .top-save-holder{
+  #identityStickyCard.identity-fixed-real .top-save-holder{
     position:absolute !important;
     right:22px !important;
     top:50% !important;
     transform:translateY(-50%) !important;
     width:145px !important;
+    z-index:10 !important;
   }
-  #identityStickyCard.identity-fixed-active #saveSide{
+  #identityStickyCard.identity-fixed-real #saveSide{
     display:block !important;
     width:100% !important;
     min-height:54px !important;
+    font-size:16px !important;
   }
+  /* Solo existe un botón: ocultamos cualquier guardado antiguo si reaparece por ediciones previas. */
+  #saveTop{display:none !important;}
+  aside .panel.soft.stack{display:none !important;}
   @media (max-width:900px){
-    #identityStickyCard.identity-fixed-active .hero-main-grid{
-      grid-template-columns:1fr !important;
+    #identityStickyCard.identity-fixed-real{
+      left:12px !important;
+      right:12px !important;
+      width:auto !important;
+      padding-right:22px !important;
+      padding-bottom:88px !important;
     }
-    #identityStickyCard.identity-fixed-active{
-      padding:18px 18px 86px 18px !important;
-    }
-    #identityStickyCard.identity-fixed-active .top-save-holder{
-      left:18px !important;
-      right:18px !important;
+    #identityStickyCard.identity-fixed-real .top-save-holder{
+      left:22px !important;
+      right:22px !important;
       top:auto !important;
-      bottom:16px !important;
+      bottom:18px !important;
       width:auto !important;
       transform:none !important;
     }
   }
 </style>
-<script id="viewport-fixed-identity-save-v2-script">
+<script id="fixed-identity-real-viewport-script">
 (function(){
   function ready(fn){
-    if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fn);
+    if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fn, {once:true});
     else fn();
   }
 
@@ -5006,55 +5145,60 @@ if(evalBig && evalSmall){
     if(!placeholder){
       placeholder = document.createElement('div');
       placeholder.id = 'identityStickyPlaceholder';
-      card.parentNode.insertBefore(placeholder, card);
+      card.parentNode.insertBefore(placeholder, card.nextSibling);
     }
 
     function isAppVisible(){
-      return !app.classList.contains('hidden-before-login');
+      return app && !app.classList.contains('hidden-before-login') && getComputedStyle(app).display !== 'none';
     }
 
-    function layoutFixedCard(){
-      if(!isAppVisible()){
-        card.classList.remove('identity-fixed-active');
-        placeholder.classList.remove('active');
-        card.style.display = '';
-        card.style.left = '';
-        card.style.width = '';
-        placeholder.style.height = '0px';
-        return;
-      }
+    function placeCard(){
+      if(!isAppVisible()) return;
 
       if(card.parentNode !== document.body){
         document.body.appendChild(card);
       }
+      card.classList.add('identity-fixed-real');
 
       const mainRect = main.getBoundingClientRect();
       const viewportWidth = window.innerWidth || document.documentElement.clientWidth;
-      const narrow = viewportWidth <= 900;
-      const left = narrow ? 12 : Math.max(12, mainRect.left);
-      const rightMargin = narrow ? 12 : Math.max(12, viewportWidth - mainRect.right);
-      const width = Math.max(260, viewportWidth - left - rightMargin);
+      const mobile = viewportWidth <= 900;
 
-      card.classList.add('identity-fixed-active');
-      card.style.display = 'block';
-      card.style.left = left + 'px';
-      card.style.width = width + 'px';
+      if(!mobile){
+        const left = Math.max(12, mainRect.left);
+        const width = Math.max(320, Math.min(mainRect.width, viewportWidth - left - 12));
+        card.style.left = left + 'px';
+        card.style.width = width + 'px';
+        card.style.right = 'auto';
+      }else{
+        card.style.left = '12px';
+        card.style.right = '12px';
+        card.style.width = 'auto';
+      }
 
-      requestAnimationFrame(function(){
-        const h = card.offsetHeight || 150;
-        placeholder.classList.add('active');
-        placeholder.style.height = (h + 18) + 'px';
-      });
+      const h = Math.ceil(card.getBoundingClientRect().height + 18);
+      placeholder.style.height = h + 'px';
     }
 
-    window.addEventListener('resize', layoutFixedCard, {passive:true});
-    window.addEventListener('scroll', layoutFixedCard, {passive:true});
+    let raf = 0;
+    function schedulePlace(){
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(placeCard);
+    }
 
-    const observer = new MutationObserver(layoutFixedCard);
-    observer.observe(app, {attributes:true, attributeFilter:['class']});
+    schedulePlace();
+    window.addEventListener('resize', schedulePlace, {passive:true});
+    window.addEventListener('orientationchange', schedulePlace, {passive:true});
+    window.addEventListener('scroll', schedulePlace, {passive:true});
 
-    setInterval(layoutFixedCard, 700);
-    layoutFixedCard();
+    if('ResizeObserver' in window){
+      new ResizeObserver(schedulePlace).observe(main);
+      new ResizeObserver(schedulePlace).observe(card);
+    }
+    new MutationObserver(schedulePlace).observe(app, {attributes:true, attributeFilter:['class','style']});
+
+    // Recalcula varias veces al iniciar sesión/cargar datos, porque la app rellena textos después.
+    [50, 150, 400, 900, 1500].forEach(t => setTimeout(schedulePlace, t));
   });
 })();
 </script>
