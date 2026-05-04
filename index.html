@@ -2343,8 +2343,8 @@ body:not(.identity-card-visible) #authScreen:not(.hidden){
 <div class="sticky-tools" style="display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:nowrap;overflow-x:auto;">
 <span class="teacher-badge" id="loggedTeacherBadge">Mestre/a: —</span>
 <button class="primary" id="summaryBtn">Resum de qualificacions</button>
-<button class="secondary" id="singleStudentSummaryBtn">Qualificacions alumne seleccionat</button>
-<button class="secondary" id="changePasswordBtn">Canviar contrasenya</button>
+<button class="primary" id="singleStudentSummaryBtn">Qualificacions alumne seleccionat</button>
+<button class="primary" id="changePasswordBtn">Canviar contrasenya</button>
 <button class="primary logout-btn" id="logoutBtn">Canviar de mestre/a</button>
 <span class="tag" id="lastSavedTag">Sense guardar encara</span>
 </div>
@@ -4799,6 +4799,118 @@ syncEnterCenterVisibility();
       }
     }
 
+    function closeInAppReport(){
+      const old = document.getElementById("inAppReportOverlay");
+      if(old) old.remove();
+      document.body.classList.remove("report-open");
+    }
+
+    function openInAppReport(title, contentHtml, reportStyle){
+      closeInAppReport();
+      const overlay = document.createElement("div");
+      overlay.id = "inAppReportOverlay";
+      overlay.className = "in-app-report-overlay";
+      overlay.innerHTML = `
+        <style id="in-app-report-style">
+          body.report-open{overflow:hidden !important;}
+          .in-app-report-overlay{
+            position:fixed;
+            inset:0;
+            z-index:1000002;
+            background:#f3f6fb;
+            color:#1f2937;
+            display:flex;
+            flex-direction:column;
+            font-family:Inter,Arial,Helvetica,sans-serif;
+          }
+          .in-app-report-toolbar{
+            flex:0 0 auto;
+            position:sticky;
+            top:0;
+            z-index:2;
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            gap:12px;
+            padding:12px 16px;
+            background:linear-gradient(180deg,#eaf1ff,#f7faff);
+            border-bottom:1px solid #cfe0ff;
+            box-shadow:0 8px 20px rgba(37,99,235,.10);
+          }
+          .in-app-report-title{
+            min-width:0;
+            overflow:hidden;
+            text-overflow:ellipsis;
+            white-space:nowrap;
+            font-size:15px;
+            font-weight:900;
+            color:#153775;
+          }
+          .in-app-report-actions{
+            display:flex;
+            gap:10px;
+            flex-wrap:wrap;
+            justify-content:flex-end;
+          }
+          .in-app-report-btn{
+            border:0;
+            border-radius:12px;
+            padding:10px 14px;
+            font-size:14px;
+            font-weight:900;
+            cursor:pointer;
+            background:linear-gradient(135deg,#2f86ff,#6d63ff);
+            color:#fff;
+            box-shadow:0 8px 20px rgba(37,99,235,.18);
+          }
+          .in-app-report-btn.back{
+            background:linear-gradient(180deg, rgba(255,255,255,.88), rgba(232,241,255,.78));
+            color:#23478e;
+            border:1px solid rgba(84,126,207,.30);
+          }
+          .in-app-report-scroll{
+            flex:1 1 auto;
+            min-height:0;
+            overflow:auto;
+            -webkit-overflow-scrolling:touch;
+            padding:18px;
+          }
+          @media (max-width:700px){
+            .in-app-report-toolbar{align-items:stretch;flex-direction:column;padding:10px;}
+            .in-app-report-title{white-space:normal;font-size:14px;line-height:1.25;}
+            .in-app-report-actions{display:grid;grid-template-columns:1fr 1fr;width:100%;}
+            .in-app-report-btn{width:100%;min-height:42px;font-size:14px;padding:9px 10px;}
+            .in-app-report-scroll{padding:10px;}
+          }
+          @media (max-width:900px) and (orientation:landscape){
+            .in-app-report-toolbar{padding:8px 10px;}
+            .in-app-report-btn{min-height:36px;padding:7px 10px;font-size:13px;}
+            .in-app-report-scroll{padding:10px;}
+          }
+          @media print{
+            body.report-open > :not(#inAppReportOverlay){display:none !important;}
+            body.report-open{overflow:visible !important;background:#fff !important;}
+            .in-app-report-overlay{position:static !important;display:block !important;background:#fff !important;}
+            .in-app-report-toolbar{display:none !important;}
+            .in-app-report-scroll{overflow:visible !important;padding:0 !important;}
+          }
+          ${reportStyle || ""}
+        </style>
+        <div class="in-app-report-toolbar">
+          <div class="in-app-report-title">${title}</div>
+          <div class="in-app-report-actions">
+            <button class="in-app-report-btn back" id="reportBackBtn" type="button">← Tornar</button>
+            <button class="in-app-report-btn" id="reportPrintBtn" type="button">Imprimir / Guardar PDF</button>
+          </div>
+        </div>
+        <div class="in-app-report-scroll">${contentHtml}</div>
+      `;
+      document.body.appendChild(overlay);
+      document.body.classList.add("report-open");
+      document.getElementById("reportBackBtn").addEventListener("click", closeInAppReport);
+      document.getElementById("reportPrintBtn").addEventListener("click", () => window.print());
+    }
+
     async function openSummaryPage(){
       if(!state.teacher){
         alert("Primer has d'entrar com a mestre/a.");
@@ -4889,6 +5001,25 @@ syncEnterCenterVisibility();
         return surnameSortKey(a.studentName).localeCompare(surnameSortKey(b.studentName), 'ca');
       });
 
+      const zoomStyle = `
+        .zoom-wrap{
+          width:100%;
+          min-width:1100px;
+          padding:0;
+          box-sizing:border-box;
+        }
+        @media (max-width:700px){
+          .zoom-wrap{min-width:980px;}
+          h1{font-size:22px;}
+          table{font-size:13px;}
+          th,td{padding:7px 8px;}
+        }
+        @media print{
+          .zoom-wrap{min-width:0;width:100%;padding:0;}
+          .card{box-shadow:none !important;border:0 !important;}
+        }
+      `;
+
       const bodyRows = rows.map(row => `
         <tr>
           <td class="sticky" style="min-width:92px">${row.className}</td>
@@ -4904,155 +5035,30 @@ syncEnterCenterVisibility();
         </tr>
       `).join("");
 
-      const newWin = window.open("", "_blank");
-      if(!newWin){
-        alert("El navegador ha bloquejat la finestra emergent. Permet les finestres emergents per a aquesta pàgina.");
-        return;
-      }
-
-      const zoomStyle = `
-        body{
-          margin:0;
-          background:#f3f6fb;
-          font-family:Arial,Helvetica,sans-serif;
-        }
-        .print-toolbar{
-          position:sticky;
-          top:0;
-          z-index:9999;
-          display:flex;
-          justify-content:flex-end;
-          gap:10px;
-          padding:12px 16px;
-          background:#eaf1ff;
-          border-bottom:1px solid #cfe0ff;
-        }
-        .print-btn{
-          border:0;
-          border-radius:10px;
-          padding:10px 14px;
-          font-size:14px;
-          font-weight:700;
-          cursor:pointer;
-          background:#2563eb;
-          color:#fff;
-        }
-        .zoom-wrap{
-          transform:scale(0.5);
-          transform-origin:top left;
-          width:200.00%;
-          padding:24px;
-          box-sizing:border-box;
-        }
-        @media print{
-          .print-toolbar{display:none !important;}
-          body{background:#fff;}
-          .zoom-wrap{
-            transform:none;
-            width:100%;
-            padding:0;
-          }
-          .card{
-            box-shadow:none !important;
-            border:0 !important;
-          }
-        }
+      const reportContent = `
+        <div class="zoom-wrap">
+          <div class="card">
+            <h1>${title}</h1>
+            <p>Centre: ${state.center?.displayName || "—"} · Mestre/a: ${state.teacher?.displayName || "—"} · Classes: ${allowedClasses.join(", ") || "—"}</p>
+            <table>
+              <thead>
+                <tr>
+                  <th class="sticky-head" rowspan="2" style="min-width:92px">Classe</th>
+                  <th class="sticky-head student-col" rowspan="2" style="min-width:120px">Nº llista</th>
+                  ${headers}
+                </tr>
+                <tr>
+                  ${subHeaders}
+                </tr>
+              </thead>
+              <tbody>
+                ${bodyRows || `<tr><td colspan="${2 + (visibleSubjects.length * 4)}" class="muted">No hi ha alumnes disponibles.</td></tr>`}
+              </tbody>
+            </table>
+          </div>
+        </div>
       `;
-
-      newWin.document.write(`<!DOCTYPE html>
-<html lang="ca">
-<head>
-<meta charset="utf-8">
-<title>${title}</title>
-<style>${style}
-${zoomStyle}</style>
-
-<style id="change-password-modal-styles">
-  .modal-overlay{
-    position:fixed;
-    inset:0;
-    background:rgba(15,23,42,.42);
-    backdrop-filter:blur(4px);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    padding:24px;
-    z-index:1000000;
-  }
-  .modal-card{
-    width:min(460px,100%);
-    background:linear-gradient(180deg, rgba(255,255,255,.96), rgba(244,249,255,.94));
-    border:1px solid rgba(84,126,207,.24);
-    border-radius:24px;
-    box-shadow:0 24px 54px rgba(20,46,92,.25);
-    padding:24px;
-  }
-  .modal-card h3{
-    margin:0 0 8px;
-    font-size:24px;
-    color:#153775;
-  }
-  .modal-card p{
-    margin:0 0 16px;
-    color:#5d7097;
-    line-height:1.5;
-  }
-  .modal-actions{
-    display:flex;
-    justify-content:flex-end;
-    gap:10px;
-    flex-wrap:wrap;
-    margin-top:14px;
-  }
-</style>
-
-
-
-
-<style id="hide-access-indicators-inside-teacher-app">
-  /*
-    Los indicadores de acceso/prueba solo se muestran en la pantalla principal
-    de acceso y selección de centro.
-    Cuando ya se entra como maestro/a y aparece la app de clases, se ocultan
-    para que no molesten ni se solapen con la barra fija superior.
-  */
-  body.identity-card-visible .floating-access-status{
-    display:none !important;
-  }
-
-  body.identity-card-visible #trialAccessPanel{
-    display:none !important;
-  }
-</style>
-
-</head>
-<body>
-
-
-  <div class="zoom-wrap">
-    <div class="card">
-      <h1>${title}</h1>
-      <p>Centre: ${state.center?.displayName || "—"} · Mestre/a: ${state.teacher?.displayName || "—"} · Classes: ${allowedClasses.join(", ") || "—"}</p>
-      <table>
-        <thead>
-          <tr>
-            <th class="sticky-head" rowspan="2" style="min-width:92px">Classe</th>
-            <th class="sticky-head student-col" rowspan="2" style="min-width:120px">Nº llista</th>
-            ${headers}
-          </tr>
-          <tr>
-            ${subHeaders}
-          </tr>
-        </thead>
-        <tbody>
-          ${bodyRows || `<tr><td colspan="${2 + (visibleSubjects.length * 4)}" class="muted">No hi ha alumnes disponibles.</td></tr>`}
-        </tbody>
-      </table>
-    </div>
-  </div>
-</body>
-</html>`);
-      newWin.document.close();
+      openInAppReport(title, reportContent, `${style}\n${zoomStyle}`);
     }
 
 
@@ -5088,30 +5094,9 @@ ${zoomStyle}</style>
         const e3 = ((((evaluations.eval3 || {}).subjects || {})[subject.key]) || {}).nivell || "—";
         return `<tr><td style="background:${palette.head};font-weight:800">${subject.name}</td><td class="eval-cell" style="background:${palette.cell}">${e1}</td><td class="eval-cell" style="background:${palette.cell}">${e2}</td><td class="eval-cell" style="background:${palette.cell}">${e3}</td></tr>`;
       }).join("");
-      const newWin = window.open("", "_blank");
-      if(!newWin){ alert("El navegador ha bloquejat la finestra emergent. Permet les finestres emergents per a aquesta pàgina."); return; }
-      const style = `body{font-family:Inter,Arial,sans-serif;background:#f7faff;color:#1f2937;padding:24px}h1{margin:0 0 8px 0;font-size:28px}p{margin:0 0 16px 0;color:#667085}.card{background:#fff;border:1px solid #d9e4f2;border-radius:18px;padding:18px;box-shadow:0 8px 24px rgba(26,42,79,.08);overflow:auto}table{width:100%;border-collapse:collapse;font-size:14px}th,td{border:1px solid #d9e4f2;padding:9px 11px;text-align:left;vertical-align:top}th{background:#eef4ff}.eval-cell{text-align:center;font-weight:800}.toolbar{margin-bottom:14px}.print{border:0;border-radius:12px;padding:10px 14px;font-weight:800;cursor:pointer;background:#2563eb;color:#fff}`;
-      newWin.document.write(`<!DOCTYPE html><html lang="ca"><head><meta charset="utf-8"><title>${title}</title><style>${style}</style>
-
-
-<style id="hide-access-indicators-inside-teacher-app">
-  /*
-    Los indicadores de acceso/prueba solo se muestran en la pantalla principal
-    de acceso y selección de centro.
-    Cuando ya se entra como maestro/a y aparece la app de clases, se ocultan
-    para que no molesten ni se solapen con la barra fija superior.
-  */
-  body.identity-card-visible .floating-access-status{
-    display:none !important;
-  }
-
-  body.identity-card-visible #trialAccessPanel{
-    display:none !important;
-  }
-</style>
-
-</head><body><div class="card"><div class="toolbar"><button class="print" onclick="window.print()">Imprimir / Guardar PDF</button></div><h1>${title}</h1><p>Centre: ${state.center?.displayName || "—"} · Classe: ${state.currentClass || "—"} · Mestre/a: ${state.teacher?.displayName || "—"}</p><table><thead><tr><th>Àrea</th><th>1a Avaluació</th><th>2a Avaluació</th><th>3a Avaluació</th></tr></thead><tbody>${rows || `<tr><td colspan="4">No hi ha qualificacions disponibles.</td></tr>`}</tbody></table></div></body></html>`);
-      newWin.document.close();
+      const style = `body{font-family:Inter,Arial,sans-serif;background:#f7faff;color:#1f2937;padding:24px}h1{margin:0 0 8px 0;font-size:28px}p{margin:0 0 16px 0;color:#667085}.card{background:#fff;border:1px solid #d9e4f2;border-radius:18px;padding:18px;box-shadow:0 8px 24px rgba(26,42,79,.08);overflow:auto}table{width:100%;border-collapse:collapse;font-size:14px}th,td{border:1px solid #d9e4f2;padding:9px 11px;text-align:left;vertical-align:top}th{background:#eef4ff}.eval-cell{text-align:center;font-weight:800}@media(max-width:700px){body{padding:10px}h1{font-size:22px}.card{padding:12px;border-radius:14px}table{font-size:13px}th,td{padding:8px 9px}}`;
+      const reportContent = `<div class="card"><h1>${title}</h1><p>Centre: ${state.center?.displayName || "—"} · Classe: ${state.currentClass || "—"} · Mestre/a: ${state.teacher?.displayName || "—"}</p><table><thead><tr><th>Àrea</th><th>1a Avaluació</th><th>2a Avaluació</th><th>3a Avaluació</th></tr></thead><tbody>${rows || `<tr><td colspan="4">No hi ha qualificacions disponibles.</td></tr>`}</tbody></table></div>`;
+      openInAppReport(title, reportContent, style);
     }
 
 
