@@ -925,64 +925,65 @@ body::after{
     margin-top:4px;
   }
 
-  /* La columna izquierda queda visible mientras se hace scroll en la página */
-  #appShell{
-    align-items:start !important;
+  /* Nuevo enfoque: NO se bloquea la columna izquierda ni el listado.
+     Se fija arriba el bloque Classe / Mestre / Alumne dentro de la página. */
+  .main{
+    overflow:visible !important;
   }
-  #appShell .sidebar{
-    position:sticky !important;
-    top:18px !important;
-    align-self:start !important;
-    max-height:calc(100vh - 36px) !important;
-    overflow:hidden !important;
-    z-index:50 !important;
-  }
-
-  /* Guardar siempre visible arriba desde el principio */
-  .save-top-panel{
-    order:-10 !important;
+  .hero{
     position:sticky !important;
     top:0 !important;
-    z-index:80 !important;
-    margin-bottom:0 !important;
-    box-shadow:0 18px 42px rgba(22,163,74,.18), var(--shadow) !important;
+    z-index:5000 !important;
+    padding:0 0 12px 0 !important;
+    background:linear-gradient(180deg, rgba(237,244,255,.98), rgba(237,244,255,.92) 72%, rgba(237,244,255,0)) !important;
+    backdrop-filter:blur(12px);
   }
-  #saveSide{
-    min-height:54px;
-    font-size:17px;
-  }
-
-  /* El listado de alumnos puede desplazarse dentro de la columna izquierda */
-  #studentList{
+  .hero > .hero-card:first-child{
     position:relative !important;
-    overflow-y:auto !important;
-    max-height:calc(100vh - 430px) !important;
-    min-height:120px !important;
-    padding-right:4px !important;
+    padding-right:180px !important;
+    box-shadow:0 14px 34px rgba(37,99,235,.16) !important;
+  }
+  .top-save-holder{
+    position:absolute;
+    right:22px;
+    top:50%;
+    transform:translateY(-50%);
+    width:140px;
+    z-index:2;
+  }
+  #saveTop{
+    width:100%;
+    min-height:54px;
+    font-size:16px;
+    box-shadow:0 14px 30px rgba(22,163,74,.20) !important;
   }
 
-  /* El alumno seleccionado se coloca arriba del listado y se queda visible */
+  /* El botón original de la izquierda se deja normal para no bloquear otros elementos. */
+  .sidebar .panel:has(#saveSide),
+  #saveSide{
+    position:static !important;
+    bottom:auto !important;
+    top:auto !important;
+  }
+
+  /* El alumno seleccionado del listado ya no se fija aquí: lo visible fijo será el bloque superior. */
   #studentList .student-item.active{
-    position:sticky !important;
-    top:0 !important;
-    z-index:70 !important;
-    order:-1 !important;
-    box-shadow:0 14px 28px rgba(37,99,235,.18), inset 0 1px 0 rgba(255,255,255,.65) !important;
+    position:static !important;
+    box-shadow:0 10px 22px rgba(37,99,235,.14), inset 0 1px 0 rgba(255,255,255,.65) !important;
   }
 
-  @media (max-width:1100px){
-    #appShell .sidebar{
-      position:relative !important;
-      top:auto !important;
-      max-height:none !important;
-      overflow:visible !important;
+  @media (max-width:900px){
+    .hero > .hero-card:first-child{
+      padding-right:22px !important;
+      padding-bottom:88px !important;
     }
-    .save-top-panel{
-      position:sticky !important;
-      top:8px !important;
-    }
-    #studentList{
-      max-height:45vh !important;
+    .top-save-holder{
+      left:22px;
+      right:22px;
+      top:auto;
+      bottom:18px;
+      width:auto;
+      transform:none;
     }
   }
 </style>
@@ -1196,9 +1197,6 @@ body::after{
 <input id="teacherName" type="hidden" value=""/>
 <input id="teacherId" type="hidden" value=""/>
 <select hidden="" id="teacherRole"><option selected="" value="Tutor/a">Tutor/a</option></select>
-<div class="panel soft stack save-top-panel">
-<button class="success full" id="saveSide">Guardar</button>
-</div>
 <div class="panel stack">
 <div class="section-title">Classes</div>
 <div class="toolbar">
@@ -1218,6 +1216,9 @@ body::after{
 </div>
 <input id="studentSearch" placeholder="Buscar per número de llista..." type="text"/>
 <div class="student-list" id="studentList"></div>
+</div>
+<div class="panel soft stack">
+<button class="success full" id="saveSide">Guardar</button>
 </div>
 </aside>
 <main class="main">
@@ -1252,6 +1253,9 @@ body::after{
         <div class="small" style="font-weight:900;letter-spacing:.02em;font-size:15px;color:#475569;">Alumne/a:</div>
         <div id="currentStudent" style="font-size:30px;font-weight:900;color:#2563eb;line-height:1.15;margin-top:5px;">—</div>
       </div>
+    </div>
+    <div class="top-save-holder">
+      <button class="success full" id="saveTop" type="button" onclick="document.getElementById('saveSide') && document.getElementById('saveSide').click();">Guardar</button>
     </div>
   </div>
 
