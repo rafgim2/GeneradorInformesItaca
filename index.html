@@ -989,6 +989,92 @@ body::after{
   }
 </style>
 
+
+
+<style id="identity-fixed-real-fix">
+  /* FIX REAL DEL BLOQUE CLASSE / MESTRE/A / ALUMNE/A
+     -------------------------------------------------
+     La app completa usa transform: scale(0.92). Eso rompe el comportamiento fiable
+     de position: sticky/fixed dentro de .app. Por eso el bloque se mueve por JS al body
+     y se posiciona con coordenadas reales de pantalla, alineado con el panel principal. */
+  .identity-fixed-placeholder{
+    display:block;
+    width:100%;
+    height:0;
+    margin:0 0 12px 0;
+    flex:0 0 auto;
+  }
+
+  body.identity-card-fixed #identityStickyCard{
+    position:fixed !important;
+    top:12px !important;
+    left:var(--identity-fixed-left, 390px) !important;
+    width:var(--identity-fixed-width, calc((100vw - 420px) / .92)) !important;
+    transform:scale(var(--identity-fixed-scale, .92)) !important;
+    transform-origin:top left !important;
+    max-width:none !important;
+    min-width:0 !important;
+    margin:0 !important;
+    z-index:999990 !important;
+    padding-right:190px !important;
+    box-shadow:0 18px 42px rgba(37,99,235,.24) !important;
+    backdrop-filter:blur(16px) saturate(130%) !important;
+  }
+
+  body.identity-card-fixed #identityStickyCard::after{
+    content:"";
+    position:absolute;
+    left:0;
+    right:0;
+    bottom:-18px;
+    height:18px;
+    pointer-events:none;
+    background:linear-gradient(180deg, rgba(237,244,255,.96), rgba(237,244,255,0));
+  }
+
+  body:not(.identity-card-visible) #identityStickyCard{
+    display:none !important;
+  }
+
+  body.identity-card-visible #identityStickyCard{
+    display:block !important;
+  }
+
+  body.identity-card-fixed .top-save-holder{
+    position:absolute !important;
+    right:22px !important;
+    top:50% !important;
+    transform:translateY(-50%) !important;
+    width:145px !important;
+    z-index:3 !important;
+  }
+
+  @media (max-width:1100px){
+    body.identity-card-fixed #identityStickyCard{
+      left:18px !important;
+      width:calc(100vw - 36px) !important;
+    }
+  }
+
+  @media (max-width:900px){
+    body.identity-card-fixed #identityStickyCard{
+      top:8px !important;
+      left:12px !important;
+      width:calc(100vw - 24px) !important;
+      padding-right:22px !important;
+      padding-bottom:88px !important;
+    }
+    body.identity-card-fixed .top-save-holder{
+      left:22px !important;
+      right:22px !important;
+      top:auto !important;
+      bottom:18px !important;
+      width:auto !important;
+      transform:none !important;
+    }
+  }
+</style>
+
 </head>
 <body class="preaccess-loading">
 
@@ -4691,5 +4777,102 @@ if(evalBig && evalSmall){
   }catch(e){}
 })();
 </script>
+
+
+<script id="identity-fixed-real-fix-script">
+(function(){
+  "use strict";
+
+  function ready(fn){
+    if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", fn);
+    else fn();
+  }
+
+  ready(function(){
+    const card = document.getElementById("identityStickyCard");
+    const app = document.getElementById("appShell");
+    const main = document.querySelector("main.main");
+    if(!card || !app || !main) return;
+
+    let placeholder = document.getElementById("identityStickyPlaceholder");
+    if(!placeholder){
+      placeholder = document.createElement("div");
+      placeholder.id = "identityStickyPlaceholder";
+      placeholder.className = "identity-fixed-placeholder";
+      card.parentNode.insertBefore(placeholder, card);
+    }
+
+    // Sacamos el bloque de .app para que no le afecte transform: scale(0.92).
+    // Los IDs internos no cambian, así que el resto del código de la app sigue funcionando igual.
+    if(card.parentNode !== document.body){
+      document.body.appendChild(card);
+    }
+
+    function appIsVisible(){
+      return !app.classList.contains("hidden-before-login") && getComputedStyle(app).display !== "none";
+    }
+
+    function updatePosition(){
+      const visible = appIsVisible();
+      document.body.classList.toggle("identity-card-visible", visible);
+      document.body.classList.toggle("identity-card-fixed", visible);
+
+      if(!visible){
+        placeholder.style.height = "0px";
+        return;
+      }
+
+      const mainRect = main.getBoundingClientRect();
+      const viewportWidth = window.innerWidth || document.documentElement.clientWidth;
+      const narrow = viewportWidth <= 1100;
+
+      const appScale = 0.92;
+      let left = narrow ? 18 : mainRect.left;
+      let visualWidth = narrow ? (viewportWidth - 36) : mainRect.width;
+      let width = visualWidth / appScale;
+
+      // Protección por si el navegador devuelve medidas raras durante el cambio de login.
+      if(!Number.isFinite(left) || left < 0) left = 18;
+      if(!Number.isFinite(width) || width < 280) width = Math.max(280, (viewportWidth - left - 18) / appScale);
+
+      document.documentElement.style.setProperty("--identity-fixed-left", left + "px");
+      document.documentElement.style.setProperty("--identity-fixed-width", width + "px");
+      document.documentElement.style.setProperty("--identity-fixed-scale", appScale);
+
+      // Reservamos hueco en el lugar original para que el contenido no quede tapado.
+      // Se usa la altura real del bloque ya maquetado como fixed.
+      const h = Math.ceil(card.getBoundingClientRect().height);
+      placeholder.style.height = (h + 14) + "px";
+    }
+
+    let raf = 0;
+    function scheduleUpdate(){
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(updatePosition);
+    }
+
+    window.addEventListener("resize", scheduleUpdate, { passive:true });
+    window.addEventListener("scroll", scheduleUpdate, { passive:true });
+
+    if(window.ResizeObserver){
+      const ro = new ResizeObserver(scheduleUpdate);
+      ro.observe(main);
+      ro.observe(card);
+      ro.observe(app);
+    }
+
+    const mo = new MutationObserver(scheduleUpdate);
+    mo.observe(app, { attributes:true, attributeFilter:["class", "style"] });
+    mo.observe(document.body, { attributes:true, attributeFilter:["class"] });
+
+    // Varias pasadas iniciales porque la app cambia de estado tras login/carga Firebase.
+    scheduleUpdate();
+    setTimeout(scheduleUpdate, 50);
+    setTimeout(scheduleUpdate, 250);
+    setTimeout(scheduleUpdate, 800);
+  });
+})();
+</script>
+
 </body>
 </html>
