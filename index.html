@@ -4076,6 +4076,7 @@ syncEnterCenterVisibility();
         div.className = "subject-card";
         div.dataset.subjectKey = subject.key;
         const isObservationOnlySubject = ["al", "pt", "educador", "mestreSuport"].includes(subject.key);
+        const isNoCompetenciesSubject = subject.key === "pi";
         const isTutorAreaWithoutObservations = ["mates", "castellana", "valencia", "medi"].includes(subject.key);
         const observationOnlyLabels = {
           al: "Observacions d'Audició i Llenguatge",
@@ -4100,6 +4101,28 @@ syncEnterCenterVisibility();
             <div class="c12">
               <label for="${subject.key}_obs">${observationOnlyLabel}</label>
               <textarea id="${subject.key}_obs" placeholder="${observationOnlyPlaceholder}"></textarea>
+            </div>
+          </div>
+        ` : isNoCompetenciesSubject ? `
+          <div class="subject-head">
+            <h3>${subject.name}</h3>
+            <span class="chip">${subject.key.toUpperCase()}</span>
+          </div>
+          <div class="row">
+            <div class="c4">
+              <label for="${subject.key}_nivell">Resultat global</label>
+              <select id="${subject.key}_nivell">
+                <option value="">-- Selecciona --</option>
+                <option value="EXCEL·LENTS">EXCEL·LENTS</option>
+                <option value="NOTABLES">NOTABLES</option>
+                <option value="BONS">BONS</option>
+                <option value="SUFICIENTS">SUFICIENTS</option>
+                <option value="NO SUPERAT - HA DE TREBALLAR MÉS PER A ASSIMILAR ELS SABERS PROPOSATS">NO SUPERAT - HA DE TREBALLAR MÉS</option>
+              </select>
+            </div>
+            <div class="c8">
+              <label for="${subject.key}_obs">Observació lliure de l'àrea</label>
+              <input id="${subject.key}_obs" type="text" placeholder="Opcional" />
             </div>
           </div>
         ` : `
@@ -5477,10 +5500,10 @@ if(evalBig && evalSmall){
 
   // IMPORTANTE:
   // - Las áreas del tutor ya no muestran campo de observaciones.
-  // - Inglés, EF, Plástica, Religión y Música tienen 400 caracteres cada una.
+  // - Inglés, EF, Plástica, Religión, Música y Projectes Interdisciplinars tienen 400 caracteres cada una.
   // - AL, PT y Educador/a tienen 544; Mestre/a de suport tiene 100.
   const supportSubjectKeys=new Set(['al','pt','educador','mestreSuport']);
-  const specialistSubjectKeys=new Set(['ef','angles','musica','plastica','religio']);
+  const specialistSubjectKeys=new Set(['ef','angles','musica','plastica','religio','pi']);
 
   function byId(id){return document.getElementById(id);}
   function len(el){return (el&&typeof el.value==='string')?el.value.length:0;}
