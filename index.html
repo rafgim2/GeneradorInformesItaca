@@ -2087,6 +2087,95 @@ body:not(.identity-card-visible) #authScreen:not(.hidden){
   }
 </style>
 
+
+
+<style id="general-panel-buttons-line-fix-final">
+  /* Barra superior: mantiene siempre la identificación y los 4 botones en una misma línea.
+     El aviso de guardado queda debajo, centrado, para que no desordene la fila cuando cambia el texto. */
+  #generalPanel .sticky-tools{
+    display:grid !important;
+    grid-template-columns:minmax(230px,1.05fr) repeat(4,minmax(170px,1fr)) !important;
+    align-items:center !important;
+    justify-content:stretch !important;
+    gap:14px !important;
+    flex-wrap:nowrap !important;
+    overflow-x:visible !important;
+  }
+
+  #generalPanel #loggedTeacherBadge,
+  #generalPanel #summaryBtn,
+  #generalPanel #singleStudentSummaryBtn,
+  #generalPanel #changePasswordBtn,
+  #generalPanel #logoutBtn{
+    width:100% !important;
+    min-width:0 !important;
+    max-width:none !important;
+    grid-column:auto !important;
+    white-space:nowrap !important;
+    text-align:center !important;
+    justify-content:center !important;
+    overflow:hidden !important;
+    text-overflow:ellipsis !important;
+  }
+
+  #generalPanel #lastSavedTag{
+    grid-column:1 / -1 !important;
+    justify-self:center !important;
+    width:auto !important;
+    max-width:100% !important;
+    white-space:nowrap !important;
+    text-align:center !important;
+  }
+
+  @media (max-width:1250px){
+    #generalPanel .sticky-tools{
+      grid-template-columns:minmax(185px,.95fr) repeat(4,minmax(145px,1fr)) !important;
+      gap:10px !important;
+    }
+    #generalPanel #loggedTeacherBadge,
+    #generalPanel #summaryBtn,
+    #generalPanel #singleStudentSummaryBtn,
+    #generalPanel #changePasswordBtn,
+    #generalPanel #logoutBtn{
+      font-size:13px !important;
+      padding-left:8px !important;
+      padding-right:8px !important;
+    }
+  }
+
+  @media (max-width:900px){
+    #generalPanel .sticky-tools{
+      display:flex !important;
+      flex-wrap:nowrap !important;
+      justify-content:flex-start !important;
+      align-items:center !important;
+      overflow-x:auto !important;
+      -webkit-overflow-scrolling:touch;
+      gap:10px !important;
+      padding-bottom:4px !important;
+    }
+
+    #generalPanel #loggedTeacherBadge,
+    #generalPanel #summaryBtn,
+    #generalPanel #singleStudentSummaryBtn,
+    #generalPanel #changePasswordBtn,
+    #generalPanel #logoutBtn{
+      flex:0 0 auto !important;
+      width:auto !important;
+      min-width:max-content !important;
+      max-width:none !important;
+      white-space:nowrap !important;
+    }
+
+    #generalPanel #lastSavedTag{
+      flex:0 0 auto !important;
+      width:auto !important;
+      min-width:max-content !important;
+      grid-column:auto !important;
+    }
+  }
+</style>
+
 </head>
 <body class="preaccess-loading">
 
