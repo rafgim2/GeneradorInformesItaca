@@ -2843,7 +2843,9 @@ syncEnterCenterVisibility();
 
     function getAvailableSpecialistClasses(specialty = "", excludeTeacherId = ""){
       if(!specialty) return [...state.classes];
-      if(specialty === "mestreSuport") return [...state.classes];
+      // El/la mestre/a de suport pot coincidir amb altres mestres de suport en la mateixa classe.
+      // Mantindre la restricció d'una classe per especialista només per a la resta d'especialitats.
+      if(specialty === 'mestreSuport') return [...state.classes];
       const taken = new Set(getSpecialistAssignedClassesBySpecialty(specialty, excludeTeacherId));
       return state.classes.filter(c => !taken.has(String(c).trim().toUpperCase()));
     }
@@ -3128,7 +3130,8 @@ syncEnterCenterVisibility();
 
       if(isSpecialist){
         selectedClasses = [...new Set(selectedClasses.map(c => c.trim().toUpperCase()).filter(Boolean))];
-        if(specialty !== "mestreSuport"){
+        // El/la mestre/a de suport és una excepció: pot haver-hi més d'un/a en una mateixa classe.
+        if(specialty !== 'mestreSuport'){
           const occupiedClasses = new Set(getSpecialistAssignedClassesBySpecialty(specialty, id));
           const conflictingClasses = selectedClasses.filter(c => occupiedClasses.has(c));
           if(conflictingClasses.length){
