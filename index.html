@@ -2004,6 +2004,59 @@ body:not(.identity-card-visible) #authScreen:not(.hidden){
 }
 </style>
 
+
+
+<style id="tutor-competency-columns-fix-2026">
+  /* Recoloca las áreas del tutor tras quitar sus observaciones: 
+     resultado global en una fila y competencias conseguidas/no conseguidas en dos columnas claras. */
+  #subjectsContainer .subject-card[data-subject-key="mates"] .row > .c4,
+  #subjectsContainer .subject-card[data-subject-key="castellana"] .row > .c4,
+  #subjectsContainer .subject-card[data-subject-key="valencia"] .row > .c4,
+  #subjectsContainer .subject-card[data-subject-key="medi"] .row > .c4{
+    grid-column:span 12 !important;
+  }
+
+  #subjectsContainer .subject-card[data-subject-key="mates"] .row > .c6,
+  #subjectsContainer .subject-card[data-subject-key="castellana"] .row > .c6,
+  #subjectsContainer .subject-card[data-subject-key="valencia"] .row > .c6,
+  #subjectsContainer .subject-card[data-subject-key="medi"] .row > .c6{
+    grid-column:span 6 !important;
+    align-self:start;
+    background:rgba(255,255,255,.54);
+    border:1px solid rgba(84,126,207,.20);
+    border-radius:16px;
+    padding:12px;
+    box-shadow:0 8px 18px rgba(44,97,180,.06), inset 0 1px 0 rgba(255,255,255,.55);
+  }
+
+  #subjectsContainer .subject-card[data-subject-key="mates"] .row > .c6 > label,
+  #subjectsContainer .subject-card[data-subject-key="castellana"] .row > .c6 > label,
+  #subjectsContainer .subject-card[data-subject-key="valencia"] .row > .c6 > label,
+  #subjectsContainer .subject-card[data-subject-key="medi"] .row > .c6 > label{
+    margin-bottom:10px;
+    padding-bottom:7px;
+    border-bottom:1px solid rgba(84,126,207,.18);
+    font-size:14px;
+  }
+
+  #subjectsContainer .subject-card[data-subject-key="mates"] .checkbox-grid,
+  #subjectsContainer .subject-card[data-subject-key="castellana"] .checkbox-grid,
+  #subjectsContainer .subject-card[data-subject-key="valencia"] .checkbox-grid,
+  #subjectsContainer .subject-card[data-subject-key="medi"] .checkbox-grid{
+    grid-template-columns:1fr !important;
+    gap:8px !important;
+  }
+
+  @media (max-width:780px){
+    #subjectsContainer .subject-card[data-subject-key="mates"] .row > .c6,
+    #subjectsContainer .subject-card[data-subject-key="castellana"] .row > .c6,
+    #subjectsContainer .subject-card[data-subject-key="valencia"] .row > .c6,
+    #subjectsContainer .subject-card[data-subject-key="medi"] .row > .c6{
+      grid-column:span 12 !important;
+    }
+  }
+</style>
+
 </head>
 <body class="preaccess-loading">
 
