@@ -2008,7 +2008,7 @@ body:not(.identity-card-visible) #authScreen:not(.hidden){
 
 <style id="tutor-competency-columns-fix-2026">
   /* Recoloca las áreas del tutor tras quitar sus observaciones: 
-     resultado global en una fila y competencias conseguidas/no conseguidas en dos columnas claras. */
+     resultado global en una fila y competencias en cuatro columnas visuales: dos para conseguidas y dos para no conseguidas. */
   #subjectsContainer .subject-card[data-subject-key="mates"] .row > .c4,
   #subjectsContainer .subject-card[data-subject-key="castellana"] .row > .c4,
   #subjectsContainer .subject-card[data-subject-key="valencia"] .row > .c4,
@@ -2043,8 +2043,22 @@ body:not(.identity-card-visible) #authScreen:not(.hidden){
   #subjectsContainer .subject-card[data-subject-key="castellana"] .checkbox-grid,
   #subjectsContainer .subject-card[data-subject-key="valencia"] .checkbox-grid,
   #subjectsContainer .subject-card[data-subject-key="medi"] .checkbox-grid{
-    grid-template-columns:1fr !important;
-    gap:8px !important;
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+    gap:8px 10px !important;
+  }
+
+  #subjectsContainer .subject-card[data-subject-key="mates"] .check,
+  #subjectsContainer .subject-card[data-subject-key="castellana"] .check,
+  #subjectsContainer .subject-card[data-subject-key="valencia"] .check,
+  #subjectsContainer .subject-card[data-subject-key="medi"] .check{
+    min-width:0;
+  }
+
+  #subjectsContainer .subject-card[data-subject-key="mates"] .check span,
+  #subjectsContainer .subject-card[data-subject-key="castellana"] .check span,
+  #subjectsContainer .subject-card[data-subject-key="valencia"] .check span,
+  #subjectsContainer .subject-card[data-subject-key="medi"] .check span{
+    overflow-wrap:anywhere;
   }
 
   @media (max-width:780px){
@@ -2053,6 +2067,22 @@ body:not(.identity-card-visible) #authScreen:not(.hidden){
     #subjectsContainer .subject-card[data-subject-key="valencia"] .row > .c6,
     #subjectsContainer .subject-card[data-subject-key="medi"] .row > .c6{
       grid-column:span 12 !important;
+    }
+
+    #subjectsContainer .subject-card[data-subject-key="mates"] .checkbox-grid,
+    #subjectsContainer .subject-card[data-subject-key="castellana"] .checkbox-grid,
+    #subjectsContainer .subject-card[data-subject-key="valencia"] .checkbox-grid,
+    #subjectsContainer .subject-card[data-subject-key="medi"] .checkbox-grid{
+      grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+    }
+  }
+
+  @media (max-width:520px){
+    #subjectsContainer .subject-card[data-subject-key="mates"] .checkbox-grid,
+    #subjectsContainer .subject-card[data-subject-key="castellana"] .checkbox-grid,
+    #subjectsContainer .subject-card[data-subject-key="valencia"] .checkbox-grid,
+    #subjectsContainer .subject-card[data-subject-key="medi"] .checkbox-grid{
+      grid-template-columns:1fr !important;
     }
   }
 </style>
