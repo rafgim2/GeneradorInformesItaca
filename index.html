@@ -2682,6 +2682,213 @@ body.identity-card-fixed #identityStickyCard{
   }
 }
 </style>
+
+
+<style id="app-notes-width-restored-final-fix">
+/* ==========================================================
+   FIX FINAL: pantalla de notas ajustada al ancho + acceso centrado
+   ----------------------------------------------------------
+   La pantalla de acceso mantiene el cursor visible porque NO tiene
+   transform en sus padres: solo se reduce .auth-wrap con zoom.
+
+   La pantalla de notas vuelve al sistema estable anterior: transform
+   scale(0.90) + ancho compensado. Así el contenido derecho vuelve a
+   caber completo en la página y no queda recortado.
+   ========================================================== */
+:root{
+  --app-global-scale:0.90;
+  --app-global-width:calc(100vw / var(--app-global-scale));
+}
+
+/* Acceso: viewport real, centrado real, sin transform para que se vea el cursor. */
+#authScreen.auth-screen{
+  transform:none !important;
+  zoom:1 !important;
+  width:100vw !important;
+  max-width:none !important;
+  min-width:0 !important;
+  min-height:100vh !important;
+  min-height:100svh !important;
+  margin:0 !important;
+  padding:24px !important;
+  display:flex !important;
+  justify-content:center !important;
+  align-items:center !important;
+  overflow:hidden !important;
+}
+
+#authScreen.auth-screen.hidden{
+  display:none !important;
+  visibility:hidden !important;
+  pointer-events:none !important;
+}
+
+#authScreen.auth-screen:not(.hidden) .auth-wrap{
+  transform:none !important;
+  zoom:.90 !important;
+  width:min(1100px, calc(100vw - 48px)) !important;
+  max-width:1100px !important;
+  margin-left:auto !important;
+  margin-right:auto !important;
+  justify-self:center !important;
+  align-self:center !important;
+}
+
+#authScreen.auth-screen:not(.hidden) .auth-card{
+  min-width:0 !important;
+}
+
+/* App de notas: sin zoom CSS, con transform compensado para que quepa todo. */
+#appShell.app{
+  zoom:1 !important;
+  transform:scale(var(--app-global-scale)) !important;
+  transform-origin:top left !important;
+  width:var(--app-global-width) !important;
+  max-width:none !important;
+  min-width:0 !important;
+  min-height:calc(100vh / var(--app-global-scale)) !important;
+  min-height:calc(100svh / var(--app-global-scale)) !important;
+  margin:0 !important;
+  overflow:visible !important;
+}
+
+#appShell.app.hidden-before-login{
+  display:none !important;
+}
+
+body{
+  overflow-x:hidden !important;
+}
+
+/* Refuerzo para que la columna derecha no se corte internamente. */
+#appShell .main,
+#appShell .sidebar,
+#appShell .panel,
+#appShell .subject-card,
+#appShell .hero-card{
+  min-width:0 !important;
+}
+
+#appShell .main{
+  overflow:visible !important;
+}
+
+/* La barra fija se alinea con el mismo factor de escala de la app. */
+body.identity-card-fixed #identityStickyCard{
+  transform:scale(var(--identity-fixed-scale, var(--app-global-scale))) !important;
+}
+
+/* Campos de acceso: cursor/caret siempre visible. */
+#authScreen input[type="text"],
+#authScreen input[type="password"],
+#centerSearchInput,
+#createCenterName,
+#createCenterPassword,
+#centerPassword,
+#teacherPassword,
+#registerTeacherName,
+#registerPassword,
+#registerNewClass,
+#newTeacherPassword,
+#confirmTeacherPassword{
+  caret-color:#000 !important;
+  cursor:text !important;
+  user-select:text !important;
+  -webkit-user-select:text !important;
+  transform:none !important;
+  opacity:1 !important;
+  text-shadow:none !important;
+}
+
+#authScreen input[type="text"]:focus,
+#authScreen input[type="password"]:focus,
+#centerSearchInput:focus,
+#createCenterName:focus,
+#createCenterPassword:focus,
+#centerPassword:focus,
+#teacherPassword:focus,
+#registerTeacherName:focus,
+#registerPassword:focus,
+#registerNewClass:focus,
+#newTeacherPassword:focus,
+#confirmTeacherPassword:focus{
+  caret-color:#000 !important;
+  outline:2px solid rgba(37,99,235,.34) !important;
+  outline-offset:2px !important;
+  border-color:rgba(37,99,235,.72) !important;
+  box-shadow:0 0 0 4px rgba(37,99,235,.14), 0 0 24px rgba(122,92,255,.10) !important;
+}
+
+@media (max-width:980px){
+  #authScreen.auth-screen{
+    padding:14px !important;
+  }
+  #authScreen.auth-screen:not(.hidden) .auth-wrap{
+    width:min(760px, calc(100vw - 28px)) !important;
+    max-width:760px !important;
+    zoom:.90 !important;
+  }
+}
+
+@media (max-width:700px){
+  #authScreen.auth-screen{
+    padding:10px !important;
+  }
+  #authScreen.auth-screen:not(.hidden) .auth-wrap{
+    width:calc(100vw - 20px) !important;
+    max-width:none !important;
+    zoom:.90 !important;
+  }
+}
+
+/* Móvil horizontal: conserva el ajuste de competencias sin apelotonarlas. */
+@media (max-width:950px) and (orientation:landscape),
+       (max-width:950px) and (max-height:520px){
+  #subjectsContainer .subject-card[data-subject-key="mates"] .row,
+  #subjectsContainer .subject-card[data-subject-key="castellana"] .row,
+  #subjectsContainer .subject-card[data-subject-key="valencia"] .row,
+  #subjectsContainer .subject-card[data-subject-key="medi"] .row{
+    display:grid !important;
+    grid-template-columns:repeat(12,minmax(0,1fr)) !important;
+    gap:10px !important;
+    align-items:start !important;
+  }
+
+  #subjectsContainer .subject-card[data-subject-key="mates"] .row > .c4,
+  #subjectsContainer .subject-card[data-subject-key="castellana"] .row > .c4,
+  #subjectsContainer .subject-card[data-subject-key="valencia"] .row > .c4,
+  #subjectsContainer .subject-card[data-subject-key="medi"] .row > .c4{
+    grid-column:1 / -1 !important;
+  }
+
+  #subjectsContainer .subject-card[data-subject-key="mates"] .row > .c6,
+  #subjectsContainer .subject-card[data-subject-key="castellana"] .row > .c6,
+  #subjectsContainer .subject-card[data-subject-key="valencia"] .row > .c6,
+  #subjectsContainer .subject-card[data-subject-key="medi"] .row > .c6{
+    grid-column:span 6 !important;
+    min-width:0 !important;
+    padding:10px !important;
+  }
+
+  #subjectsContainer .subject-card[data-subject-key="mates"] .checkbox-grid,
+  #subjectsContainer .subject-card[data-subject-key="castellana"] .checkbox-grid,
+  #subjectsContainer .subject-card[data-subject-key="valencia"] .checkbox-grid,
+  #subjectsContainer .subject-card[data-subject-key="medi"] .checkbox-grid{
+    grid-template-columns:1fr !important;
+    gap:7px !important;
+  }
+}
+
+@media (max-width:640px) and (orientation:landscape){
+  #subjectsContainer .subject-card[data-subject-key="mates"] .row > .c6,
+  #subjectsContainer .subject-card[data-subject-key="castellana"] .row > .c6,
+  #subjectsContainer .subject-card[data-subject-key="valencia"] .row > .c6,
+  #subjectsContainer .subject-card[data-subject-key="medi"] .row > .c6{
+    grid-column:1 / -1 !important;
+  }
+}
+</style>
+
 </head>
 <body class="preaccess-loading">
 
