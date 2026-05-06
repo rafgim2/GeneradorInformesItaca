@@ -388,7 +388,7 @@
 .app{
   transform: scale(0.90);
   transform-origin: top left;
-  width: 111.111%;
+  width: 108.7%;
 }
 
 
@@ -2178,84 +2178,75 @@ body:not(.identity-card-visible) #authScreen:not(.hidden){
 
 
 
-<style id="alfonso-final-ajustes-90-centrado-competencias">
+<style id="requested-final-adjustments-2026">
 /* ==========================================================
-   AJUSTES FINALES SOLICITADOS
-   1) Zoom visual global al 90%.
-   2) Pantalla inicial centrada: bloque de instrucciones + bloque de acceso.
-   3) Competencias en móvil horizontal: columnas respiradas y sin apelotonarse.
+   CAMBIOS PEDIDOS
+   1) Zoom global real al 90%.
+   2) Pantalla inicial: los dos bloques quedan centrados horizontalmente.
+   3) Móvil horizontal: competencias ordenadas sin columnas apelotonadas.
+   Solo CSS visual; no cambia IDs, eventos, Firebase ni lógica interna.
    ========================================================== */
 
 :root{
-  --app-zoom-final:0.90;
+  --app-global-scale:0.90;
 }
 
-/* Zoom del 90% para toda la app, manteniendo el ancho compensado para no dejar huecos. */
+/* Zoom global 90%.
+   Se mantiene el ancho compensado para que no aparezcan cortes laterales. */
 .auth-screen,
 .app{
-  transform:scale(var(--app-zoom-final)) !important;
-  transform-origin:top center !important;
-  width:calc(100% / var(--app-zoom-final)) !important;
-  max-width:none !important;
+  transform:scale(var(--app-global-scale)) !important;
+  transform-origin:top left !important;
+  width:calc(100% / var(--app-global-scale)) !important;
+  max-width:calc(var(--content-max, 1560px) / var(--app-global-scale)) !important;
 }
 
-.app{
+/* Centrado de los dos bloques iniciales de acceso/instrucciones. */
+#authScreen.auth-screen{
+  justify-content:center !important;
+  align-items:center !important;
   margin-left:auto !important;
   margin-right:auto !important;
 }
 
-/* Pantalla inicial: los dos bloques quedan realmente centrados en pantalla. */
-#authScreen.auth-screen{
-  min-height:calc(100vh / var(--app-zoom-final)) !important;
-  min-height:calc(100svh / var(--app-zoom-final)) !important;
-  display:flex !important;
-  align-items:center !important;
-  justify-content:center !important;
-  padding:18px !important;
-}
-
 #authScreen .auth-wrap{
-  width:min(1100px, calc(100vw - 36px)) !important;
-  margin:auto !important;
-  align-items:stretch !important;
+  margin-left:auto !important;
+  margin-right:auto !important;
   justify-content:center !important;
+  align-items:stretch !important;
 }
 
 #authScreen .auth-card{
-  height:auto !important;
+  min-width:0 !important;
 }
 
-#authScreen .auth-hero{
-  display:flex !important;
-  justify-content:center !important;
-}
-
-/* En pantallas pequeñas mantenemos también el zoom del 90%, anulando reglas anteriores que lo quitaban. */
+/* En pantallas pequeñas también se centra horizontalmente.
+   Con el zoom al 90%, damos un poco más de altura útil para que no quede cortado. */
 @media (max-width:900px), (pointer:coarse) and (max-width:1180px){
   .auth-screen,
   .app{
-    transform:scale(var(--app-zoom-final)) !important;
-    transform-origin:top center !important;
-    width:calc(100% / var(--app-zoom-final)) !important;
+    transform:scale(var(--app-global-scale)) !important;
+    transform-origin:top left !important;
+    width:calc(100% / var(--app-global-scale)) !important;
     max-width:none !important;
   }
 
   #authScreen.auth-screen{
-    min-height:calc(100vh / var(--app-zoom-final)) !important;
-    min-height:calc(100svh / var(--app-zoom-final)) !important;
-    align-items:center !important;
     justify-content:center !important;
-    padding:12px !important;
+    align-items:center !important;
+    min-height:calc(100svh / var(--app-global-scale)) !important;
   }
 
   #authScreen .auth-wrap{
-    width:min(1100px, calc(100vw - 24px)) !important;
-    margin:auto !important;
+    width:min(1100px, 100%) !important;
+    margin-left:auto !important;
+    margin-right:auto !important;
   }
 }
 
-/* Móvil horizontal: evita que las competencias se amontonen.
-   Cada grupo principal queda en dos columnas amplias; dentro, las casillas van a una sola columna. */
+/* Móvil horizontal: las competencias dejan de quedar en cuatro columnas estrechas.
+   Se mantienen dos bloques principales: conseguidas / no conseguidas.
+   Dentro de cada bloque, las casillas pasan a una sola columna legible. */
 @media (max-width:950px) and (orientation:landscape),
        (max-width:950px) and (max-height:520px){
 
@@ -2266,6 +2257,7 @@ body:not(.identity-card-visible) #authScreen:not(.hidden){
     display:grid !important;
     grid-template-columns:repeat(12,minmax(0,1fr)) !important;
     gap:10px !important;
+    align-items:start !important;
   }
 
   #subjectsContainer .subject-card[data-subject-key="mates"] .row > .c4,
@@ -2298,20 +2290,13 @@ body:not(.identity-card-visible) #authScreen:not(.hidden){
   #subjectsContainer .subject-card[data-subject-key="medi"] .check{
     padding:8px 9px !important;
     font-size:12.5px !important;
-    line-height:1.22 !important;
-  }
-
-  #subjectsContainer .subject-card[data-subject-key="mates"] .check span,
-  #subjectsContainer .subject-card[data-subject-key="castellana"] .check span,
-  #subjectsContainer .subject-card[data-subject-key="valencia"] .check span,
-  #subjectsContainer .subject-card[data-subject-key="medi"] .check span{
-    overflow-wrap:break-word !important;
-    word-break:normal !important;
+    line-height:1.25 !important;
   }
 }
 
-/* Horizontales muy estrechos: mejor apilar los dos grupos para que no se aplasten. */
-@media (max-width:700px) and (orientation:landscape){
+/* Si el móvil horizontal es especialmente estrecho, se apilan los dos bloques
+   para conservar lectura y evitar cualquier apelotonamiento. */
+@media (max-width:640px) and (orientation:landscape){
   #subjectsContainer .subject-card[data-subject-key="mates"] .row > .c6,
   #subjectsContainer .subject-card[data-subject-key="castellana"] .row > .c6,
   #subjectsContainer .subject-card[data-subject-key="valencia"] .row > .c6,
@@ -2320,11 +2305,12 @@ body:not(.identity-card-visible) #authScreen:not(.hidden){
   }
 }
 
-/* La barra fija de identidad usa coordenadas reales: sincronizada con el 90%. */
+/* La barra fija superior usa el mismo zoom real de la app para que quede alineada. */
 body.identity-card-fixed #identityStickyCard{
-  transform:scale(var(--identity-fixed-scale, var(--app-zoom-final))) !important;
+  transform:scale(var(--identity-fixed-scale, var(--app-global-scale))) !important;
 }
 </style>
+
 </head>
 <body class="preaccess-loading">
 
