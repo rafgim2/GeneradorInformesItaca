@@ -7208,5 +7208,89 @@ body.identity-card-fixed #identityStickyCard{
 }
 </style>
 
+
+<style id="full-width-notes-final-override">
+/* ==========================================================
+   AJUSTE FINAL: APP DE NOTAS A ANCHO COMPLETO 100%
+   ----------------------------------------------------------
+   Mantiene el tamaño normal, sin zoom ni scale, pero elimina
+   el límite máximo de anchura que dejaba la parte de notas
+   demasiado centrada/estrecha. No toca lógica, IDs ni eventos.
+   ========================================================== */
+
+html,
+body{
+  width:100% !important;
+  max-width:none !important;
+  overflow-x:hidden !important;
+}
+
+/* La pantalla de notas ocupa todo el ancho real de la ventana. */
+#appShell.app,
+.app:not(.hidden-before-login){
+  width:100vw !important;
+  max-width:none !important;
+  margin-left:0 !important;
+  margin-right:0 !important;
+  padding-left:18px !important;
+  padding-right:18px !important;
+}
+
+/* La columna derecha puede crecer todo lo necesario. */
+#appShell .main,
+.app .main{
+  width:100% !important;
+  max-width:none !important;
+  min-width:0 !important;
+}
+
+#appShell .sidebar,
+.app .sidebar{
+  min-width:0 !important;
+}
+
+@media (min-width:1101px){
+  #appShell.app,
+  .app:not(.hidden-before-login){
+    grid-template-columns:360px minmax(0,1fr) !important;
+    width:100vw !important;
+    max-width:none !important;
+  }
+}
+
+/* La pantalla inicial se mantiene centrada y no se estira a ancho completo. */
+#authScreen.auth-screen{
+  width:100vw !important;
+  max-width:none !important;
+  margin-left:0 !important;
+  margin-right:0 !important;
+}
+
+#authScreen .auth-wrap{
+  max-width:1100px !important;
+}
+
+/* En móvil/tablet conserva el comportamiento responsive de una columna. */
+@media (max-width:1100px){
+  #appShell.app,
+  .app:not(.hidden-before-login){
+    width:100% !important;
+    max-width:none !important;
+    padding-left:14px !important;
+    padding-right:14px !important;
+    margin-left:0 !important;
+    margin-right:0 !important;
+  }
+}
+
+@media (max-width:700px){
+  #appShell.app,
+  .app:not(.hidden-before-login){
+    padding-left:8px !important;
+    padding-right:8px !important;
+  }
+}
+</style>
+
 </body>
 </html>
