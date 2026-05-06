@@ -2440,6 +2440,116 @@ body.identity-card-fixed #identityStickyCard{
   }
 }
 </style>
+
+
+<style id="cursor-visible-zoom-final-fix">
+/* ==========================================================
+   FIX FINAL: cursor visible en campos de acceso + zoom 90%
+   ----------------------------------------------------------
+   El cursor parpadeante desaparecía porque la pantalla inicial
+   estaba reducida con transform: scale(). Algunos navegadores
+   renderizan mal el caret dentro de inputs que tienen un padre
+   transformado.
+
+   Solución: anulamos el transform en .auth-screen y .app y usamos
+   zoom: .90. Así se mantiene el tamaño visual al 90%, pero los
+   inputs recuperan el caret nativo. No toca IDs, eventos ni lógica.
+   ========================================================== */
+
+.auth-screen,
+.app{
+  transform:none !important;
+  transform-origin:initial !important;
+  zoom:.90 !important;
+  width:111.111111% !important;
+  max-width:none !important;
+}
+
+.auth-screen{
+  min-height:111.111111vh !important;
+  min-height:111.111111svh !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  padding:24px !important;
+}
+
+.auth-screen.hidden{
+  display:none !important;
+}
+
+.app{
+  min-height:111.111111vh !important;
+  min-height:111.111111svh !important;
+  margin:0 auto !important;
+}
+
+.auth-wrap{
+  margin-left:auto !important;
+  margin-right:auto !important;
+}
+
+/* Forzamos cursor de texto y caret visible en los campos iniciales. */
+#centerSearchInput,
+#createCenterName,
+#createCenterPassword,
+#centerPassword,
+#teacherPassword,
+#registerTeacherName,
+#registerPassword,
+#registerNewClass,
+#newTeacherPassword,
+#confirmTeacherPassword,
+.auth-screen input[type="text"],
+.auth-screen input[type="password"]{
+  caret-color:#10213f !important;
+  color:#10213f !important;
+  cursor:text !important;
+  pointer-events:auto !important;
+  user-select:text !important;
+  -webkit-user-select:text !important;
+  opacity:1 !important;
+  text-shadow:none !important;
+  transform:none !important;
+}
+
+#centerSearchInput:focus,
+#createCenterName:focus,
+#createCenterPassword:focus,
+#centerPassword:focus,
+#teacherPassword:focus,
+#registerTeacherName:focus,
+#registerPassword:focus,
+#registerNewClass:focus,
+#newTeacherPassword:focus,
+#confirmTeacherPassword:focus,
+.auth-screen input[type="text"]:focus,
+.auth-screen input[type="password"]:focus{
+  caret-color:#000 !important;
+  outline:2px solid rgba(37,99,235,.30) !important;
+  outline-offset:2px !important;
+  border-color:rgba(37,99,235,.65) !important;
+  box-shadow:0 0 0 4px rgba(37,99,235,.14), 0 0 24px rgba(122,92,255,.10) !important;
+}
+
+/* En móvil mantenemos el mismo principio: nada de transform en los padres de inputs. */
+@media (max-width:950px), (pointer:coarse){
+  .auth-screen,
+  .app{
+    transform:none !important;
+    zoom:.90 !important;
+    width:111.111111% !important;
+    max-width:none !important;
+  }
+
+  .auth-screen{
+    min-height:111.111111svh !important;
+    justify-content:center !important;
+    align-items:center !important;
+  }
+}
+</style>
+
 </head>
 <body class="preaccess-loading">
 
@@ -5511,100 +5621,114 @@ syncEnterCenterVisibility();
 </style>
 
 
-<style id="input-caret-visible-auth-final-fix">
+<style id="cursor-visible-zoom-final-fix">
 /* ==========================================================
-   FIX CURSOR / CARET EN CAMPOS DE ACCESO
+   FIX FINAL: cursor visible en campos de acceso + zoom 90%
    ----------------------------------------------------------
-   En algunos navegadores el cursor parpadeante de los inputs puede
-   desaparecer cuando un padre tiene transform: scale(). La pantalla
-   inicial mantiene el tamaño reducido usando zoom en el contenedor,
-   no transform, y se fuerza el color del caret en los campos de texto.
-   No cambia IDs, eventos, Firebase ni lógica de la app.
+   El cursor parpadeante desaparecía porque la pantalla inicial
+   estaba reducida con transform: scale(). Algunos navegadores
+   renderizan mal el caret dentro de inputs que tienen un padre
+   transformado.
+
+   Solución: anulamos el transform en .auth-screen y .app y usamos
+   zoom: .90. Así se mantiene el tamaño visual al 90%, pero los
+   inputs recuperan el caret nativo. No toca IDs, eventos ni lógica.
    ========================================================== */
 
-#authScreen.auth-screen.hidden,
-#authScreen.hidden{
-  display:none !important;
-  visibility:hidden !important;
-  pointer-events:none !important;
-}
-
-#authScreen.auth-screen:not(.hidden){
+.auth-screen,
+.app{
   transform:none !important;
-  transform-origin:center center !important;
-  width:100vw !important;
+  transform-origin:initial !important;
+  zoom:.90 !important;
+  width:111.111111% !important;
   max-width:none !important;
-  min-height:100vh !important;
-  min-height:100svh !important;
-  margin:0 !important;
-  padding:24px !important;
-  display:flex !important;
-  justify-content:center !important;
-  align-items:center !important;
 }
 
-#authScreen.auth-screen:not(.hidden) .auth-wrap{
-  transform:none !important;
-  transform-origin:center center !important;
-  zoom:var(--app-global-scale, .90);
-  width:min(1100px, calc((100vw - 48px) / var(--app-global-scale, .90))) !important;
-  max-width:1100px !important;
+.auth-screen{
+  min-height:111.111111vh !important;
+  min-height:111.111111svh !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  padding:24px !important;
+}
+
+.auth-screen.hidden{
+  display:none !important;
+}
+
+.app{
+  min-height:111.111111vh !important;
+  min-height:111.111111svh !important;
+  margin:0 auto !important;
+}
+
+.auth-wrap{
   margin-left:auto !important;
   margin-right:auto !important;
-  justify-self:center !important;
-  align-self:center !important;
 }
 
-#authScreen.auth-screen:not(.hidden) .auth-card{
-  width:100% !important;
-  min-width:0 !important;
-}
-
-#authScreen input[type="text"],
-#authScreen input[type="password"],
+/* Forzamos cursor de texto y caret visible en los campos iniciales. */
 #centerSearchInput,
-#centerPassword,
 #createCenterName,
-#createCenterPassword{
+#createCenterPassword,
+#centerPassword,
+#teacherPassword,
+#registerTeacherName,
+#registerPassword,
+#registerNewClass,
+#newTeacherPassword,
+#confirmTeacherPassword,
+.auth-screen input[type="text"],
+.auth-screen input[type="password"]{
   caret-color:#10213f !important;
+  color:#10213f !important;
   cursor:text !important;
-  -webkit-user-select:text !important;
+  pointer-events:auto !important;
   user-select:text !important;
-  -webkit-tap-highlight-color:rgba(37,99,235,.18) !important;
+  -webkit-user-select:text !important;
+  opacity:1 !important;
+  text-shadow:none !important;
+  transform:none !important;
 }
 
-#authScreen input[type="text"]:focus,
-#authScreen input[type="password"]:focus,
 #centerSearchInput:focus,
-#centerPassword:focus,
 #createCenterName:focus,
-#createCenterPassword:focus{
-  caret-color:#10213f !important;
-  outline:none !important;
-  border-color:rgba(53,120,245,.62) !important;
-  box-shadow:0 0 0 4px rgba(57,127,246,.16), 0 0 24px rgba(122,92,255,.12) !important;
+#createCenterPassword:focus,
+#centerPassword:focus,
+#teacherPassword:focus,
+#registerTeacherName:focus,
+#registerPassword:focus,
+#registerNewClass:focus,
+#newTeacherPassword:focus,
+#confirmTeacherPassword:focus,
+.auth-screen input[type="text"]:focus,
+.auth-screen input[type="password"]:focus{
+  caret-color:#000 !important;
+  outline:2px solid rgba(37,99,235,.30) !important;
+  outline-offset:2px !important;
+  border-color:rgba(37,99,235,.65) !important;
+  box-shadow:0 0 0 4px rgba(37,99,235,.14), 0 0 24px rgba(122,92,255,.10) !important;
 }
 
-@media (max-width:980px){
-  #authScreen.auth-screen:not(.hidden){
-    padding:14px !important;
-  }
-  #authScreen.auth-screen:not(.hidden) .auth-wrap{
-    width:min(760px, calc((100vw - 28px) / var(--app-global-scale, .90))) !important;
-    max-width:760px !important;
-  }
-}
-
-@media (max-width:700px){
-  #authScreen.auth-screen:not(.hidden){
-    padding:10px !important;
-  }
-  #authScreen.auth-screen:not(.hidden) .auth-wrap{
-    width:calc((100vw - 20px) / var(--app-global-scale, .90)) !important;
+/* En móvil mantenemos el mismo principio: nada de transform en los padres de inputs. */
+@media (max-width:950px), (pointer:coarse){
+  .auth-screen,
+  .app{
+    transform:none !important;
+    zoom:.90 !important;
+    width:111.111111% !important;
     max-width:none !important;
+  }
+
+  .auth-screen{
+    min-height:111.111111svh !important;
+    justify-content:center !important;
+    align-items:center !important;
   }
 }
 </style>
+
 </head>
 <body>${contentHtml}</body>
 </html>`);
